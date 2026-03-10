@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Backgrounds */
+        --color-background: #E5E7EB;
+        --color-surface: #FFFFFF;
+        --color-border-input: #94A3B8;
+
+        /* Brand Colors */
+        --color-primary: #4F46E5;
+        --color-primary-muted: #E0E7FF;
+
+        /* Typography */
+        --color-text: #000000;
+        --color-text-muted: #64748B;
+
+        /* Borders & Dividers */
+        --color-border: #E2E8F0;
+
+        /* Semantic Colors  */
+        --color-alert: #EF4444;      /* Roșu pentru "Hero Alert" / Vreme severă */
+        --color-success: #10B981;    /* Verde pentru "Trust Score" sau skill-uri verificate */
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            /* Backgrounds */
+            --color-background: #0F172A; /* Un dark-mode premium, nuanță de cer de noapte, nu negru absolut */
+            --color-surface: #1E293B;    /* Cardurile vor fi puțin mai deschise pentru a ieși în evidență */
+
+            /* Brand Colors */
+            --color-primary: #6366F1;    /* Indigo-ul e un pic mai luminos aici ca să contrasteze pe fundal închis */
+            --color-primary-muted: #312E81;
+
+            /* Typography */
+            --color-text: #F8FAFC;       /* Alb murdar, să nu obosească ochii pe fundal negru */
+            --color-text-muted: #94A3B8;
+
+            /* Borders & Dividers */
+            --color-border: #334155;
+
+            /* Semantic Colors */
+            --color-alert: #F87171;      /* Nuanțele de roșu/verde sunt ajustate să fie vizibile pe dark mode */
+            --color-success: #34D399;
+        }
+    }
+}
