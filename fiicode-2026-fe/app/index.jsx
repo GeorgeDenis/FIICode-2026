@@ -7,6 +7,8 @@ import ThemeToggle from '../components/ThemeToggle';
 import { User } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useUser } from '../hooks/useUser';
+import MapView from 'react-native-maps';
+import MapScreen from '../components/MapScreen';
 
 export default function Home() {
   const { user } = useUser();
@@ -25,12 +27,13 @@ export default function Home() {
     <SafeAreaView className="flex-1 bg-background">
       <View className="w-full flex-row items-center justify-end gap-2 px-6">
         <ThemeToggle />
-        <Link href={user ? "/profile" : "/login"} asChild>
+        <Link href={user ? '/profile' : '/login'} asChild>
           <Pressable className="rounded-full border-2 border-primary p-2 active:opacity-50">
             <User color={iconColor} size={20} />
           </Pressable>
         </Link>
       </View>
+      <MapScreen />
     </SafeAreaView>
   );
 }
