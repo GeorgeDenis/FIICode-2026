@@ -3,11 +3,11 @@ import { Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as SecureStore from 'expo-secure-store';
 
-let API_URL = 'http://192.168.1.136:8000/api/v1';
+let API_URL = 'http://192.168.1.114:8000/api/v1';
 
 if (Platform.OS === 'android') {
   if (Device.isDevice) {
-    API_URL = 'http://192.168.1.136:8000/api/v1';
+    API_URL = 'http://192.168.1.114:8000/api/v1';
   } else {
     API_URL = 'http://10.0.2.2:8000/api/v1';
   }
