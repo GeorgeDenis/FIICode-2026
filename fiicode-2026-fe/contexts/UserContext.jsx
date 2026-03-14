@@ -1,7 +1,8 @@
 import { createContext, useEffect, useState } from 'react';
 import api from '../services/api';
-import { errorToast, successToast } from '../utils/toast';
+import { successToast } from '../utils/toast';
 import * as SecureStore from 'expo-secure-store';
+import { jwtDecode } from 'jwt-decode';
 
 export const UserContext = createContext();
 
@@ -31,9 +32,10 @@ export function UserProvider({ children }) {
     async function checkToken() {
       try {
         const token = await SecureStore.getItemAsync('userToken');
-
+        const decoded = jwtDecode(token);
+        const user_id = decoded.id;
         if (token) {
-          setUser({ token: token });
+          setUser({ token: token, user_id });
         }
       } catch (error) {
         console.log('Error reading token:', error);
@@ -48,9 +50,12 @@ export function UserProvider({ children }) {
   async function login(email, password) {
     try {
       const response = await api.post('/auth/login', { email, password });
-      const token = response.data.data.token;
+      const token = response.data.token;
+
       await SecureStore.setItemAsync('userToken', token);
-      setUser({ token: token });
+      const decoded = jwtDecode(token);
+      const user_id = decoded.id;
+      setUser({ token: token, user_id });
       successToast('Login successful');
     } catch (error) {
       const backendMessage = error.response?.data?.error?.message;

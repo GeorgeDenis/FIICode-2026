@@ -31,7 +31,7 @@ const Profile = () => {
   const fetchUserData = async () => {
     try {
       const response = await api.get('/auth/account');
-      const { first_name, last_name, email } = response.data.data;
+      const { first_name, last_name, email } = response.data;
       setCurrentUser({ firstName: first_name, lastName: last_name, email });
     } catch (error) {
       if (error.response && error.response.status === 403) {

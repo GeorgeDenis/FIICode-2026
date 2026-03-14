@@ -7,8 +7,6 @@ import ThemeToggle from '../components/ThemeToggle';
 import { User } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useUser } from '../hooks/useUser';
-import MapView from 'react-native-maps';
-import MapScreen from '../components/MapScreen';
 
 export default function Home() {
   const { user } = useUser();
@@ -33,7 +31,6 @@ export default function Home() {
           </Pressable>
         </Link>
       </View>
-      <MapScreen />
     </SafeAreaView>
   );
 }

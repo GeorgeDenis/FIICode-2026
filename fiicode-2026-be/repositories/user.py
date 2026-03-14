@@ -1,9 +1,9 @@
 import datetime
-import math
+from uuid import UUID
 
 from passlib.context import CryptContext
-from pydantic import SecretStr
-from sqlalchemy.orm import Session, load_only
+from sqlalchemy import or_
+from sqlalchemy.orm import Session
 
 from models.user import User
 from schemas.auth import CreateUserSchema
@@ -11,44 +11,55 @@ from schemas.auth import CreateUserSchema
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
-def find_user_by_email(email: str, db: Session) -> User | None:
-    return db.query(User).filter(User.email == email).first()
+class UserRepository:
+    def get_all_users(self, db: Session):
+        return db.query(User).all()
 
+    def get_users_by_query(self, query: str, db: Session):
+        search_term = f"%{query}%"
 
-def create_user(user: CreateUserSchema, db: Session) -> User:
-    created_user = User(first_name=user.first_name,
-                        last_name=user.last_name,
-                        email=user.email,
-                        password=bcrypt_context.hash(user.password.get_secret_value()),
-                        role=0,
-                        created_at=datetime.datetime.now(datetime.UTC),
-                        updated_at=datetime.datetime.now(datetime.UTC))
-    saved_user = save_user(created_user, db)
-    return saved_user
+        return db.query(User).filter(
+            or_(
+                User.first_name.ilike(search_term),
+                User.last_name.ilike(search_term),
+            )
+        ).all()
 
+    def find_user_by_email(self, email: str, db: Session) -> User | None:
+        return db.query(User).filter(User.email == email).first()
 
-def delete_user_from_db(user: User, db: Session):
-    return delete_user(user, db)
+    def find_user_by_id(self, user_id: UUID, db: Session) -> User | None:
+        return db.query(User).filter(User.id == user_id).first()
 
+    def create_user(self, user: CreateUserSchema, db: Session) -> User:
+        created_user = User(first_name=user.first_name,
+                            last_name=user.last_name,
+                            email=user.email,
+                            password=bcrypt_context.hash(user.password.get_secret_value()),
+                            role=0,
+                            created_at=datetime.datetime.now(datetime.UTC),
+                            updated_at=datetime.datetime.now(datetime.UTC))
+        saved_user = self.save_user(created_user, db)
+        return saved_user
 
-def authenticate_user(current_password: str, actual_password: str):
-    return bcrypt_context.verify(current_password, actual_password)
+    def delete_user_from_db(self, user: User, db: Session):
+        return self.delete_user(user, db)
 
+    def authenticate_user(self, current_password: str, actual_password: str):
+        return bcrypt_context.verify(current_password, actual_password)
 
-def update_account_db(user: User, db: Session) -> User:
-    user.updated_at = datetime.datetime.now(datetime.UTC)
-    saved_user = save_user(user, db)
-    return saved_user
+    def update_account_db(self, user: User, db: Session) -> User:
+        user.updated_at = datetime.datetime.now(datetime.UTC)
+        saved_user = self.save_user(user, db)
+        return saved_user
 
+    def save_user(self, user: User, db: Session):
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
 
-def save_user(user: User, db: Session):
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
-
-
-def delete_user(user: User, db: Session):
-    db.delete(user)
-    db.commit()
-    return True
+    def delete_user(self, user: User, db: Session):
+        db.delete(user)
+        db.commit()
+        return True

@@ -1,13 +1,14 @@
 import uuid
 
-from sqlalchemy import Integer, Column, String, DateTime
+from sqlalchemy import Integer, Column, String, DateTime, Float, func
 from sqlalchemy.dialects.postgresql.base import UUID
+from sqlalchemy.orm import relationship
 
 from database import Base
 
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     id = Column(UUID, primary_key=True, index=True, default=uuid.uuid4)
     first_name = Column(String)
@@ -16,5 +17,12 @@ class User(Base):
     password = Column(String)
     role = Column(Integer)
     phone_number = Column(String)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
+
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    pulses = relationship("Pulse", back_populates="author", cascade="all, delete-orphan")
+    messages = relationship("Message", back_populates="author", cascade="all, delete-orphan")

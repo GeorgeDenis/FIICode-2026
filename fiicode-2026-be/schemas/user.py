@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class UserOut(BaseModel):
+class UserResponseSchema(BaseModel):
     id: UUID
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -22,4 +22,4 @@ class UserOut(BaseModel):
 class UpdateUserAccount(BaseModel):
     first_name: str
     last_name: str
-    phone_number: str
+    # phone_number: str
