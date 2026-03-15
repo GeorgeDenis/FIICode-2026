@@ -53,6 +53,9 @@ class UserRepository:
         saved_user = self.save_user(user, db)
         return saved_user
 
+    def get_users_by_ids(self, user_ids: list[str], db: Session):
+        return db.query(User).filter(User.id.in_(user_ids)).all()
+
     def save_user(self, user: User, db: Session):
         db.add(user)
         db.commit()

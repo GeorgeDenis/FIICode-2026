@@ -1,18 +1,16 @@
-from uuid import UUID
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
 
+import models.message as message_model
+import models.pulse as pulse_model
+import models.user as user_model
+from connection_manager.chat_manager import chat_manager
+from connection_manager.feed_manager import feed_manager
 from database import engine
 from exceptions.handlers import register_exception_handlers
 from routers.auth import auth_router
 from routers.chat import chat_router
 from routers.pulse import pulse_router
-import models.user as user_model
-import models.pulse as pulse_model
-import models.message as message_model
-from connection_manager.feed_manager import feed_manager
-from connection_manager.chat_manager import chat_manager
 from routers.user import user_router
 
 app = FastAPI()

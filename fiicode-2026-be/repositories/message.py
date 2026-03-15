@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 
+from exceptions.exceptions import AppException
 from models.message import Message, ConversationMember, Conversation
-from schemas.message import MessageCreateSchema
+from schemas.message import MessageCreateSchema, ConversationCreateSchema, AddUserInGroupSchema
 
 
 class ChatRepository:
@@ -21,21 +22,8 @@ class ChatRepository:
         db.refresh(conversation)
         return conversation
 
-    def get_conversation(self, db: Session, sender_id: str, receiver_id: str):
-        sender_conversations = db.query(ConversationMember.conversation_id).filter(
-            ConversationMember.user_id == sender_id
-        ).subquery()
-
-        receiver_conversations = db.query(ConversationMember.conversation_id).filter(
-            ConversationMember.user_id == receiver_id
-        ).subquery()
-
-        conversation = db.query(Conversation).filter(
-            Conversation.id.in_(sender_conversations),
-            Conversation.id.in_(receiver_conversations),
-            Conversation.is_group == False
-        ).first()
-
+    def get_conversation_by_id(self, db: Session, conversation_id: str):
+        conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
         return conversation
 
     def get_conversation_by_user_id(self, db: Session, user_id: str):
@@ -44,6 +32,21 @@ class ChatRepository:
         ).all()
 
         return conversations
+
+    def get_conversation_data_by_receiver_id(self, db: Session, sender_id: str, receiver_id: str):
+        sender_conversations = db.query(ConversationMember.conversation_id).filter(
+            ConversationMember.user_id == sender_id)
+        receiver_conversations = db.query(ConversationMember.conversation_id).filter(
+            ConversationMember.user_id == receiver_id)
+
+        common_conv_ids = sender_conversations.intersect(receiver_conversations)
+
+        conversation = db.query(Conversation).filter(
+            Conversation.id.in_(common_conv_ids),
+            Conversation.is_group == False
+        ).first()
+
+        return conversation
 
     def get_messages_by_conversation_id(self, db: Session, conversation_id: str):
         conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
@@ -58,3 +61,34 @@ class ChatRepository:
             "messages": messages_list,
             "members": members_list
         }
+
+    def create_group_conversation(self, request: ConversationCreateSchema, sender_id: str, db: Session):
+        new_conversation = Conversation(
+            name=request.name,
+            is_group=request.is_group,
+            is_private=request.is_private,
+        )
+
+        db.add(new_conversation)
+        db.commit()
+        db.refresh(new_conversation)
+
+        db.add(ConversationMember(conversation_id=new_conversation.id, user_id=sender_id))
+        db.commit()
+        db.flush()
+        return new_conversation
+
+    def add_user_in_group_conversation(self, request: AddUserInGroupSchema, db: Session):
+        conversation = self.get_conversation_by_id(db, request.conversation_id)
+        if not conversation:
+            raise AppException("Conversation not found", 404)
+
+        conversation_member = ConversationMember(
+            conversation_id=conversation.id,
+            user_id=request.user_id
+        )
+        db.add(conversation_member)
+        db.commit()
+        db.refresh(conversation_member)
+
+        return conversation

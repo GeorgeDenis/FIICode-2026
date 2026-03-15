@@ -31,7 +31,8 @@ const ChatComponent = ({ item }) => {
     router.push({
       pathname: '/messaging',
       params: {
-        id: item.id,
+        conversationId: item.id,
+        isGroup: item.is_group,
         name: buildName(),
       },
     });
@@ -45,18 +46,18 @@ const ChatComponent = ({ item }) => {
 
   return (
     <Pressable
-      className="height-[80px] mb-2.5 flex w-full flex-row items-center rounded-md bg-[#94A3B8] px-4"
+      className="h-[80px] mb-2.5 flex w-[95%] flex-row items-center rounded-xl bg-primary px-4"
       onPress={handleNavigation}>
       <Ionicons className="mr-4" name="person-circle-outline" size={45} color="black" />
       <View className="flex flex-1 flex-row justify-between">
         <View>
-          <Text className="mb-1.5 text-base font-bold">{buildName()}</Text>
-          <Text className="text-[14px] opacity-70">
+          <Text className="mb-1.5 text-[16px] font-bold text-white">{buildName()}</Text>
+          <Text className="text-[14px] opacity-70 text-white">
             {messages?.text ? messages.text : 'Tap to start chatting'}
           </Text>
         </View>
         <View>
-          <Text className="opacity-50">{formatMessageDateTime(messages?.created_at)} </Text>
+          <Text className="opacity-50 text-white text-[14px]">{formatMessageDateTime(messages?.created_at)} </Text>
         </View>
       </View>
     </Pressable>

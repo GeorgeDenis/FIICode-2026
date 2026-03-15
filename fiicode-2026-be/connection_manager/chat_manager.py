@@ -11,6 +11,7 @@ class ChatConnectionManager:
     async def connect(self, websocket: WebSocket, user_id: str | UUID):
         await websocket.accept()
         self.active_connections[str(user_id)] = websocket
+        print(f"Connected {self.active_connections}")
 
     def disconnect(self, user_id: str | UUID):
         user_id_str = str(user_id)

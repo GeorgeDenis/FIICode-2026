@@ -27,11 +27,23 @@ const ProfileDetails = () => {
     handleFetchUser();
   }, [id]);
 
-  const handleNavigation = () => {
+  const handleNavigation = async () => {
+    let conversationId = null;
+    let isGroup = false;
+    try {
+      const response = await api.get(`/chat/conversations/${user.id}`);
+      if (response.data.id) {
+        conversationId = response.data.id;
+        isGroup = response.data.is_group;
+      }
+    } catch (error) {}
+
     router.push({
       pathname: '/messaging',
       params: {
-        id: user.id,
+        conversationId,
+        isGroup,
+        receiverId: user.id,
         name: user.first_name + ' ' + user.last_name,
       },
     });

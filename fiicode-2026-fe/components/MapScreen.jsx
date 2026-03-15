@@ -16,7 +16,6 @@ export default function MapScreen() {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      console.log(location);
       setRegion({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,

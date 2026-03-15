@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import ChatComponent from '../../components/ChatComponent';
 import CreateGroupModal from '../../components/CreateGroupModal';
 import api from '../../services/api';
 import { errorToast } from '../../utils/toast';
+import { useFocusEffect } from 'expo-router';
 
 const Chat = () => {
   const [visible, setVisible] = useState(false);
@@ -19,9 +20,12 @@ const Chat = () => {
     }
   };
 
-  useEffect(() => {
-    handleFetchConversations();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      setVisible(false);
+      handleFetchConversations();
+    }, [])
+  );
 
   return (
     <View className="flex-1 bg-background">
@@ -30,14 +34,15 @@ const Chat = () => {
           <Text className="text-2xl font-bold">Chats</Text>
 
           <Pressable onPress={() => setVisible(true)}>
-            <Feather name="edit" size={24} color="green" />
+            <Feather name="edit" size={24} color="indigo" />
           </Pressable>
         </View>
       </View>
-      <View className="px-2.5">
+      <View className="w-full flex-1">
         {rooms.length > 0 ? (
           <FlatList
             data={rooms}
+            contentContainerStyle={{ alignItems: 'center' }}
             renderItem={({ item }) => <ChatComponent item={item} />}
             keyExtractor={(item) => item.id}
           />
@@ -48,7 +53,14 @@ const Chat = () => {
           </View>
         )}
       </View>
-      {visible ? <CreateGroupModal setVisible={setVisible} /> : ''}
+      {visible ? (
+        <CreateGroupModal
+          setVisible={setVisible}
+          handleFetchConversations={handleFetchConversations}
+        />
+      ) : (
+        ''
+      )}
     </View>
   );
 };

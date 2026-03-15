@@ -49,3 +49,7 @@ class UserService:
         updated_user = user_repository.update_account_db(user, db)
 
         return updated_user
+
+    def get_users_by_ids(self, user_ids: list[str], db: Session):
+        users = user_repository.get_users_by_ids(user_ids, db)
+        return users

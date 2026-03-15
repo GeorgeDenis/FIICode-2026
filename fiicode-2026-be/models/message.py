@@ -29,6 +29,8 @@ class Conversation(Base):
     is_group = Column(Boolean, default=False)
     name = Column(String, nullable=True)
 
+    is_private = Column(Boolean, default=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")

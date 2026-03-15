@@ -21,8 +21,8 @@
         --color-border: #E2E8F0;
 
         /* Semantic Colors  */
-        --color-alert: #EF4444;      /* Roșu pentru "Hero Alert" / Vreme severă */
-        --color-success: #10B981;    /* Verde pentru "Trust Score" sau skill-uri verificate */
+        --color-alert: #EF4444;
+        --color-success: #10B981;
     }
 
     @media (prefers-color-scheme: dark) {

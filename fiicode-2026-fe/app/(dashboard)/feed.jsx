@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { FlatList, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
-import api from '../../services/api';
+import api, { IP_CONFIG } from '../../services/api';
 import AnimatedPulse from '../../components/AnimatedPulse';
 
 const Feed = () => {
@@ -18,7 +18,7 @@ const Feed = () => {
     useCallback(() => {
       handleFetchPulses();
 
-      const wsUrl = 'ws://192.168.1.114:8000/ws/feed';
+      const wsUrl = `ws://${IP_CONFIG}:8000/ws/feed`;
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {

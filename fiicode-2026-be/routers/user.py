@@ -21,7 +21,7 @@ def get_all_users(db: db_dependency, user_data=Depends(get_current_user)):
     return user_service.get_all_users(db)
 
 
-@user_router.get("/search/", response_model=List, status_code=200)
+@user_router.get("/search/", response_model=List[UserResponseSchema], status_code=200)
 def get_users_by_query(query: str, db: db_dependency, user_data=Depends(get_current_user)):
     return user_service.get_users_by_query(query, db)
 
