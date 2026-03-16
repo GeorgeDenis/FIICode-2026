@@ -115,7 +115,7 @@ export default function DashboardLayout() {
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 size={20}
-                name={focused ? 'alert-circle' : 'alert-circle-outline'}
+                name={focused ? 'pulse' : 'pulse-outline'}
                 color={focused ? theme.iconColorFocused : theme.iconColor}
               />
             ),

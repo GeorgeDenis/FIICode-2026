@@ -1,8 +1,8 @@
 import { Text, TextInput } from 'react-native';
 import React, { useState } from 'react';
-import api from '../services/api';
-import { errorToast } from '../utils/toast';
-import BasicModal from './BasicModal';
+import api from '../../services/api';
+import { errorToast } from '../../utils/toast';
+import BasicModal from '../BasicModal';
 
 const CreateGroupModal = ({ setVisible, handleFetchConversations }) => {
   const [groupName, setGroupName] = useState('');

@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, Text, TextInput, useColorScheme, View } from 'react-native';
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import MessageComponent from '../components/MessageComponent';
+import MessageComponent from '../components/chat/MessageComponent';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/Colors';
 import api, { IP_CONFIG } from '../services/api';
 import { errorToast } from '../utils/toast';
 import { useUser } from '../hooks/useUser';
-import AddInGroupModal from '../components/AddInGroupModal';
-import UsersInGroupModal from '../components/UsersInGroupModal';
+import AddInGroupModal from '../components/chat/AddInGroupModal';
+import UsersInGroupModal from '../components/chat/UsersInGroupModal';
 
 const Messaging = () => {
   const { receiverId, conversationId, name, isGroup } = useLocalSearchParams();
@@ -16,6 +16,7 @@ const Messaging = () => {
   const [isUserListModalVisibile, setIsUserListModalVisibile] = useState(false);
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
+  const backgroundColor = colorScheme === 'dark' ? '#0F172A' : '#E5E7EB';
   const router = useRouter();
 
   const [chatMessages, setChatMessages] = useState([]);
@@ -30,6 +31,7 @@ const Messaging = () => {
     useCallback(() => {
       handleFetchMessages();
       const wsUrl = `ws://${IP_CONFIG}:8000/ws/chat/${user.user_id}`;
+      console.log("Connecting to WebSocket at:", wsUrl);
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
@@ -43,6 +45,7 @@ const Messaging = () => {
           if (alreadyExists) {
             return prevMessages;
           }
+          console.log('Received message', newMessage);
           return [...prevMessages, newMessage];
         });
       };
@@ -102,12 +105,13 @@ const Messaging = () => {
   };
 
   return (
-    <View className="flex-1">
+    <View className="flex-1 bg-background">
       <Stack.Screen
         options={{
           title: name || 'Chat',
           headerBackTitleVisible: false,
           headerTitleAlign: 'center',
+          backgroundColor: backgroundColor,
           headerLeft: () => (
             <Pressable
               className="flex h-10 w-10 items-center justify-center rounded-full active:opacity-50"
@@ -154,7 +158,7 @@ const Messaging = () => {
         )}
       </View>
 
-      <View className="flex min-h-[100px] w-full flex-row justify-center bg-white px-3.5 py-7 text-black">
+      <View className="flex min-h-[100px] w-full flex-row justify-center bg-background px-3.5 py-7 text-black">
         <TextInput
           className="mr-2.5 flex-1 rounded-2xl border p-3.5"
           placeholder="Type your message..."

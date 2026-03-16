@@ -11,7 +11,10 @@ class UserService:
     def get_all_users(self, db: Session):
         return user_repository.get_all_users(db)
 
-    def get_users_by_query(self, query: str, db: Session):
+    def get_users_by_query_by_name(self, query: str, db: Session):
+        return user_repository.get_users_by_query(query, db)
+
+    def get_users_by_query_full(self, query: str, db: Session):
         return user_repository.get_users_by_query(query, db)
 
     def find_user_by_id(self, user_id, db: Session):

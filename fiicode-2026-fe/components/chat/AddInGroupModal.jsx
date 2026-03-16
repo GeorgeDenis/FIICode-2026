@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
-import BasicModal from './BasicModal';
-import { errorToast, successToast } from '../utils/toast';
-import api from '../services/api';
+import BasicModal from '../BasicModal';
+import { errorToast, successToast } from '../../utils/toast';
+import api from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
 
 const AddInGroupModal = ({ conversationId, setVisible }) => {

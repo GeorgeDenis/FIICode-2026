@@ -15,7 +15,7 @@ class UserRepository:
     def get_all_users(self, db: Session):
         return db.query(User).all()
 
-    def get_users_by_query(self, query: str, db: Session):
+    def  get_users_by_query(self, query: str, db: Session):
         search_term = f"%{query}%"
 
         return db.query(User).filter(

@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import ChatComponent from '../../components/ChatComponent';
-import CreateGroupModal from '../../components/CreateGroupModal';
+import ChatComponent from '../../components/chat/ChatComponent';
+import CreateGroupModal from '../../components/chat/CreateGroupModal';
 import api from '../../services/api';
 import { errorToast } from '../../utils/toast';
 import { useFocusEffect } from 'expo-router';
@@ -31,7 +31,7 @@ const Chat = () => {
     <View className="flex-1 bg-background">
       <View className="elevation-sm mb-4 h-[70px] w-full justify-center p-5">
         <View className="flex flex-row items-center justify-between">
-          <Text className="text-2xl font-bold">Chats</Text>
+          <Text className="text-2xl font-bold text-text-main">Chats</Text>
 
           <Pressable onPress={() => setVisible(true)}>
             <Feather name="edit" size={24} color="indigo" />

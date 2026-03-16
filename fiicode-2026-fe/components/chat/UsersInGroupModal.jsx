@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
-import api from '../services/api';
+import api from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
 
 const UsersInGroupModal = ({ conversationId, setVisible }) => {
@@ -40,7 +40,7 @@ const UsersInGroupModal = ({ conversationId, setVisible }) => {
           data={usersList}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View className="bg-surface  mb-3 flex flex-row items-center gap-2 rounded-xl  p-2 shadow-sm">
+            <View className="mb-3 flex flex-row items-center gap-2 rounded-xl  p-2 shadow-sm">
               <View className="h-12 w-12 items-center justify-center rounded-full bg-primary shadow-sm">
                 <Text className="text-xl font-bold text-white">
                   {`${item.first_name?.charAt(0) || ''}${item.last_name?.charAt(0) || ''}`.toUpperCase() ||

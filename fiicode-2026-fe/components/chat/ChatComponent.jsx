@@ -1,14 +1,18 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import api from '../services/api';
-import { errorToast } from '../utils/toast';
-import { useUser } from '../hooks/useUser';
-import { formatMessageDateTime } from '../utils/utils_functions';
+import api from '../../services/api';
+import { errorToast } from '../../utils/toast';
+import { useUser } from '../../hooks/useUser';
+import { formatMessageDateTime } from '../../utils/utils_functions';
+import { useColorScheme } from 'nativewind';
+import ProfilePicture from '../../assets/img/profile-picture.png';
 
 const ChatComponent = ({ item }) => {
   const { user } = useUser();
+  const { colorScheme } = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#F8FAFC' : '#0F172A';
   const [messages, setMessages] = useState({});
   const [members, setMembers] = useState([]);
   const router = useRouter();
@@ -46,18 +50,24 @@ const ChatComponent = ({ item }) => {
 
   return (
     <Pressable
-      className="h-[80px] mb-2.5 flex w-[95%] flex-row items-center rounded-xl bg-primary px-4"
+      className="mb-2.5 flex h-[80px] w-[95%] flex-row items-center rounded-xl bg-surface px-4"
       onPress={handleNavigation}>
-      <Ionicons className="mr-4" name="person-circle-outline" size={45} color="black" />
+      {ProfilePicture ? (
+        <Image source={ProfilePicture} className="h-20 w-20" />
+      ) : (
+        <Ionicons className="mr-4" name="person-circle-outline" size={45} color={iconColor} />
+      )}
       <View className="flex flex-1 flex-row justify-between">
         <View>
-          <Text className="mb-1.5 text-[16px] font-bold text-white">{buildName()}</Text>
-          <Text className="text-[14px] opacity-70 text-white">
+          <Text className="mb-1.5 text-[16px] font-bold text-text-main">{buildName()}</Text>
+          <Text className="text-[14px] text-text-main">
             {messages?.text ? messages.text : 'Tap to start chatting'}
           </Text>
         </View>
         <View>
-          <Text className="opacity-50 text-white text-[14px]">{formatMessageDateTime(messages?.created_at)} </Text>
+          <Text className="text-[14px] text-text-main">
+            {formatMessageDateTime(messages?.created_at)}{' '}
+          </Text>
         </View>
       </View>
     </Pressable>

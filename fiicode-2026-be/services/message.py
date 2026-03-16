@@ -37,7 +37,6 @@ class ChatService:
 
         members = db.query(ConversationMember.user_id).filter(
             ConversationMember.conversation_id == conversation.id,
-            ConversationMember.user_id != sender_id
         ).all()
 
         receiver_ids = [str(member.user_id) for member in members]
@@ -82,7 +81,7 @@ class ChatService:
 
         member_ids = [str(member.user_id) for member in conversation.members]
 
-        users = user_service.get_users_by_query(query, db)
+        users = user_service.get_users_by_query_by_name(query, db)
         users_not_in_group = [user for user in users if str(user.id) not in member_ids]
 
         return users_not_in_group
