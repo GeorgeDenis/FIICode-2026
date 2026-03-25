@@ -7,7 +7,6 @@ import { errorToast } from '../../utils/toast';
 import { useUser } from '../../hooks/useUser';
 import { formatMessageDateTime } from '../../utils/utils_functions';
 import { useColorScheme } from 'nativewind';
-import ProfilePicture from '../../assets/img/profile-picture.png';
 
 const ChatComponent = ({ item }) => {
   const { user } = useUser();
@@ -48,12 +47,20 @@ const ChatComponent = ({ item }) => {
     return otherMember ? otherMember.first_name + ' ' + otherMember.last_name : 'Chat';
   };
 
+  const buildImage = () => {
+    if (item.is_group) return null;
+    const otherMember = members.find((member) => member.id !== user.id);
+    return otherMember && otherMember.image ? { uri: otherMember.image } : null;
+  }
+
+  const imageSource = buildImage();
+
   return (
     <Pressable
-      className="mb-2.5 flex h-[80px] w-[95%] flex-row items-center rounded-xl bg-surface px-4"
+      className="mb-2.5 flex h-[80px] w-[95%] flex-row items-center rounded-xl bg-surface px-4 gap-2"
       onPress={handleNavigation}>
-      {ProfilePicture ? (
-        <Image source={ProfilePicture} className="h-20 w-20" />
+      {imageSource ? (
+        <Image source={imageSource} className="h-16 w-16 rounded-full" />
       ) : (
         <Ionicons className="mr-4" name="person-circle-outline" size={45} color={iconColor} />
       )}

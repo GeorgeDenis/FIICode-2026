@@ -9,6 +9,7 @@ export default function MessageComponent({ item, user }) {
   const status = item.author_id !== user.user_id;
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? '#F8FAFC' : '#0F172A';
+
   return (
     <View>
       <View className={`mb-4 flex w-full flex-col  ${status ? 'items-start' : 'items-end'} `}>

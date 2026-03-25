@@ -40,6 +40,7 @@
         --color-text-main: #111827; /* Numele userului, text principal */
         --color-text-muted: #6B7280; /* Preview-ul ultimului mesaj din listă */
         --color-text-tiny: #9CA3AF; /* Ora la care a fost trimis ultimul mesaj (în listă) */
+        --color-text-inverted: #F9FAFB; /* Text principal alb strălucitor */
 
         /* =========================================
            5. SEMANTIC & STATUS
@@ -110,6 +111,7 @@
             --color-text-main: #F9FAFB; /* Text principal alb strălucitor */
             --color-text-muted: #9CA3AF; /* Text secundar gri (Preview-ul mesajului) */
             --color-text-tiny: #6B7280; /* Text mic (Ora la care a fost trimis) */
+            --color-text-inverted: #111827; /* Numele userului, text principal */
 
             /* =========================================
                5. SEMANTIC & STATUS

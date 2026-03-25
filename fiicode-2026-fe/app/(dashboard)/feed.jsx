@@ -2,16 +2,23 @@ import React, { useCallback, useState } from 'react';
 import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import api, { IP_CONFIG } from '../../services/api';
-import AnimatedPulse from '../../components/AnimatedPulse';
+import AnimatedPulse from '../../components/feed/AnimatedPulse';
 import { Ionicons } from '@expo/vector-icons';
 import BasicModal from '../../components/BasicModal';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useUser } from '../../hooks/useUser';
 import { errorToast } from '../../utils/toast';
+import FeedFilterPopup from '../../components/feed/FeedFilterPopup';
 
 const Feed = () => {
   const { user } = useUser();
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [pulses, setPulses] = useState([]);
+  const [activeFilters, setActiveFilters] = useState({
+    type: null,
+    urgencyLevel: null,
+    sortBy: 'DATE (NEWEST)',
+  });
   const [isAddPulseModalVisible, setIsAddPulseModalVisible] = useState(false);
   const [newPulseContent, setNewPulseContent] = useState({
     authorId: null,
@@ -23,6 +30,21 @@ const Feed = () => {
     status: '',
   });
 
+  const [typeOpen, setTypeOpen] = useState(false);
+  const [typeValue, setTypeValue] = useState(null);
+  const [typeItems, setTypeItems] = useState([
+    { label: 'Emergency', value: 'Emergency' },
+    { label: 'Skill', value: 'Skill' },
+    { label: 'Item', value: 'Item' },
+  ]);
+  const [urgencyOpen, setUrgencyOpen] = useState(false);
+  const [urgencyValue, setUrgencyValue] = useState(null);
+  const [urgencyItems, setUrgencyItems] = useState([
+    { label: 'Low', value: 'Low' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'High', value: 'High' },
+  ]);
+
   const handleFetchPulses = async () => {
     try {
       const response = await api.get('/pulse');
@@ -31,7 +53,6 @@ const Feed = () => {
   };
 
   const handleAddPulse = async () => {
-    console.log('api post data');
     try {
       const response = await api.post('/pulse', {
         author_id: user.user_id,
@@ -41,7 +62,7 @@ const Feed = () => {
         latitude: 43.65107,
         longitude: -79.347015,
       });
-      if(response.status === 201) {
+      if (response.status === 201) {
         setIsAddPulseModalVisible(false);
         clearInputFields();
       }
@@ -97,23 +118,40 @@ const Feed = () => {
   );
   const renderPulse = ({ item }) => <AnimatedPulse item={item} />;
 
-  const [typeOpen, setTypeOpen] = useState(false);
-  const [typeValue, setTypeValue] = useState(null);
-  const [typeItems, setTypeItems] = useState([
-    { label: 'Emergency', value: 'Emergency' },
-    { label: 'Skill', value: 'Skill' },
-    { label: 'Item', value: 'Item' },
-  ]);
-  const [urgencyOpen, setUrgencyOpen] = useState(false);
-  const [urgencyValue, setUrgencyValue] = useState(null);
-  const [urgencyItems, setUrgencyItems] = useState([
-    { label: 'Low', value: 'Low' },
-    { label: 'Medium', value: 'Medium' },
-    { label: 'High', value: 'High' },
-  ]);
+  const handleApplyFilters = (filters) => {
+    setActiveFilters(filters);
+  };
+
+  const filteredPulses = pulses
+    .filter((pulse) => {
+      const matchesType = activeFilters.type ? pulse.type === activeFilters.type : true;
+      const matchesUrgency = activeFilters.urgency
+        ? pulse.urgency_level === activeFilters.urgency
+        : true;
+      return matchesType && matchesUrgency;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      if (activeFilters.sortBy === 'OLDEST') {
+        return dateA - dateB;
+      }
+      return dateB - dateA;
+    });
 
   return (
     <View className="flex-1 bg-background p-4">
+      <Pressable
+        onPress={() => setIsFilterVisible(true)}
+        className="m-2 items-center self-end rounded-xl bg-primary p-2">
+        <Ionicons name="filter" size={20} color="#ffffff" />
+      </Pressable>
+
+      <FeedFilterPopup
+        visible={isFilterVisible}
+        onClose={() => setIsFilterVisible(false)}
+        onApply={handleApplyFilters}
+      />
       <Pressable
         className="absolute  bottom-0 right-5 z-10 mb-4 justify-center self-end rounded-full bg-primary p-3"
         onPress={() => setIsAddPulseModalVisible(!isAddPulseModalVisible)}>
@@ -121,7 +159,7 @@ const Feed = () => {
       </Pressable>
 
       <FlatList
-        data={pulses}
+        data={filteredPulses}
         keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
         renderItem={renderPulse}
         ListEmptyComponent={

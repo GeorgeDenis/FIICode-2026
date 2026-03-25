@@ -37,3 +37,13 @@ class Pulse(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     author = relationship("User", back_populates="pulses")
+
+class PulseComment(Base):
+    __tablename__ = 'pulse_comments'
+    id = Column(UUID, primary_key=True, index=True, default=uuid.uuid4)
+    author_id = Column(UUID, ForeignKey("users.id"))
+    pulse_id = Column(UUID, ForeignKey("pulses.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    content = Column(String)
+
+    author = relationship("User", back_populates="pulse_comments")

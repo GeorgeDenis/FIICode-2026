@@ -18,22 +18,26 @@ import { Ionicons } from '@expo/vector-icons';
 import ProfileDataCard from '../../components/profile/ProfileDataCard';
 import BasicModal from '../../components/BasicModal';
 
-import ProfilePicture from '../../assets/img/profile-picture.png';
-
 const Profile = () => {
   const { logout, user } = useUser();
   const [currentUser, setCurrentUser] = useState({
     firstName: '',
     lastName: '',
     email: '',
+    profileImageUrl: null,
   });
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   const fetchUserData = async () => {
     try {
       const response = await api.get('/auth/account');
-      const { first_name, last_name, email } = response.data;
-      setCurrentUser({ firstName: first_name, lastName: last_name, email });
+      const { first_name, last_name, email, image } = response.data;
+      setCurrentUser({
+        firstName: first_name,
+        lastName: last_name,
+        email,
+        profileImageUrl: image,
+      });
     } catch (error) {
       if (error.response && error.response.status === 403) {
         return;
@@ -74,9 +78,9 @@ const Profile = () => {
       showsVerticalScrollIndicator={false}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="mt-2 flex-1 items-center bg-indigo-500 pt-4">
-          <View className="absolute left-5 top-20 z-10 mb-4 h-24 w-24 items-center justify-center rounded-full bg-white shadow-sm">
-            {ProfilePicture ? (
-              <Image source={ProfilePicture} className="h-20 w-20" />
+          <View className="absolute left-5 top-20 z-10 mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary shadow-sm">
+            {currentUser.profileImageUrl ? (
+              <Image source={{ uri: currentUser.profileImageUrl }} className="h-full w-full rounded-full" />
             ) : (
               <Text className="text-3xl font-bold text-white">{initials || '?'}</Text>
             )}
@@ -88,11 +92,11 @@ const Profile = () => {
                   <Ionicons name="settings" size={20} color="#ffffff" />
                 </Pressable>
               </Link>
-              <Link href="/profile-options/profile-settings" asChild>
-                <Pressable className="flex flex-row items-center justify-center gap-2 rounded-xl bg-yellow-500 p-4 shadow-sm">
-                  <Ionicons name="exit" size={20} color="#ffffff" />
-                </Pressable>
-              </Link>
+              <Pressable
+                className="flex flex-row items-center justify-center gap-2 rounded-xl bg-yellow-500 p-4 shadow-sm"
+                onPress={logout}>
+                <Ionicons name="exit" size={20} color="#ffffff" />
+              </Pressable>
             </View>
           </View>
           <View className="mt-10 w-full flex-1 items-center rounded-t-3xl bg-gray-200 p-5">

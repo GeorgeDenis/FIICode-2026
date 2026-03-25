@@ -35,7 +35,7 @@ export function UserProvider({ children }) {
         const decoded = jwtDecode(token);
         const user_id = decoded.id;
         if (token) {
-          setUser({ token: token, user_id });
+          setUser({ token: token, user_id, });
         }
       } catch (error) {
         console.log('Error reading token:', error);

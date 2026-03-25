@@ -1,8 +1,9 @@
+import base64
 import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 
 
 class MessageCreateSchema(BaseModel):
@@ -27,9 +28,17 @@ class MemberSimpleSchema(BaseModel):
     id: UUID
     first_name: str
     last_name: str
+    image: Optional[bytes] = None
 
     class Config:
         from_attributes = True
+
+    @field_serializer('image', when_used='always')
+    def serialize_image(self, image: bytes, _info):
+        if image is None:
+            return None
+        base64_encoded = base64.b64encode(image).decode('utf-8')
+        return f"data:image/jpeg;base64,{base64_encoded}"
 
 
 class ConversationDetailResponseSchema(BaseModel):

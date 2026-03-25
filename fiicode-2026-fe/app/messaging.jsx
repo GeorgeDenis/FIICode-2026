@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, Text, TextInput, useColorScheme, View } from 'react-native';
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  useColorScheme,
+  View,
+} from 'react-native';
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import MessageComponent from '../components/chat/MessageComponent';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,7 +40,7 @@ const Messaging = () => {
     useCallback(() => {
       handleFetchMessages();
       const wsUrl = `ws://${IP_CONFIG}:8000/ws/chat/${user.user_id}`;
-      console.log("Connecting to WebSocket at:", wsUrl);
+      console.log('Connecting to WebSocket at:', wsUrl);
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
@@ -105,87 +114,92 @@ const Messaging = () => {
   };
 
   return (
-    <View className="flex-1 bg-background">
-      <Stack.Screen
-        options={{
-          title: name || 'Chat',
-          headerBackTitleVisible: false,
-          headerTitleAlign: 'center',
-          backgroundColor: backgroundColor,
-          headerLeft: () => (
-            <Pressable
-              className="flex h-10 w-10 items-center justify-center rounded-full active:opacity-50"
-              onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={20} color={theme.iconColor} />
-            </Pressable>
-          ),
-          headerRight: () =>
-            isGroup === 'true' || isGroup === true ? (
-              <View className="flex flex-row items-center">
-                <Pressable
-                  disabled={isUserListModalVisibile || isAddUserModalVisibile}
-                  className="mr-4 flex h-10 w-10 items-center justify-center rounded-full border active:opacity-50"
-                  onPress={() => setIsUserListModalVisibile(true)}>
-                  <Ionicons name="people" size={20} color={theme.iconColor} />
-                </Pressable>
+    <KeyboardAvoidingView
+      className="flex-1 bg-background"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+      <View className="flex-1 bg-background">
+        <Stack.Screen
+          options={{
+            title: name || 'Chat',
+            headerBackTitleVisible: false,
+            headerTitleAlign: 'center',
+            backgroundColor: backgroundColor,
+            headerLeft: () => (
+              <Pressable
+                className="flex h-10 w-10 items-center justify-center rounded-full active:opacity-50"
+                onPress={() => router.back()}>
+                <Ionicons name="chevron-back" size={20} color={theme.iconColor} />
+              </Pressable>
+            ),
+            headerRight: () =>
+              isGroup === 'true' || isGroup === true ? (
+                <View className="flex flex-row items-center">
+                  <Pressable
+                    disabled={isUserListModalVisibile || isAddUserModalVisibile}
+                    className="mr-4 flex h-10 w-10 items-center justify-center rounded-full border active:opacity-50"
+                    onPress={() => setIsUserListModalVisibile(true)}>
+                    <Ionicons name="people" size={20} color={theme.iconColor} />
+                  </Pressable>
 
-                <Pressable
-                  disabled={isUserListModalVisibile || isAddUserModalVisibile}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border active:opacity-50"
-                  onPress={() => setIsAddUserModalVisibile(true)}>
-                  <Ionicons name="person-add" size={20} color={theme.iconColor} />
-                </Pressable>
-              </View>
-            ) : null,
-        }}
-      />
-      <View className="flex-1 px-2.5 py-3.5">
-        {chatMessages.length > 0 ? (
-          <FlatList
-            ref={flatListRef}
-            data={chatMessages}
-            renderItem={({ item }) => <MessageComponent item={item} user={user} />}
-            keyExtractor={(item) => item.id}
-            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-            onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                  <Pressable
+                    disabled={isUserListModalVisibile || isAddUserModalVisibile}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border active:opacity-50"
+                    onPress={() => setIsAddUserModalVisibile(true)}>
+                    <Ionicons name="person-add" size={20} color={theme.iconColor} />
+                  </Pressable>
+                </View>
+              ) : null,
+          }}
+        />
+        <View className="flex-1 px-2.5 py-3.5">
+          {chatMessages.length > 0 ? (
+            <FlatList
+              ref={flatListRef}
+              data={chatMessages}
+              renderItem={({ item }) => <MessageComponent item={item} user={user} />}
+              keyExtractor={(item) => item.id}
+              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+              onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            />
+          ) : (
+            <View className="my-auto flex flex-col items-center  justify-center rounded-xl">
+              <Ionicons name="chatbubble-ellipses-outline" size={30} color={theme.iconColor} />
+              <Text className="font-bold">No messages yet.</Text>
+              <Text className="text-gray-600">Start the conversation by sending a message!</Text>
+            </View>
+          )}
+        </View>
+
+        <View className="flex min-h-[100px] w-full flex-row justify-center bg-background px-3.5 py-7 text-black">
+          <TextInput
+            className="mr-2.5 flex-1 rounded-2xl border p-3.5"
+            placeholder="Type your message..."
+            placeholderTextColor="#6b7280"
+            value={message}
+            onChangeText={setMessage}
+          />
+          <Pressable
+            className="flex w-[30%] flex-row items-center justify-center rounded-sm rounded-b-3xl bg-btn-primary active:bg-btn-primary-active"
+            onPress={handleSendMessage}>
+            <Ionicons name="send" size={20} color="#ffffff" />
+          </Pressable>
+        </View>
+        {isGroup && isAddUserModalVisibile ? (
+          <AddInGroupModal conversationId={conversationId} setVisible={setIsAddUserModalVisibile} />
+        ) : (
+          ''
+        )}
+        {isGroup && isUserListModalVisibile ? (
+          <UsersInGroupModal
+            conversationId={conversationId}
+            setVisible={setIsUserListModalVisibile}
           />
         ) : (
-          <View className="my-auto flex flex-col items-center  justify-center rounded-xl">
-            <Ionicons name="chatbubble-ellipses-outline" size={30} color={theme.iconColor} />
-            <Text className="font-bold">No messages yet.</Text>
-            <Text className="text-gray-600">Start the conversation by sending a message!</Text>
-          </View>
+          ''
         )}
       </View>
-
-      <View className="flex min-h-[100px] w-full flex-row justify-center bg-background px-3.5 py-7 text-black">
-        <TextInput
-          className="mr-2.5 flex-1 rounded-2xl border p-3.5"
-          placeholder="Type your message..."
-          placeholderTextColor="#6b7280"
-          value={message}
-          onChangeText={setMessage}
-        />
-        <Pressable
-          className="flex w-[30%] flex-row items-center justify-center rounded-sm rounded-b-3xl bg-purple-500 active:bg-purple-600"
-          onPress={handleSendMessage}>
-          <Text className="text-xl font-bold text-white">SEND</Text>
-        </Pressable>
-      </View>
-      {isGroup && isAddUserModalVisibile ? (
-        <AddInGroupModal conversationId={conversationId} setVisible={setIsAddUserModalVisibile} />
-      ) : (
-        ''
-      )}
-      {isGroup && isUserListModalVisibile ? (
-        <UsersInGroupModal
-          conversationId={conversationId}
-          setVisible={setIsUserListModalVisibile}
-        />
-      ) : (
-        ''
-      )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

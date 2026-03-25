@@ -7,6 +7,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import { User } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useUser } from '../hooks/useUser';
+import NotificationBell from '../components/NotificationBell';
 
 export default function Home() {
   const { user } = useUser();
@@ -30,6 +31,7 @@ export default function Home() {
             <User color={iconColor} size={20} />
           </Pressable>
         </Link>
+        <NotificationBell />
       </View>
     </SafeAreaView>
   );

@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
+  Image,
   Keyboard,
   Pressable,
   Text,
@@ -13,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
 import { Check } from 'lucide-react-native';
 import api from '../../services/api';
+import * as ImagePicker from 'expo-image-picker';
 import { errorToast, successToast } from '../../utils/toast';
 
 const ProfileSettings = () => {
@@ -20,6 +22,7 @@ const ProfileSettings = () => {
     firstName: '',
     lastName: '',
     email: '',
+    profileImageUrl: null,
   });
   const router = useRouter();
   const colorScheme = useColorScheme();
@@ -29,8 +32,13 @@ const ProfileSettings = () => {
   const fetchUserData = async () => {
     try {
       const response = await api.get('/auth/account');
-      const { first_name, last_name, email } = response.data;
-      setUser({ firstName: first_name, lastName: last_name, email });
+      const { first_name, last_name, email, image } = response.data;
+      setUser({
+        firstName: first_name,
+        lastName: last_name,
+        email,
+        profileImageUrl: image,
+      });
     } catch (error) {
       if (error.response && error.response.status === 403) {
         return;
@@ -71,7 +79,39 @@ const ProfileSettings = () => {
 
   const initials =
     `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
+  const handlePickAndUploadImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled) {
+      const imageAsset = result.assets[0];
 
+      setUser({ ...user, profileImageUrl: imageAsset.uri });
+
+      const formData = new FormData();
+
+      formData.append('image', {
+        uri: imageAsset.uri,
+        name: 'profile_picture.jpg',
+        type: 'image/jpeg',
+      });
+
+      try {
+        await api.put('/auth/update-image', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        successToast('Profile picture updated!');
+      } catch (error) {
+        errorToast('Failed to upload image');
+        console.error(error);
+      }
+    }
+  };
   return (
     <View className="flex-1 bg-background">
       <Stack.Screen
@@ -88,9 +128,18 @@ const ProfileSettings = () => {
       />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="mt-5 flex flex-col items-center gap-5 px-5">
-          <View className="mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary shadow-sm">
-            <Text className="text-3xl font-bold text-white">{initials || '?'}</Text>
-          </View>
+          <Pressable
+            onPress={handlePickAndUploadImage}
+            className="relative mb-4 h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-primary shadow-sm active:opacity-70">
+            {user.profileImageUrl ? (
+              <Image source={{ uri: user.profileImageUrl }} className="h-full w-full" />
+            ) : (
+              <Text className="text-3xl font-bold text-white">{initials || '?'}</Text>
+            )}
+            <View className="absolute bottom-0 w-full items-center bg-black/40 py-1">
+              <Ionicons name="camera" size={12} color="#ffffff" />
+            </View>
+          </Pressable>
           <View className="flex flex-col items-start gap-2">
             <Text className="text-text-muted">First name</Text>
             <View className="flex flex-row items-center justify-between rounded-3xl border-2 border-primary bg-surface px-3 py-1">

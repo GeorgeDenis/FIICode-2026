@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
-import { Link, Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Image, Pressable, Text, View } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import UserOnly from '../../components/auth/UserOnly';
 import api from '../../services/api';
 import { errorToast } from '../../utils/toast';
@@ -16,7 +16,6 @@ const ProfileDetails = () => {
     try {
       const response = await api.get('/user/by-id/' + id);
       setUser(response.data);
-      console.log(response.data);
     } catch (error) {
       if (error.response && error.response.status === 403) {
         return;
@@ -74,7 +73,11 @@ const ProfileDetails = () => {
 
         <View className="mt-12 w-full flex-1 items-center bg-background pt-4">
           <View className="absolute left-5 top-4 z-10 mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary shadow-sm">
-            <Text className="text-3xl font-bold text-white">{initials || '?'}</Text>
+            {user?.image ? (
+              <Image source={{ uri: user?.image }} className="h-full w-full rounded-full" />
+            ) : (
+              <Text className="text-3xl font-bold text-white">{initials || '?'}</Text>
+            )}
           </View>
           <View className="mt-14 w-full flex-1 items-center rounded-t-3xl bg-gray-200 p-2">
             <View className="mt-10 flex w-full flex-row items-center justify-between">

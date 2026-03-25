@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, UploadFile, File
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from typing import Annotated
@@ -9,7 +9,6 @@ from schemas.auth import UserLoginSchema, CreateUserSchema, UserLoginOut
 from schemas.user import UpdateUserAccount, UserResponseSchema
 from services.auth import AuthService
 from services.user import UserService
-from utils.responses import ok
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
@@ -30,18 +29,18 @@ def register_account(user: CreateUserSchema, db: db_dependency):
     return response
 
 
-@auth_router.get("/account", status_code=200)
+@auth_router.get("/account", response_model=UserResponseSchema, status_code=200)
 def get_account_info(db: db_dependency, user_data=Depends(get_current_user)):
     response = user_service.get_account_info(user_data["email"], db)
 
-    return UserResponseSchema.model_validate(response).model_dump()
+    return response
 
 
-@auth_router.get("/account/{user_id}", status_code=200)
+@auth_router.get("/account/{user_id}", response_model=UserResponseSchema, status_code=200)
 def get_other_account_info(user_id: str, db: db_dependency, user_data=Depends(get_current_user)):
     response = user_service.get_other_account_info(user_id, db)
 
-    return UserResponseSchema.model_validate(response).model_dump()
+    return response
 
 
 @auth_router.delete("", status_code=204)
@@ -55,3 +54,10 @@ def update_account(updated_user: UpdateUserAccount, db: db_dependency, user_data
     response = user_service.update_account(updated_user, user_data["email"], db)
 
     return UserResponseSchema.model_validate(response).model_dump()
+
+
+@auth_router.put("/update-image", response_model=UserResponseSchema, status_code=status.HTTP_200_OK)
+async def update_image_endpoint(db: db_dependency, user_data=Depends(get_current_user), image: UploadFile = File(None)):
+    response = await user_service.update_user_image(image, user_data["email"], db)
+
+    return response

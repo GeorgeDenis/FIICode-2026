@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -14,7 +14,11 @@ const UserSearchCard = ({ user }) => {
       <View className="mb-3 flex flex-row items-center justify-between rounded-xl bg-surface  p-4 shadow-sm">
         <View className="flex flex-row items-center gap-5">
           <View className="h-12 w-12 items-center justify-center rounded-full bg-primary">
-            <Text className="text-xl font-bold text-white">{initials || '?'}</Text>
+            {user.image ? (
+              <Image source={{ uri: user.image }} className="h-full w-full rounded-full" />
+            ) : (
+              <Text className="text-3xl font-bold text-white">{initials || '?'}</Text>
+            )}
           </View>
           <View className="flex items-start gap-2">
             <Text className="font-bold text-text-main">

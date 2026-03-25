@@ -49,6 +49,7 @@ module.exports = {
           main: 'var(--color-text-main)',
           muted: 'var(--color-text-muted)', // text-text-muted
           tiny: 'var(--color-text-tiny)', // text-text-tiny
+          inverted: 'var(--color-text-inverted)', // text-text-inverted
         },
 
         primary: {

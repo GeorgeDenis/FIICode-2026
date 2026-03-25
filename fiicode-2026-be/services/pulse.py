@@ -21,6 +21,9 @@ class PulseService:
     def get_all_pulses(self, db: Session):
         return pulse_repository.get_all_pulses(db)
 
+    def get_pulse_by_id(self, db: Session, pulse_id: int):
+        return pulse_repository.get_pulse_by_id(db, pulse_id)
+
     def get_nearby_pulses(self, db: Session, user_lat: float, user_lon: float, radius: float):
         distance_expr = (
                 6371 * func.acos(
@@ -37,3 +40,9 @@ class PulseService:
         )
 
         return nearby_pulses
+
+    def add_pulse_comment(self, request, db: Session):
+        return pulse_repository.add_pulse_comment(request, db)
+
+    def get_pulse_comments_by_pulse(self, pulse_id: str, db: Session):
+        return pulse_repository.get_pulse_comments_by_pulse(pulse_id, db)
