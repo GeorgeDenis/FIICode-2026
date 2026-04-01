@@ -56,11 +56,17 @@ class UserService:
 
         user.first_name = updated_user.first_name
         user.last_name = updated_user.last_name
+        user.description = updated_user.description
+        user.skills = updated_user.skills
+        user.distance_limit_km = updated_user.distance_limit_km
+        user.quiet_hours_start = updated_user.quiet_hours_start
+        user.quiet_hours_end = updated_user.quiet_hours_end
+
         updated_user = user_repository.update_account_db(user, db)
 
         return updated_user
 
-    async def update_user_image(self,image: UploadFile, email: str, db: Session):
+    async def update_user_image(self, image: UploadFile, email: str, db: Session):
         user = self.find_user_by_email(email, db)
         if image:
             image_data = await image.read()

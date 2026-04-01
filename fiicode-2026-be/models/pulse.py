@@ -1,7 +1,7 @@
 import enum
 import uuid
 
-from sqlalchemy import Column, String, DateTime, Float, Enum, ForeignKey, func
+from sqlalchemy import Column, String, DateTime, Float, Enum, ForeignKey, func, Boolean
 from sqlalchemy.dialects.postgresql.base import UUID
 from sqlalchemy.orm import relationship
 
@@ -35,8 +35,10 @@ class Pulse(Base):
 
     status = Column(String, default="Active")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     author = relationship("User", back_populates="pulses")
+
 
 class PulseComment(Base):
     __tablename__ = 'pulse_comments'
@@ -47,3 +49,11 @@ class PulseComment(Base):
     content = Column(String)
 
     author = relationship("User", back_populates="pulse_comments")
+
+class PulseReaction(Base):
+    __tablename__ = "pulse_reactions"
+
+    user_id = Column(UUID, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    pulse_id = Column(UUID, ForeignKey("pulses.id", ondelete="CASCADE"), primary_key=True)
+
+    is_like = Column(Boolean, nullable=False)

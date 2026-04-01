@@ -27,6 +27,17 @@ def get_all_notifications(db: db_dependency, user_data=Depends(get_current_user)
     return notification_service.get_all_notifications(db)
 
 
+@notification_router.get("/by-recipient", response_model=List[NotificationResponseSchema], status_code=200)
+def get_all_notifications(db: db_dependency, user_data=Depends(get_current_user)):
+    return notification_service.get_all_notifications_by_recepient(db, user_data['id'])
+
+
 @notification_router.get("/unread-count", response_model=NotificationUnreadCountResponseSchema, status_code=200)
 def get_unread_count_by_user_id(db: db_dependency, user_data=Depends(get_current_user)):
     return notification_service.get_unread_count_by_user_id(db, user_data['id'])
+
+
+@notification_router.patch("/mark-as-read/{notification_id}", response_model=NotificationResponseSchema,
+                           status_code=200)
+def mark_notification_as_read(notification_id: str, db: db_dependency, user_data=Depends(get_current_user)):
+    return notification_service.mark_notification_as_read(db, notification_id, user_data['id'])

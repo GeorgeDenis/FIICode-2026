@@ -1,32 +1,15 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, Image, Pressable, Text, View } from 'react-native';
-import {
-  formatMessageDateTime,
-} from '../../utils/utils_functions';
+import React from 'react';
+import { Image, Pressable, Text, View } from 'react-native';
+import { formatMessageDateTime } from '../../utils/utils_functions';
 import { Ionicons } from '@expo/vector-icons';
 import ProfilePicture from '../../assets/img/profile-picture.png';
 import { useRouter } from 'expo-router';
 
-const AnimatedPulse = ({ item }) => {
-  const router = useRouter();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const translateYAnim = useRef(new Animated.Value(20)).current;
+import Animated, { FadeInUp, LinearTransition } from 'react-native-reanimated';
+import ReactionBar from './ReactionBar';
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.spring(translateYAnim, {
-        toValue: 0,
-        friction: 6,
-        tension: 40,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+const AnimatedPulse = ({ item, openEditPulseModal }) => {
+  const router = useRouter();
 
   const handleNavigation = () => {
     router.push({
@@ -34,7 +17,7 @@ const AnimatedPulse = ({ item }) => {
     });
   };
 
-   const getBorderColorByType = (item) => {
+  const getBorderColorByType = (item) => {
     switch (item.type) {
       case 'Emergency':
         return 'border-red-500';
@@ -47,7 +30,7 @@ const AnimatedPulse = ({ item }) => {
     }
   };
 
-   const getTypeBadgeColor = (item) => {
+  const getTypeBadgeColor = (item) => {
     switch (item.type) {
       case 'Emergency':
         return 'bg-red-500';
@@ -60,7 +43,7 @@ const AnimatedPulse = ({ item }) => {
     }
   };
 
-   const getIconName = (item) => {
+  const getIconName = (item) => {
     switch (item.type) {
       case 'Emergency':
         return 'flame-outline';
@@ -73,48 +56,59 @@ const AnimatedPulse = ({ item }) => {
     }
   };
 
-
   return (
     <Animated.View
-      style={{
-        opacity: fadeAnim,
-        transform: [{ translateY: translateYAnim }],
-      }}
-      className={`mb-3 rounded-xl border ${getBorderColorByType(item)} shadow-sm`}>
-      <View className="mb-2 flex-1 flex-col">
+      entering={FadeInUp.duration(400).springify()}
+      layout={LinearTransition.springify()}
+      className={`mb-4 rounded-xl border ${getBorderColorByType(item)} bg-surface shadow-sm`}>
+      <View className="mb-2 flex-col">
         <View
           className={`flex flex-row items-center gap-2 ${getTypeBadgeColor(item)} justify-between rounded-xl rounded-b-none p-4`}>
           <View className="flex flex-row items-center gap-2">
             <Ionicons name={getIconName(item)} size={24} color="#ffffff" />
-            <Text className="text-md font-semibold text-text-main">{item.type}</Text>
+            <Text className="text-md font-semibold text-white">{item.type}</Text>
           </View>
-          <Text className="text-text-reverted text-sm font-semibold">
-            {item.urgency_level.toUpperCase()}
-          </Text>
+          <Text className="text-sm font-bold text-white">Status: {item.status}</Text>
+          <Text className="text-sm font-bold text-white">{item.urgency_level.toUpperCase()}</Text>
         </View>
-        <View className={`flex flex-row items-center justify-between gap-2 rounded-xl px-4 py-2`}>
+
+        <View className="flex flex-row items-center justify-between gap-2 rounded-xl px-4 py-2">
           <View className="flex flex-row items-center gap-2">
             <Image source={ProfilePicture} className="mb-2 h-10 w-10" />
-            <Text className="font-bold text-text-main">{item.author || 'Anonym'}</Text>
+            <Text className="font-bold text-text-main">
+              {item.author ? `${item.author.first_name} ${item.author.last_name}` : 'Anonym'}
+            </Text>
           </View>
-          <Text className="text-sm font-semibold text-text-muted">
-            {formatMessageDateTime(item.created_at)}
-          </Text>
+          <Pressable
+            onPress={() => openEditPulseModal(item)}
+            className={`${getTypeBadgeColor(item)} rounded-xl p-2`}>
+            <Ionicons name={'pencil-outline'} size={20} color="white" />
+          </Pressable>
         </View>
 
         <View className="flex flex-row items-center px-4 py-2">
           <Text className="text-base text-text-main">{item.content}</Text>
         </View>
-        <View className="flex flex-row gap-5  border-t px-4 py-2">
-          <View className="flex flex-row  items-center gap-1">
-            <Ionicons name="chatbubble-ellipses-outline" color="green" size={24} />
-            <Pressable onPress={handleNavigation}>
-              <Text className="text-sm font-semibold text-black">Comments</Text>
-            </Pressable>
-          </View>
-          <View className="flex flex-row  items-center gap-1">
-            <Ionicons name="heart-outline" color="red" size={24} />
-            <Text className="text-sm font-semibold text-black">51</Text>
+
+        <View className="flex flex-row justify-center gap-3 border-t border-gray-100 px-3 pb-1 pt-3">
+          <Pressable
+            onPress={handleNavigation}
+            className="flex flex-row items-center gap-1 active:opacity-50">
+            <Ionicons name="chatbubble-ellipses-outline" color="#10b981" size={20} />
+            <Text className="text-sm font-semibold text-text-main">Comments</Text>
+          </Pressable>
+          <ReactionBar
+            pulseId={item.id}
+            initialLikes={item.likes_count}
+            initialDislikes={item.dislikes_count}
+          />
+          <View className="flex flex-col items-start gap-1">
+            <Text className="text-xs font-semibold text-text-muted">
+              Created: {formatMessageDateTime(item.created_at)}
+            </Text>
+            <Text className="text-xs font-semibold text-text-muted">
+              Updated: {formatMessageDateTime(item.updated_at)}
+            </Text>
           </View>
         </View>
       </View>

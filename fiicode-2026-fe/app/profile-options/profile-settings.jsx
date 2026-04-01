@@ -3,6 +3,7 @@ import {
   Image,
   Keyboard,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   TouchableWithoutFeedback,
@@ -22,23 +23,61 @@ const ProfileSettings = () => {
     firstName: '',
     lastName: '',
     email: '',
+    description: '',
     profileImageUrl: null,
+    skills: null,
+    distanceLimitKm: null,
+    quietHoursStart: null,
+    quietHoursEnd: null,
   });
+  const [selectedSkills, setSelectedSkills] = useState(user?.skills || []);
   const router = useRouter();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
   const iconColor = colorScheme === 'dark' ? '#94A3B8' : '#64748B';
 
+  const AVAILABLE_SKILLS = [
+    { id: 'PHYSICAL_HELP', label: 'Physical Help' },
+    { id: 'MEDICAL', label: 'Medical Help/First aid' },
+    { id: 'TOOLS', label: 'Tools and Equipment' },
+    { id: 'TRANSPORT', label: 'Transport / Evacuation' },
+    { id: 'PET_RESCUE', label: 'Pet Rescue' },
+  ];
+
+  const toggleSkill = (skillId) => {
+    if (selectedSkills.includes(skillId)) {
+      setSelectedSkills((prev) => prev.filter((item) => item !== skillId));
+    } else {
+      setSelectedSkills((prev) => [...prev, skillId]);
+    }
+  };
+
   const fetchUserData = async () => {
     try {
       const response = await api.get('/auth/account');
-      const { first_name, last_name, email, image } = response.data;
+      const {
+        first_name,
+        last_name,
+        email,
+        description,
+        image,
+        skills,
+        distance_limit_km,
+        quiet_hours_start,
+        quiet_hours_end,
+      } = response.data;
       setUser({
         firstName: first_name,
         lastName: last_name,
+        description,
         email,
         profileImageUrl: image,
+        skills,
+        distanceLimitKm: distance_limit_km,
+        quietHoursStart: quiet_hours_start,
+        quietHoursEnd: quiet_hours_end,
       });
+      setSelectedSkills([...skills]);
     } catch (error) {
       if (error.response && error.response.status === 403) {
         return;
@@ -55,13 +94,18 @@ const ProfileSettings = () => {
 
   const handleEditProfile = async () => {
     if (!user.firstName || !user.lastName) {
-      errorToast('First name and last name cannot be empty.');
+      errorToast('First name, last name cannot be empty.');
       return;
     }
     try {
       await api.put('/auth', {
         first_name: user.firstName,
         last_name: user.lastName,
+        description: user.description,
+        skills: selectedSkills,
+        distance_limit_km: user.distanceLimitKm,
+        quiet_hours_start: user.quietHoursStart,
+        quiet_hours_end: user.quietHoursEnd,
       });
       successToast('Profile updated successfully.');
     } catch (error) {
@@ -74,6 +118,9 @@ const ProfileSettings = () => {
       setUser({ ...user, firstName: value });
     } else if (property === 'lastName') {
       setUser({ ...user, lastName: value });
+    } else if (property === 'description') {
+      const trimmedValue = value.trimStart();
+      setUser({ ...user, description: trimmedValue });
     }
   };
 
@@ -113,7 +160,7 @@ const ProfileSettings = () => {
     }
   };
   return (
-    <View className="flex-1 bg-background">
+    <ScrollView className="flex-1 bg-background">
       <Stack.Screen
         options={{
           headerTitle: 'Profile Settings',
@@ -121,7 +168,7 @@ const ProfileSettings = () => {
             <Pressable
               className="flex h-10 w-10 items-center justify-center rounded-full active:opacity-50"
               onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={20} color={theme.iconColor} />
+              <Ionicons name="return-up-back-outline" size={20} color={theme.iconColor} />
             </Pressable>
           ),
         }}
@@ -183,15 +230,43 @@ const ProfileSettings = () => {
               <TextInput
                 multiline={true}
                 numberOfLines={4}
-                value={user.lastName}
+                value={user.description}
                 className="min-h-[120px] w-[80%] text-text-main"
-                onChangeText={(value) => handleSetProfileData(value, 'lastName')}
-                placeholder="First Name"
+                onChangeText={(value) => handleSetProfileData(value, 'description')}
+                placeholder="Describe yourself in a few words..."
               />
               <Ionicons name="clipboard-outline" color={iconColor} size={20} />
             </View>
           </View>
-          <View className="flex flex-col items-start gap-2">
+          <View className="mb-4 mt-6">
+            <Text className="mb-3 text-lg font-bold text-text-main">
+              How can you help the community?
+            </Text>
+            <Text className="mb-4 text-sm text-text-muted">
+              Select the tags that suit you to be alerted in case of need.
+            </Text>
+
+            <View className="flex-row flex-wrap gap-2">
+              {AVAILABLE_SKILLS.map((skill) => {
+                const isSelected = selectedSkills.includes(skill.id);
+
+                return (
+                  <Pressable
+                    key={skill.id}
+                    onPress={() => toggleSkill(skill.id)}
+                    className={`rounded-full border px-4 py-2 ${
+                      isSelected ? 'border-primary bg-primary' : 'border-gray-300 bg-transparent'
+                    }`}>
+                    <Text
+                      className={`font-semibold ${isSelected ? 'text-white' : 'text-text-main'}`}>
+                      {skill.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+          <View className="mb-4 flex flex-col items-start gap-2">
             <Pressable
               onPress={() => handleEditProfile()}
               className="flex-row items-center justify-center gap-2 rounded-xl bg-btn-primary px-6 py-4 shadow-sm active:bg-btn-primary-active">
@@ -201,7 +276,7 @@ const ProfileSettings = () => {
           </View>
         </View>
       </TouchableWithoutFeedback>
-    </View>
+    </ScrollView>
   );
 };
 

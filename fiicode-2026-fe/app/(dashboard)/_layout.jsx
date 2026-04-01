@@ -4,6 +4,7 @@ import { Colors } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 
 import UserOnly from '../../components/auth/UserOnly';
+import NotificationBell from '../../components/NotificationBell';
 
 export default function DashboardLayout() {
   const colorScheme = useColorScheme();
@@ -26,17 +27,20 @@ export default function DashboardLayout() {
             title: 'Home',
             headerStyle: {
               backgroundColor: backgroundColor,
-              height: 85,
+              height: 120,
             },
             headerTintColor: titleColor,
-            headerLeft: () => (
-              <Pressable className="ml-4 active:opacity-50" onPress={() => router.back()}>
-                <Ionicons name="chevron-back" size={20} color={theme.iconColor} />
-              </Pressable>
-            ),
+            // headerLeft: () => (
+            //   <Pressable
+            //     className="ml-4 flex h-12 w-12 items-center justify-center rounded-full bg-white active:h-16 active:w-16 active:opacity-60"
+            //     onPress={() => router.back()}>
+            //     <Ionicons name="return-up-back-outline" size={24} color={theme.iconColor} />
+            //   </Pressable>
+            // ),
             headerRight: () => (
-              <Pressable className="mr-4 active:opacity-50" onPress={() => router.push('/search')}>
-                <Ionicons name="search" size={20} color={theme.iconColor} />
+              <Pressable className="flex flex-row items-center mr-4 active:opacity-50" onPress={() => router.push('/search')}>
+                <Ionicons name="search" size={28} color={theme.iconColor} />
+                <NotificationBell />
               </Pressable>
             ),
             headerShadowVisible: false,
@@ -55,12 +59,14 @@ export default function DashboardLayout() {
             title: 'Chat',
             headerStyle: {
               backgroundColor: backgroundColor,
-              height: 85,
+              height: 120,
             },
             headerTintColor: titleColor,
             headerLeft: () => (
-              <Pressable className="ml-4 active:opacity-50" onPress={() => router.back()}>
-                <Ionicons name="chevron-back" size={20} color={theme.iconColor} />
+              <Pressable
+                className="ml-4 flex h-12 w-12 items-center justify-center rounded-full bg-white active:h-16 active:w-16 active:opacity-60"
+                onPress={() => router.back()}>
+                <Ionicons name="return-up-back-outline" size={24} color={theme.iconColor} />
               </Pressable>
             ),
             headerShadowVisible: false,
@@ -79,12 +85,14 @@ export default function DashboardLayout() {
             title: 'Map',
             headerStyle: {
               backgroundColor: backgroundColor,
-              height: 85,
+              height: 120,
             },
             headerTintColor: titleColor,
             headerLeft: () => (
-              <Pressable className="ml-4 active:opacity-50" onPress={() => router.back()}>
-                <Ionicons name="chevron-back" size={20} color={theme.iconColor} />
+              <Pressable
+                className="ml-4 flex h-12 w-12 items-center justify-center rounded-full bg-white active:h-16 active:w-16 active:opacity-60"
+                onPress={() => router.back()}>
+                <Ionicons name="return-up-back-outline" size={24} color={theme.iconColor} />
               </Pressable>
             ),
             headerShadowVisible: false,
@@ -103,13 +111,14 @@ export default function DashboardLayout() {
             title: 'Feed',
             headerStyle: {
               backgroundColor: backgroundColor,
-              height: 85,
+              height: 120,
             },
-            headerShadowVisible: false,
             headerTintColor: titleColor,
             headerLeft: () => (
-              <Pressable className="ml-4 active:opacity-50" onPress={() => router.back()}>
-                <Ionicons name="chevron-back" size={20} color={theme.iconColor} />
+              <Pressable
+                className="ml-4 flex h-12 w-12 items-center justify-center rounded-full bg-white active:h-16 active:w-16 active:opacity-60"
+                onPress={() => router.back()}>
+                <Ionicons name="return-up-back-outline" size={24} color={theme.iconColor} />
               </Pressable>
             ),
             tabBarIcon: ({ focused }) => (
@@ -127,12 +136,14 @@ export default function DashboardLayout() {
             title: 'Profile',
             headerStyle: {
               backgroundColor: backgroundColor,
-              height: 85,
+              height: 120,
             },
             headerTintColor: titleColor,
             headerLeft: () => (
-              <Pressable className="ml-4 active:opacity-50" onPress={() => router.back()}>
-                <Ionicons name="chevron-back" size={20} color={theme.iconColor} />
+              <Pressable
+                className="ml-4 flex h-12 w-12 items-center justify-center rounded-full bg-white active:h-16 active:w-16 active:opacity-60"
+                onPress={() => router.back()}>
+                <Ionicons name="return-up-back-outline" size={24} color={theme.iconColor} />
               </Pressable>
             ),
             headerShadowVisible: false,

@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Image, KeyboardAvoidingView,
+  Image,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   Text,
   TextInput,
   View,
 } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
 import ProfilePicture from '../../assets/img/profile-picture.png';
 import {
@@ -18,7 +18,7 @@ import {
   getIconName,
   getTypeBadgeColor,
 } from '../../utils/utils_functions';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import api from '../../services/api';
 import PulseComment from '../../components/feed/PulseComment';
 import { useUser } from '../../hooks/useUser';
@@ -26,7 +26,6 @@ import { errorToast } from '../../utils/toast';
 
 const PulseComments = () => {
   const { user } = useUser();
-  const router = useRouter();
   const { id } = useLocalSearchParams();
   const [pulse, setPulse] = useState(null);
   const [message, setMessage] = useState('');
@@ -36,8 +35,7 @@ const PulseComments = () => {
 
   const handleFetchPulse = async () => {
     try {
-      const response = await api.get('/pulse/' + id);
-      console.log(response.data);
+      const response = await api.get('/pulse/by-id/' + id);
       setPulse(response.data);
     } catch (error) {}
   };
@@ -108,21 +106,6 @@ const PulseComments = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
       <View className="flex flex-1 flex-col bg-background">
-        <Stack.Screen
-          options={{
-            title: '',
-            headerBackTitleVisible: false,
-            headerBackTitle: '',
-
-            headerLeft: () => (
-              <Pressable
-                className="flex h-10 w-10 items-center justify-center rounded-full active:opacity-50"
-                onPress={() => router.back()}>
-                <Ionicons name="chevron-back" size={24} color="#000" />
-              </Pressable>
-            ),
-          }}
-        />
         <View className={`m-2 border ${getBorderColorByType(pulse)} rounded-xl`}>
           <View
             className={`flex flex-row items-center gap-2 ${getTypeBadgeColor(pulse)} justify-between rounded-xl rounded-b-none p-4`}>
@@ -138,7 +121,9 @@ const PulseComments = () => {
             className={`pulses-center flex flex-row justify-between gap-2 rounded-xl px-4 py-2`}>
             <View className="pulses-center flex flex-row gap-2">
               <Image source={ProfilePicture} className="mb-2 h-10 w-10" />
-              <Text className="font-bold text-text-main">{pulse.author || 'Anonym'}</Text>
+              <Text className="font-bold text-text-main">
+                {pulse.author?.first_name + ' ' + pulse.author?.last_name || 'Anonym'}
+              </Text>
             </View>
             <Text className="text-sm font-semibold text-text-muted">
               {formatMessageDateTime(pulse.created_at)}

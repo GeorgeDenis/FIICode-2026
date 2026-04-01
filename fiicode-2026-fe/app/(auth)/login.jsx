@@ -31,10 +31,12 @@ const Login = () => {
       errorToast('Please fill in all fields');
       return;
     }
+    console.log("login in")
     try {
       await login(email, password);
       clearInput();
     } catch (error) {
+      console.log(error);
       errorToast(error.message);
     }
   };

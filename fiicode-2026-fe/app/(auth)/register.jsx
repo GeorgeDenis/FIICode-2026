@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import {
   Image,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   Text,
   TextInput,
@@ -27,13 +29,13 @@ const Register = () => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const router = useRouter();
   const handleRegister = async () => {
-    if(!email || !firstName || !lastName || !password || !confirmPassword){
+    if (!email || !firstName || !lastName || !password || !confirmPassword) {
       errorToast('Please fill in all fields');
       return;
     }
 
-    if(password !== confirmPassword){
-      errorToast("Passwords do not match!");
+    if (password !== confirmPassword) {
+      errorToast('Passwords do not match!');
       return;
     }
 
@@ -55,76 +57,90 @@ const Register = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View className="flex-1 items-center justify-center bg-background">
-        <Image source={Logo} style={{ width: 200, height: 200 }} />
-        <ThemedText title={true} className="text-center text-2xl font-bold text-text">
-          Register into UrbanPulse
-        </ThemedText>
-        <Spacer />
-        <TextInput
-          className="mb-5 w-[85%] rounded-xl border-2 border-primary px-4 py-4 text-text"
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          className="mb-5 w-[85%] rounded-xl border-2 border-primary px-4 py-4 text-text"
-          placeholder="First Name"
-          value={firstName}
-          onChangeText={setFirstName}
-        />
-        <TextInput
-          className="mb-5 w-[85%] rounded-xl border-2 border-primary px-4 py-4 text-text"
-          placeholder="Last Name"
-          value={lastName}
-          onChangeText={setLastName}
-        />
-        <View className="bg-surface mb-5 w-[85%] flex-row items-center justify-between rounded-xl border-2 border-primary px-4 py-1.5">
+      <KeyboardAvoidingView
+        className="flex-1 bg-background"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+        <View className="flex-1 items-center justify-center bg-background">
+          <Image source={Logo} style={{ width: 200, height: 200 }} />
+          <ThemedText title={true} className="text-text text-center text-2xl font-bold">
+            Register into UrbanPulse
+          </ThemedText>
+          <Spacer />
           <TextInput
-            className="flex-1 py-2 text-text"
-            placeholder="Password"
-            secureTextEntry={!passwordVisible}
-            value={password}
-            onChangeText={setPassword}
+            className="text-text mb-5 w-[85%] rounded-xl border-2 border-primary px-4 py-4"
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
           />
-          <Pressable onPress={() => setPasswordVisible(!passwordVisible)} className="p-2">
-            {!passwordVisible ? (
-              <Eye className="color-text" size={20} />
-            ) : (
-              <EyeOff className="color-text" size={20} />
-            )}
-          </Pressable>
-        </View>
-        <View className="bg-surface mb-8 w-[85%] flex-row items-center justify-between rounded-xl border-2 border-primary px-4 py-1.5">
           <TextInput
-            className="flex-1 py-2 text-text"
-            placeholder="Confirm Password"
-            secureTextEntry={!confirmPasswordVisible}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            className="text-text mb-5 w-[85%] rounded-xl border-2 border-primary px-4 py-4"
+            placeholder="First Name"
+            value={firstName}
+            onChangeText={setFirstName}
+            autoCapitalize="none"
+            autoCorrect={false}
           />
-          <Pressable onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)} className="p-2">
-            {!confirmPasswordVisible ? (
-              <Eye className="color-text" size={20} />
-            ) : (
-              <EyeOff className="color-text" size={20} />
-            )}
+          <TextInput
+            className="text-text mb-5 w-[85%] rounded-xl border-2 border-primary px-4 py-4"
+            placeholder="Last Name"
+            value={lastName}
+            onChangeText={setLastName}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <View className="mb-5 w-[85%] flex-row items-center justify-between rounded-xl border-2 border-primary bg-surface px-4 py-1.5">
+            <TextInput
+              className="text-text flex-1 py-2"
+              placeholder="Password"
+              secureTextEntry={!passwordVisible}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <Pressable onPress={() => setPasswordVisible(!passwordVisible)} className="p-2">
+              {!passwordVisible ? (
+                <Eye className="color-text" size={20} />
+              ) : (
+                <EyeOff className="color-text" size={20} />
+              )}
+            </Pressable>
+          </View>
+          <View className="mb-8 w-[85%] flex-row items-center justify-between rounded-xl border-2 border-primary bg-surface px-4 py-1.5">
+            <TextInput
+              className="text-text flex-1 py-2"
+              placeholder="Confirm Password"
+              secureTextEntry={!confirmPasswordVisible}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
+            <Pressable
+              onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+              className="p-2">
+              {!confirmPasswordVisible ? (
+                <Eye className="color-text" size={20} />
+              ) : (
+                <EyeOff className="color-text" size={20} />
+              )}
+            </Pressable>
+          </View>
+          <Pressable
+            className="w-[85%] items-center justify-center rounded-xl bg-primary py-4 shadow-md active:opacity-70"
+            onPress={() => handleRegister()}>
+            <Text className="text-lg font-bold text-white">Sign up</Text>
           </Pressable>
+          <Spacer />
+          <Link href="/login" replace asChild>
+            <Pressable className="p-2">
+              <Text className="text-text text-center font-medium">
+                Already have an account? <Text className="text-primary">Sign in</Text>
+              </Text>
+            </Pressable>
+          </Link>
         </View>
-        <Pressable
-          className="w-[85%] items-center justify-center rounded-xl bg-primary py-4 shadow-md active:opacity-70"
-          onPress={() => handleRegister()}>
-          <Text className="text-lg font-bold text-white">Sign up</Text>
-        </Pressable>
-        <Spacer />
-        <Link href="/login" replace asChild>
-          <Pressable className="p-2">
-            <Text className="text-center font-medium text-text">
-              Already have an account? <Text className="text-primary">Sign in</Text>
-            </Text>
-          </Pressable>
-        </Link>
-      </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 };

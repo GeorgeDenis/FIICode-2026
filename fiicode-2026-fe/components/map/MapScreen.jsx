@@ -1,12 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
-import MapView, { Marker, Circle } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
+import api from '../../services/api';
+import { errorToast } from '../../utils/toast';
+import { useFocusEffect } from 'expo-router';
+import { Circle } from 'react-native-svg';
+import PulsePin from './PulsePin';
 
 export default function MapScreen() {
   const [region, setRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [pulses, setPulses] = useState({});
 
+  const handleFetchPulses = async () => {
+    try {
+      const response = await api.get('/pulse');
+      setPulses(response.data);
+    } catch (error) {
+      errorToast(error.message);
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      handleFetchPulses();
+    }, [])
+  );
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -49,8 +68,12 @@ export default function MapScreen() {
               latitude: region.latitude,
               longitude: region.longitude,
             }}
-            title="Locația ta"
+            pinColor={'blue'}
+            title="Your location"
           />
+          {pulses &&
+            pulses.length > 0 &&
+            pulses.map((pulse) => <PulsePin key={pulse.id} pulse={pulse} />)}
         </MapView>
       )}
     </View>

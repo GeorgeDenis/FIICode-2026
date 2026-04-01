@@ -39,7 +39,7 @@ const SearchScreen = () => {
 
   return (
     <UserOnly>
-      <View className="flex-1 flex flex-col justify-start bg-background">
+      <View className="flex flex-1 flex-col justify-start bg-background">
         <Stack.Screen
           options={{
             headerTitle: () => (
@@ -63,20 +63,20 @@ const SearchScreen = () => {
               <Pressable
                 className="flex h-10 w-10 items-center justify-center rounded-full active:opacity-50"
                 onPress={() => router.back()}>
-                <Ionicons name="chevron-back" size={24} color={theme.iconColor} />
+                <Ionicons name="return-up-back-outline" size={24} color={theme.iconColor} />
               </Pressable>
             ),
           }}
         />
 
         <View className="px-4 py-4">
-          <Text className="mt-4 text-center text-text opacity-50">
+          <Text className="text-text mt-4 text-center opacity-50">
             {searchQuery.length > 0
               ? `Searching: ${searchQuery}...`
               : 'Start typing to search for neighbors in your area!'}
           </Text>
         </View>
-        <View className="flex-col flex-1 px-2.5 py-3.5 h-full">
+        <View className="h-full flex-1 flex-col px-2.5 py-3.5">
           {users[0] ? (
             <FlatList
               data={users}

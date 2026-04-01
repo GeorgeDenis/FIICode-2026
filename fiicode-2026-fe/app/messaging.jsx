@@ -129,7 +129,7 @@ const Messaging = () => {
               <Pressable
                 className="flex h-10 w-10 items-center justify-center rounded-full active:opacity-50"
                 onPress={() => router.back()}>
-                <Ionicons name="chevron-back" size={20} color={theme.iconColor} />
+                <Ionicons name="return-up-back-outline" size={20} color={theme.iconColor} />
               </Pressable>
             ),
             headerRight: () =>

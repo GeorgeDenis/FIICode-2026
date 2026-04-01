@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Integer, Column, String, DateTime, Float, func, LargeBinary
+from sqlalchemy import Integer, Column, String, DateTime, Float, func, LargeBinary, JSON, Time
 from sqlalchemy.dialects.postgresql.base import UUID
 from sqlalchemy.orm import relationship
 
@@ -19,6 +19,11 @@ class User(Base):
     phone_number = Column(String)
     description = Column(String, nullable=True)
     image = Column(LargeBinary)
+    skills = Column(JSON, default=list)
+
+    distance_limit_km = Column(Float, default=5.0)
+    quiet_hours_start = Column(Time, nullable=True)
+    quiet_hours_end = Column(Time, nullable=True)
 
 
     latitude = Column(Float, nullable=True)

@@ -1,17 +1,15 @@
 import React, { useCallback, useState } from 'react';
-import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
+import { FlatList, Image, Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import api, { IP_CONFIG } from '../../services/api';
 import AnimatedPulse from '../../components/feed/AnimatedPulse';
 import { Ionicons } from '@expo/vector-icons';
-import BasicModal from '../../components/BasicModal';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { useUser } from '../../hooks/useUser';
-import { errorToast } from '../../utils/toast';
 import FeedFilterPopup from '../../components/feed/FeedFilterPopup';
+import AddPulseModal from '../../components/feed/AddPulseModal';
+import NoPulse from '../../assets/img/no_pulses.png';
+import EditPulseModal from '../../components/feed/EditPulseModal';
 
 const Feed = () => {
-  const { user } = useUser();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [pulses, setPulses] = useState([]);
   const [activeFilters, setActiveFilters] = useState({
@@ -19,71 +17,15 @@ const Feed = () => {
     urgencyLevel: null,
     sortBy: 'DATE (NEWEST)',
   });
+  const [selectedPulse, setSelectedPulse] = useState(null);
   const [isAddPulseModalVisible, setIsAddPulseModalVisible] = useState(false);
-  const [newPulseContent, setNewPulseContent] = useState({
-    authorId: null,
-    type: '',
-    urgencyLevel: '',
-    content: '',
-    latitude: null,
-    longitude: null,
-    status: '',
-  });
-
-  const [typeOpen, setTypeOpen] = useState(false);
-  const [typeValue, setTypeValue] = useState(null);
-  const [typeItems, setTypeItems] = useState([
-    { label: 'Emergency', value: 'Emergency' },
-    { label: 'Skill', value: 'Skill' },
-    { label: 'Item', value: 'Item' },
-  ]);
-  const [urgencyOpen, setUrgencyOpen] = useState(false);
-  const [urgencyValue, setUrgencyValue] = useState(null);
-  const [urgencyItems, setUrgencyItems] = useState([
-    { label: 'Low', value: 'Low' },
-    { label: 'Medium', value: 'Medium' },
-    { label: 'High', value: 'High' },
-  ]);
+  const [isEditPulseModalVisible, setIsEditPulseModalVisible] = useState(false);
 
   const handleFetchPulses = async () => {
     try {
       const response = await api.get('/pulse');
       setPulses(response.data);
     } catch (error) {}
-  };
-
-  const handleAddPulse = async () => {
-    try {
-      const response = await api.post('/pulse', {
-        author_id: user.user_id,
-        type: newPulseContent.type,
-        urgency_level: newPulseContent.urgencyLevel,
-        content: newPulseContent.content,
-        latitude: 43.65107,
-        longitude: -79.347015,
-      });
-      if (response.status === 201) {
-        setIsAddPulseModalVisible(false);
-        clearInputFields();
-      }
-      // setPulses((prevPulses) => [response.data, ...prevPulses]);
-    } catch (error) {
-      errorToast(error.message);
-    }
-  };
-
-  const clearInputFields = () => {
-    setNewPulseContent({
-      authorId: null,
-      type: '',
-      urgencyLevel: '',
-      content: '',
-      latitude: null,
-      longitude: null,
-      status: '',
-    });
-    setTypeValue(null);
-    setUrgencyValue(null);
   };
 
   useFocusEffect(
@@ -99,8 +41,11 @@ const Feed = () => {
 
       ws.onmessage = (e) => {
         const newPulse = JSON.parse(e.data);
+        setPulses((prevPulses) => {
+          const cleanPulses = prevPulses.filter((pulse) => pulse.id !== newPulse.id);
 
-        setPulses((prevPulses) => [newPulse, ...prevPulses]);
+          return [newPulse, ...cleanPulses];
+        });
       };
 
       ws.onerror = (error) => {
@@ -116,7 +61,6 @@ const Feed = () => {
       };
     }, [])
   );
-  const renderPulse = ({ item }) => <AnimatedPulse item={item} />;
 
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
@@ -139,6 +83,15 @@ const Feed = () => {
       return dateB - dateA;
     });
 
+  const openEditPulseModal = (pulse) => {
+    setSelectedPulse(pulse);
+    setIsEditPulseModalVisible(true);
+  };
+
+  const renderPulse = ({ item }) => (
+    <AnimatedPulse item={item} openEditPulseModal={openEditPulseModal} />
+  );
+
   return (
     <View className="flex-1 bg-background p-4">
       <Pressable
@@ -146,7 +99,6 @@ const Feed = () => {
         className="m-2 items-center self-end rounded-xl bg-primary p-2">
         <Ionicons name="filter" size={20} color="#ffffff" />
       </Pressable>
-
       <FeedFilterPopup
         visible={isFilterVisible}
         onClose={() => setIsFilterVisible(false)}
@@ -157,60 +109,32 @@ const Feed = () => {
         onPress={() => setIsAddPulseModalVisible(!isAddPulseModalVisible)}>
         <Ionicons name="add-circle-outline" size={24} color="#ffffff" />
       </Pressable>
-
       <FlatList
         data={filteredPulses}
         keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
         renderItem={renderPulse}
+        ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
         ListEmptyComponent={
-          <Text className="text-text mt-10 text-center opacity-50">
-            No pulses yet. Be the first to share your thoughts!
-          </Text>
+          <View className="mt-20 flex-1 items-center justify-center gap-2 rounded-xl">
+            <Image source={NoPulse} className="h-40 w-40" />
+            <Text className="text-3xl font-bold">No pulses yet.</Text>
+            <Text className="text-base ">Be the first one to talk with the community.</Text>
+          </View>
         }
         showsVerticalScrollIndicator={false}
       />
       {isAddPulseModalVisible && (
-        <BasicModal
-          setVisible={setIsAddPulseModalVisible}
-          visible={isAddPulseModalVisible}
-          doAction={() => handleAddPulse()}
-          title="Add a new Pulse">
-          <View className="flex gap-5">
-            <Text className="text-center text-lg font-bold">Add a new Pulse</Text>
-            <TextInput
-              className="mt-4 h-24 w-full rounded-lg border p-3 text-base"
-              placeholder="What's on your mind?"
-              multiline
-              value={newPulseContent.content}
-              onChangeText={(text) => setNewPulseContent((prev) => ({ ...prev, content: text }))}
-            />
-            <Text>Select the type</Text>
-            <DropDownPicker
-              zIndex={3000}
-              zIndexInverse={1000}
-              items={typeItems}
-              open={typeOpen}
-              setOpen={setTypeOpen}
-              value={typeValue}
-              setValue={setTypeValue}
-              onChangeValue={(value) => setNewPulseContent((prev) => ({ ...prev, type: value }))}
-            />
-
-            <Text>Select the urgency level</Text>
-            <DropDownPicker
-              zIndex={2000}
-              zIndexInverse={2000}
-              items={urgencyItems}
-              open={urgencyOpen}
-              setOpen={setUrgencyOpen}
-              value={urgencyValue}
-              setValue={setUrgencyValue}
-              onChangeValue={(value) =>
-                setNewPulseContent((prev) => ({ ...prev, urgencyLevel: value }))
-              }
-            />
-          </View>
-        </BasicModal>
+        <AddPulseModal
+          setIsAddPulseModalVisible={setIsAddPulseModalVisible}
+          isAddPulseModalVisible={isAddPulseModalVisible}
+        />
+      )}
+      {isEditPulseModalVisible && (
+        <EditPulseModal
+          setIsEditPulseModalVisible={setIsEditPulseModalVisible}
+          isEditPulseModalVisible={isEditPulseModalVisible}
+          pulse={selectedPulse}
+        />
       )}
     </View>
   );

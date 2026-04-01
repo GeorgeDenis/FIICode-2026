@@ -1,3 +1,5 @@
+import * as Location from 'expo-location';
+import { errorToast } from './toast';
 export const formatMessageDateTime = (dateString) => {
   if (!dateString) return 'now';
 
@@ -61,3 +63,13 @@ export const getIconName = (item) => {
       return 'help-circle';
   }
 };
+
+export async function getCurrentUserLocation() {
+  let { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+    errorToast('You need to grant location permissions to see the map centered on you!');
+    return null;
+  }
+
+  return await Location.getCurrentPositionAsync({});
+}

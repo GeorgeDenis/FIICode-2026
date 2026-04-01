@@ -7,7 +7,7 @@ const BasicModal = ({ children, setVisible, doAction, doActionText }) => {
 
   return (
     <View className="absolute inset-0 z-10 bg-black/50">
-      <View className="elevation-sm absolute top-20 z-10 w-[95%] self-center rounded-xl bg-[#fff] px-5 py-12">
+      <View className="elevation-sm z-5 absolute top-10 w-[95%] self-center rounded-xl bg-[#fff] px-5 py-12">
         {children}
         <View className="mt-10 flex flex-row items-center justify-center gap-5">
           <Pressable

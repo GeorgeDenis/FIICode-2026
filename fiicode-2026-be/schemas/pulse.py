@@ -1,4 +1,5 @@
 import datetime
+from typing import Tuple
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -19,6 +20,19 @@ class PulseCreateSchema(BaseModel):
         from_attributes = True
 
 
+class PulseUpdateSchema(BaseModel):
+    id: UUID
+    type: PulseType
+    urgency_level: UrgencyLevel
+    content: str
+    latitude: float
+    longitude: float
+    status: str
+
+    class Config:
+        from_attributes = True
+
+
 class PulseResponseSchema(BaseModel):
     id: UUID
     author_id: UUID
@@ -29,6 +43,15 @@ class PulseResponseSchema(BaseModel):
     longitude: float
     status: str
     created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    likes_count: int = 0
+    dislikes_count: int = 0
+
+    author: AuthorBasicSchema
+
+    class Config:
+        from_attributes = True
 
 
 class PulseCommentCreateSchema(BaseModel):
@@ -48,6 +71,28 @@ class PulseCommentResponseSchema(BaseModel):
     created_at: datetime.datetime
 
     author: AuthorBasicSchema
+
+    class Config:
+        from_attributes = True
+
+
+class WeatherResponseSchema(BaseModel):
+    coord: Tuple[float, float]
+
+
+class PulseReactionCreateSchema(BaseModel):
+    pulse_id: UUID
+
+    is_like: bool
+
+    class Config:
+        from_attributes = True
+
+
+class PulseReactionResponseSchema(BaseModel):
+    pulse_id: UUID
+    like_count: int
+    dislike_count: int
 
     class Config:
         from_attributes = True

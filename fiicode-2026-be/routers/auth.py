@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from typing import Annotated
 
+from websockets.sync.client import connect_socks_proxy
+
 from database import get_db
 from dependencies import get_current_user
 from schemas.auth import UserLoginSchema, CreateUserSchema, UserLoginOut

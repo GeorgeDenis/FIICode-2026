@@ -17,6 +17,7 @@ class Notification(Base):
     type = Column(String)
 
     content = Column(String)
+    entity_id = Column(UUID, nullable=True)
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

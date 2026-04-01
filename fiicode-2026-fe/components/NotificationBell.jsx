@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Pressable, Text, useColorScheme, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import api from '../services/api';
+import { errorToast } from '../utils/toast';
+import { Colors } from '../constants/Colors';
 
 export default function NotificationBell() {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme] ?? Colors.light;
+  const backgroundColor = colorScheme === 'dark' ? '#0F172A' : '#E5E7EB';
+  const titleColor = colorScheme === 'dark' ? '#E5E7EB' : '#0F172A';
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchUnreadCount = async () => {
@@ -12,7 +18,7 @@ export default function NotificationBell() {
       const response = await api.get('/notification/unread-count');
       setUnreadCount(response.data.count);
     } catch (error) {
-      console.error('Eroare la fetch notificări:', error);
+      errorToast(error.message);
     }
   };
 
@@ -30,7 +36,7 @@ export default function NotificationBell() {
     <Pressable
       onPress={() => router.push('/notifications')}
       className="relative p-2 active:opacity-50">
-      <Ionicons name="notifications-outline" size={28} color="#000" />
+      <Ionicons name="notifications-outline" size={28} color={theme.iconColor} />
 
       {unreadCount > 0 && (
         <View className="absolute right-0 top-0 h-5 min-w-[20px] items-center justify-center rounded-full border border-background bg-red-600 px-1">
