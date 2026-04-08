@@ -4,8 +4,10 @@ from sqlalchemy import func, case
 from sqlalchemy.orm import Session, joinedload
 
 from models.pulse import Pulse, PulseComment, PulseReaction, PulseReaction
+from models.user import User
 from schemas.pulse import PulseCreateSchema, PulseCommentCreateSchema, PulseReactionCreateSchema, \
     PulseReactionResponseSchema
+from utils.utils import haversine_distance
 
 
 class PulseRepository:
@@ -16,6 +18,7 @@ class PulseRepository:
             urgency_level=request.urgency_level,
             content=request.content,
             latitude=request.latitude,
+            skills=request.skills,
             longitude=request.longitude,
         )
 
@@ -52,7 +55,6 @@ class PulseRepository:
             Pulse.updated_at.desc()
         ).all()
 
-
         formatted_pulses = []
         for pulse_obj, likes, dislikes in results:
             pulse_dict = pulse_obj.__dict__.copy()
@@ -62,6 +64,27 @@ class PulseRepository:
 
             formatted_pulses.append(pulse_dict)
         return formatted_pulses
+
+    def get_all_pulses_by_user_limits(self, user: User, db: Session):
+        limit_km = user.distance_limit_km or 10.0
+
+        all_pulses = db.query(Pulse).filter(Pulse.latitude.is_not(None)).all()
+
+        nearby_pulses = []
+
+        for pulse in all_pulses:
+            dist = haversine_distance(
+                user.latitude,
+                user.longitude,
+                pulse.latitude,
+                pulse.longitude
+            )
+
+            if dist <= limit_km and pulse.author_id != user.id:
+                nearby_pulses.append(pulse)
+
+        return nearby_pulses
+
 
     def add_pulse_comment(self, request: PulseCommentCreateSchema, db: Session):
         pulse_comment = PulseComment(

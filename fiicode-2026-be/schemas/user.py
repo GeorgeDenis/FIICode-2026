@@ -70,3 +70,8 @@ class AuthorBasicSchema(BaseModel):
             return None
         base64_encoded = base64.b64encode(image).decode('utf-8')
         return f"data:image/jpeg;base64,{base64_encoded}"
+
+
+class LocationUpdate(BaseModel):
+    latitude: float
+    longitude: float

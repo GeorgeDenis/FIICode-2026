@@ -1,11 +1,11 @@
 import datetime
-from typing import Tuple
+from typing import Tuple, List
 from uuid import UUID
 
 from pydantic import BaseModel
 
 from models.pulse import PulseType, UrgencyLevel
-from schemas.user import UserResponseSchema, AuthorBasicSchema
+from schemas.user import UserResponseSchema, AuthorBasicSchema, SkillTag
 
 
 class PulseCreateSchema(BaseModel):
@@ -13,6 +13,7 @@ class PulseCreateSchema(BaseModel):
     type: PulseType
     urgency_level: UrgencyLevel
     content: str
+    skills: List[SkillTag] = []
     latitude: float
     longitude: float
 
@@ -25,6 +26,7 @@ class PulseUpdateSchema(BaseModel):
     type: PulseType
     urgency_level: UrgencyLevel
     content: str
+    skills: List[SkillTag] = []
     latitude: float
     longitude: float
     status: str
@@ -39,6 +41,7 @@ class PulseResponseSchema(BaseModel):
     type: PulseType
     urgency_level: UrgencyLevel
     content: str
+    skills: List[SkillTag] = []
     latitude: float
     longitude: float
     status: str

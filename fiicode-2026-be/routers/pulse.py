@@ -41,6 +41,10 @@ async def update_pulse(request: PulseUpdateSchema, db: db_dependency, user_data=
 def get_all_pulses(db: db_dependency, user_data=Depends(get_current_user)):
     return pulse_service.get_all_pulses(db)
 
+@pulse_router.get("/account", response_model=List[PulseResponseSchema], status_code=200)
+def get_all_pulses_by_user_limits(db: db_dependency, user_data=Depends(get_current_user)):
+    return pulse_service.get_all_pulses_by_user_limits(db, user_data['id'])
+
 
 @pulse_router.get("/by-id/{pulse_id}", response_model=PulseResponseSchema, status_code=200)
 def get_pulse_by_id(pulse_id: str, db: db_dependency, user_data=Depends(get_current_user)):

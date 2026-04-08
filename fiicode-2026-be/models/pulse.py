@@ -1,7 +1,7 @@
 import enum
 import uuid
 
-from sqlalchemy import Column, String, DateTime, Float, Enum, ForeignKey, func, Boolean
+from sqlalchemy import Column, String, DateTime, Float, Enum, ForeignKey, func, Boolean, JSON
 from sqlalchemy.dialects.postgresql.base import UUID
 from sqlalchemy.orm import relationship
 
@@ -29,6 +29,7 @@ class Pulse(Base):
     type = Column(Enum(PulseType))
     urgency_level = Column(Enum(UrgencyLevel))
     content = Column(String)
+    skills = Column(JSON, default=list)
 
     latitude = Column(Float)
     longitude = Column(Float)
@@ -38,6 +39,7 @@ class Pulse(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     author = relationship("User", back_populates="pulses")
+    missions = relationship("Mission", back_populates="pulse", cascade="all, delete-orphan")
 
 
 class PulseComment(Base):

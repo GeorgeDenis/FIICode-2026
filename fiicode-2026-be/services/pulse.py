@@ -18,8 +18,21 @@ notification_service = NotificationService()
 class PulseService:
     def create_pulse(self, request: PulseCreateSchema, db: Session):
         user_service.find_user_by_id(request.author_id, db)
-
+        available_users = user_service.find_users_by_distance_and_quiet_hours(request.latitude, request.longitude, db)
+        users_to_alert = [
+            hero for hero in available_users
+            if hero.id != request.author_id and any(skill in hero.skills for skill in request.skills)
+        ]
         response = pulse_repository.create_pulse(request, db)
+        for user in users_to_alert:
+            notification = NotificationCreateSchema(
+                recipient_id=user.id,
+                actor_id=request.author_id,
+                type="Pulse",
+                content=f"You seem like a good match for this pulse!",
+                entity_id=response.id,
+            )
+            notification_service.add_notification(notification, db)
         return response
 
     def update_pulse(self, request: PulseUpdateSchema, user_id: str, db: Session):
@@ -41,6 +54,10 @@ class PulseService:
 
     def get_all_pulses(self, db: Session):
         return pulse_repository.get_all_pulses(db)
+
+    def get_all_pulses_by_user_limits(self, db: Session, user_id: str):
+        user = user_service.find_user_by_id(user_id, db)
+        return pulse_repository.get_all_pulses_by_user_limits(user, db)
 
     def get_pulse_by_id(self, db: Session, pulse_id: str):
         return pulse_repository.get_pulse_by_id(db, pulse_id)

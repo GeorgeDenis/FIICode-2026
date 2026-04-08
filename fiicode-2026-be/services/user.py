@@ -79,3 +79,13 @@ class UserService:
     def get_users_by_ids(self, user_ids: list[str], db: Session):
         users = user_repository.get_users_by_ids(user_ids, db)
         return users
+
+    def find_users_by_distance_and_quiet_hours(self, latitude, longitude, db: Session):
+        return user_repository.find_users_by_distance_and_quiet_hours(latitude, longitude, db)
+
+    def update_user_location(self, user_id, latitude, longitude, db: Session):
+        user = self.find_user_by_id(user_id, db)
+        user.latitude = latitude
+        user.longitude = longitude
+
+        return user_repository.update_account_db(user, db)

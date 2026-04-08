@@ -1,6 +1,7 @@
 import React from 'react';
 import { Callout, Marker } from 'react-native-maps';
-import { Image, Text, View } from 'react-native';
+import { Image,Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const getInitials = (firstName, lastName) => {
   return firstName || lastName
@@ -22,6 +23,14 @@ const getMarkerColor = (pulse) => {
 };
 
 const PulsePin = ({ pulse }) => {
+  const router = useRouter();
+
+  const handleNavigation = () => {
+    router.push({
+      pathname: '/pulse-comments/' + pulse.id,
+    });
+  };
+
   return (
     <Marker
       pinColor={getMarkerColor(pulse)}
@@ -30,7 +39,7 @@ const PulsePin = ({ pulse }) => {
         latitude: pulse.latitude,
         longitude: pulse.longitude,
       }}>
-      <Callout tooltip>
+      <Callout tooltip onPress={() => handleNavigation()}>
         <View className="min-w-[150px] flex-col items-center justify-center rounded-xl border border-gray-200 bg-surface p-3">
           {pulse.author?.image ? (
             <Image
@@ -51,6 +60,10 @@ const PulsePin = ({ pulse }) => {
           <Text className="mt-1 text-center text-xs text-text-muted" numberOfLines={2}>
             {pulse.content}
           </Text>
+          <Text className="mt-1 text-center text-xs text-text-muted" numberOfLines={2}>
+            {pulse.urgency_level}
+          </Text>
+          <Text className="mt-2 text-center text-sm font-bold text-primary">View Details</Text>
         </View>
       </Callout>
     </Marker>

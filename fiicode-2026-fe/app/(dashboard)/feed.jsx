@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { FlatList, Image, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import api, { IP_CONFIG } from '../../services/api';
 import AnimatedPulse from '../../components/feed/AnimatedPulse';
@@ -8,14 +8,18 @@ import FeedFilterPopup from '../../components/feed/FeedFilterPopup';
 import AddPulseModal from '../../components/feed/AddPulseModal';
 import NoPulse from '../../assets/img/no_pulses.png';
 import EditPulseModal from '../../components/feed/EditPulseModal';
+import { useLocation } from '../../hooks/useLocation';
+import { computeHaversineDistance } from '../../utils/utils_functions';
 
 const Feed = () => {
+  const { location, loading: locationLoading } = useLocation();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [pulses, setPulses] = useState([]);
   const [activeFilters, setActiveFilters] = useState({
     type: null,
     urgencyLevel: null,
     sortBy: 'DATE (NEWEST)',
+    distance: null,
   });
   const [selectedPulse, setSelectedPulse] = useState(null);
   const [isAddPulseModalVisible, setIsAddPulseModalVisible] = useState(false);
@@ -49,11 +53,11 @@ const Feed = () => {
       };
 
       ws.onerror = (error) => {
-        console.error('Eroare WebSocket:', error.message);
+        console.error('Error WebSocket:', error.message);
       };
 
       ws.onclose = () => {
-        console.log('Deconectat de la WebSocket.');
+        console.log('Disconnected.');
       };
 
       return () => {
@@ -62,17 +66,35 @@ const Feed = () => {
     }, [])
   );
 
+  if (locationLoading || !location) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#10b981" />
+        <Text className="mt-2 text-gray-500">Searching heroes in your zone...</Text>
+      </View>
+    );
+  }
+
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
   };
 
   const filteredPulses = pulses
     .filter((pulse) => {
+      const latitude = location.coords.latitude;
+      const longitude = location.coords.longitude;
+      const distanceH = computeHaversineDistance(
+        latitude,
+        longitude,
+        pulse.latitude,
+        pulse.longitude
+      );
+      const distanceLimit = activeFilters.distance ? distanceH <= activeFilters.distance : true;
       const matchesType = activeFilters.type ? pulse.type === activeFilters.type : true;
       const matchesUrgency = activeFilters.urgency
         ? pulse.urgency_level === activeFilters.urgency
         : true;
-      return matchesType && matchesUrgency;
+      return matchesType && matchesUrgency && distanceLimit;
     })
     .sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
@@ -117,8 +139,10 @@ const Feed = () => {
         ListEmptyComponent={
           <View className="mt-20 flex-1 items-center justify-center gap-2 rounded-xl">
             <Image source={NoPulse} className="h-40 w-40" />
-            <Text className="text-3xl font-bold">No pulses yet.</Text>
-            <Text className="text-base ">Be the first one to talk with the community.</Text>
+            <Text className="text-3xl font-bold text-text-main">No pulses yet.</Text>
+            <Text className="text-base text-text-main">
+              Be the first one to talk with the community.
+            </Text>
           </View>
         }
         showsVerticalScrollIndicator={false}

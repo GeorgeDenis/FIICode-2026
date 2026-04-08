@@ -7,6 +7,7 @@ import api from '../../services/api';
 import { errorToast, successToast } from '../../utils/toast';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
+import { parseTimeStringToDate } from '../../utils/utils_functions';
 
 const GeneralSettings = () => {
   const router = useRouter();
@@ -28,17 +29,6 @@ const GeneralSettings = () => {
 
   const [quietStart, setQuietStart] = useState(new Date(new Date().setHours(22, 0, 0, 0)));
   const [quietEnd, setQuietEnd] = useState(new Date(new Date().setHours(8, 0, 0, 0)));
-
-  const parseTimeStringToDate = (timeString) => {
-    if (!timeString) return new Date();
-
-    const [hours, minutes] = timeString.split(':');
-
-    const date = new Date();
-    date.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
-
-    return date;
-  };
 
   const fetchUserData = async () => {
     try {

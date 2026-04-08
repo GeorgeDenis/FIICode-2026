@@ -44,6 +44,23 @@ const EditPulseModal = ({ setIsEditPulseModalVisible, isEditPulseModalVisible, p
     { label: 'Active', value: 'Active' },
     { label: 'Completed', value: 'Completed' },
   ]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
+
+  const AVAILABLE_SKILLS = [
+    { id: 'PHYSICAL_HELP', label: 'Physical Help' },
+    { id: 'MEDICAL', label: 'Medical Help/First aid' },
+    { id: 'TOOLS', label: 'Tools and Equipment' },
+    { id: 'TRANSPORT', label: 'Transport / Evacuation' },
+    { id: 'PET_RESCUE', label: 'Pet Rescue' },
+  ];
+
+  const toggleSkill = (skillId) => {
+    if (selectedSkills.includes(skillId)) {
+      setSelectedSkills((prev) => prev.filter((item) => item !== skillId));
+    } else {
+      setSelectedSkills((prev) => [...prev, skillId]);
+    }
+  };
 
   const handleMapPress = (e) => {
     setPinLocation({
@@ -98,7 +115,7 @@ const EditPulseModal = ({ setIsEditPulseModalVisible, isEditPulseModalVisible, p
       transparent={true}
       visible={isEditPulseModalVisible}
       onRequestClose={() => setIsEditPulseModalVisible(false)}>
-      <View className="mt-[60px] flex w-full flex-col gap-2 rounded-b-3xl bg-surface px-5 pb-6 pt-12 shadow-2xl">
+      <View className="mt-[50px] flex w-full flex-col gap-3 rounded-b-3xl bg-surface px-5 pb-6 pt-1 shadow-2xl">
         <View className="flex-row items-center justify-between">
           <Text className="text-xl font-bold tracking-widest text-text-main">Edit pulse</Text>
           <Pressable
@@ -108,7 +125,7 @@ const EditPulseModal = ({ setIsEditPulseModalVisible, isEditPulseModalVisible, p
           </Pressable>
         </View>
         <TextInput
-          className="h-24 w-full rounded-lg border p-3 text-base"
+          className="h-20 w-full rounded-lg border p-3 text-base"
           placeholder="What's on your mind?"
           multiline
           value={newPulseContent.content}
@@ -151,7 +168,7 @@ const EditPulseModal = ({ setIsEditPulseModalVisible, isEditPulseModalVisible, p
           setValue={setStatusValue}
           onChangeValue={(value) => setNewPulseContent((prev) => ({ ...prev, status: value }))}
         />
-        <View className="h-72 w-full overflow-hidden rounded-xl border border-gray-300">
+        <View className="h-56 w-full overflow-hidden rounded-xl border border-gray-300">
           {pinLocation ? (
             <MapView
               style={{ width: '100%', height: '100%' }}
@@ -170,9 +187,33 @@ const EditPulseModal = ({ setIsEditPulseModalVisible, isEditPulseModalVisible, p
             </View>
           )}
         </View>
+        <View className="mb-4">
+          <Text className="mb-4 text-base text-text-main">
+            Select the tags that suit you to be alerted in case of need.
+          </Text>
+
+          <View className="flex-row flex-wrap gap-2">
+            {AVAILABLE_SKILLS.map((skill) => {
+              const isSelected = selectedSkills.includes(skill.id);
+
+              return (
+                <Pressable
+                  key={skill.id}
+                  onPress={() => toggleSkill(skill.id)}
+                  className={`rounded-full border px-3 py-1 ${
+                    isSelected ? 'border-primary bg-primary' : 'border-gray-300 bg-transparent'
+                  }`}>
+                  <Text className={`font-semibold ${isSelected ? 'text-white' : 'text-text-main'}`}>
+                    {skill.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
         <Pressable
           onPress={addPulse}
-          className="self-end rounded-lg bg-green-600 px-6 py-3 active:opacity-50">
+          className="self-end rounded-lg bg-green-600 px-6 py-2 active:opacity-50">
           <Ionicons name={'checkmark'} size={24} color="white" />
         </Pressable>
       </View>

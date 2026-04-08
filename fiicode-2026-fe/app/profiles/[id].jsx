@@ -51,7 +51,6 @@ const ProfileDetails = () => {
     try {
       const response = await api.get('/user/by-id/' + id);
       setUser(response.data);
-      console.log(response.data.skills);
     } catch (error) {
       if (error.response && error.response.status === 403) {
         return;

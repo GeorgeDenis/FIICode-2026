@@ -9,7 +9,6 @@ const ThemeSettings = () => {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
-  const iconColor = colorScheme === 'dark' ? '#94A3B8' : '#64748B';
   return (
     <ScrollView className="flex-1 bg-background p-4">
       <Stack.Screen

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, useColorScheme, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { formatMessageDateTime } from '../../utils/utils_functions';
 import api from '../../services/api';
@@ -7,8 +7,9 @@ import { errorToast } from '../../utils/toast';
 import { useRouter } from 'expo-router';
 
 const NotificationCard = ({ item, fetchNotifications }) => {
-  console.log(item);
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#94A3B8' : '#64748B';
   const handleReadNotification = async () => {
     if (item.is_read) {
       handleNavigation();
@@ -29,8 +30,22 @@ const NotificationCard = ({ item, fetchNotifications }) => {
     if (!item.entity_id) {
       return;
     }
+    let pathname = '';
+    switch (item.type) {
+      case 'Comment':
+        pathname = `/pulse-comment/${item.entity_id}`;
+        break;
+      case 'Mission':
+        pathname = '/missions/missions';
+        break;
+      case 'Pulse':
+        pathname = '/(dashboard)/feed';
+        break;
+      default:
+        pathname = '/';
+    }
     router.push({
-      pathname: '/pulse-comments/' + item.entity_id,
+      pathname,
     });
   };
 
@@ -41,7 +56,7 @@ const NotificationCard = ({ item, fetchNotifications }) => {
       className={`mb-4 w-full flex-1 rounded-lg ${item.is_read ? 'bg-surface' : 'bg-white/75'} p-4 shadow-sm`}>
       <View className="flex-row items-center gap-3">
         {item.actor?.image ? (
-          <Image source={{ uri: item.actor.image }} className="h-16 w-16 rounded-full" />
+          <Image source={{ uri: item.actor.image }} className={`h-16 w-16 rounded-full`} />
         ) : (
           <View className="flex h-16 w-16 items-center justify-center rounded-full">
             <Ionicons name="notifications-outline" size={24} color="#000" />

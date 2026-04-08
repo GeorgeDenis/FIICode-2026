@@ -140,12 +140,20 @@ const Profile = () => {
               </Pressable>
             </View>
           </View>
-          <View className="mt-10 w-full flex-1 items-center rounded-t-3xl bg-gray-200 p-5">
-            <View className="mt-14 flex w-full flex-col justify-start gap-2">
-              <Text className="text-xl font-bold text-text-main">
-                {currentUser.firstName} {currentUser.lastName}
-              </Text>
-              <Text className="text-base text-text-muted">{currentUser.email}</Text>
+          <View className="mt-10 w-full flex-1 rounded-t-3xl bg-gray-200 p-5">
+            <View className="mt-14 flex w-full flex-row items-center justify-between gap-2 px-5">
+              <View className="flex flex-col justify-start gap-2">
+                <Text className="text-xl font-bold text-text-main">
+                  {currentUser.firstName} {currentUser.lastName}
+                </Text>
+                <Text className="text-base text-text-muted">{currentUser.email}</Text>
+              </View>
+              <Link href="/missions/missions" asChild>
+                <Pressable className="flex flex-row items-center gap-2 rounded-lg bg-orange-500 p-4 shadow-sm active:bg-orange-400">
+                  <Text className="font-bold text-text-inverted">Missions</Text>
+                  <Ionicons name="star" size={20} color="yellow" />
+                </Pressable>
+              </Link>
             </View>
             <View className="mt-10 w-full justify-center gap-5">
               <View className="flex w-full flex-row gap-5">

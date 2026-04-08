@@ -3,14 +3,14 @@ import { View, Text, Modal, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 
-export default function FeedFilterPopup({ visible, onClose, onApply }) {
+export default function PulseFilterPopup({ visible, onClose, onApply }) {
   const [type, setType] = useState('');
   const [urgency, setUrgency] = useState('');
-  const [sortBy, setSortBy] = useState('NEWEST');
+  const [status, setStatus] = useState('NEWEST');
   const [distance, setDistance] = useState(10);
 
   const types = ['Emergency', 'Item', 'Skill'];
-  const sortOptions1 = ['NEWEST', 'OLDEST'];
+  const statusOptions = ['Active', 'Completed'];
 
   const urgencies = [
     { label: 'Low', icon: 'happy-outline', activeBg: 'bg-blue-500', activeText: 'text-white' },
@@ -85,21 +85,22 @@ export default function FeedFilterPopup({ visible, onClose, onApply }) {
             })}
           </View>
 
-          <Text className="mb-2 text-sm font-bold text-text-main">SORT BY</Text>
+          <Text className="mb-2 text-sm font-bold text-text-main">STATUS</Text>
           <View className="mb-2 flex-row gap-2">
-            {sortOptions1.map((item) => (
+            {statusOptions.map((item) => (
               <Pressable
                 key={item}
-                onPress={() => setSortBy(item)}
+                onPress={() => setStatus(item)}
                 className={`flex-1 items-center justify-center rounded-full py-2 ${
-                  sortBy === item ? 'bg-gray-600' : 'bg-gray-200'
+                  status === item ? 'bg-gray-600' : 'bg-gray-200'
                 }`}>
-                <Text className={`font-bold ${sortBy === item ? 'text-white' : 'text-gray-600'}`}>
+                <Text className={`font-bold ${status === item ? 'text-white' : 'text-gray-600'}`}>
                   {item}
                 </Text>
               </Pressable>
             ))}
           </View>
+
           <View className="mb-8 mt-4 rounded-2xl border border-gray-100 bg-surface p-4 shadow-sm">
             <View className="mb-4 flex-row items-center justify-between">
               <View className="flex-row items-center gap-2">
@@ -111,9 +112,9 @@ export default function FeedFilterPopup({ visible, onClose, onApply }) {
 
             <Slider
               style={{ width: '100%', height: 40 }}
-              minimumValue={1}
-              maximumValue={10}
-              step={0.5}
+              minimumValue={0.5}
+              maximumValue={20}
+              step={0.2}
               value={distance}
               onValueChange={(val) => setDistance(val)}
               minimumTrackTintColor="#10b981"
@@ -128,7 +129,7 @@ export default function FeedFilterPopup({ visible, onClose, onApply }) {
               onPress={() => {
                 setType('');
                 setUrgency('');
-                setSortBy('NEWEST');
+                setStatus('');
                 setDistance(10);
               }}>
               <Text className="font-bold text-text-main">CLEAR ALL</Text>
@@ -137,7 +138,7 @@ export default function FeedFilterPopup({ visible, onClose, onApply }) {
             <Pressable
               className="rounded-full bg-black px-8 py-3 active:bg-gray-800 dark:bg-white"
               onPress={() => {
-                onApply({ type, urgency, sortBy, distance });
+                onApply({ type, urgency, status: status, distance: distance });
                 onClose();
               }}>
               <Text className="font-bold text-white dark:text-black">APPLY FILTERS</Text>

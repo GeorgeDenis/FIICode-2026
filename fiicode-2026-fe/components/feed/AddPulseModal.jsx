@@ -7,15 +7,19 @@ import MapView, { Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
 import { useUser } from '../../hooks/useUser';
+import Toast from 'toastify-react-native';
 
 const AddPulseModal = ({ setIsAddPulseModalVisible, isAddPulseModalVisible }) => {
   const { user } = useUser();
   const [pinLocation, setPinLocation] = useState(null);
+  const [selectedSkills, setSelectedSkills] = useState([]);
+
   const [newPulseContent, setNewPulseContent] = useState({
     authorId: null,
     type: '',
     urgencyLevel: '',
     content: '',
+    skills: null,
     latitude: null,
     longitude: null,
     status: '',
@@ -34,6 +38,21 @@ const AddPulseModal = ({ setIsAddPulseModalVisible, isAddPulseModalVisible }) =>
     { label: 'Medium', value: 'Medium' },
     { label: 'High', value: 'High' },
   ]);
+  const AVAILABLE_SKILLS = [
+    { id: 'PHYSICAL_HELP', label: 'Physical Help' },
+    { id: 'MEDICAL', label: 'Medical Help/First aid' },
+    { id: 'TOOLS', label: 'Tools and Equipment' },
+    { id: 'TRANSPORT', label: 'Transport / Evacuation' },
+    { id: 'PET_RESCUE', label: 'Pet Rescue' },
+  ];
+
+  const toggleSkill = (skillId) => {
+    if (selectedSkills.includes(skillId)) {
+      setSelectedSkills((prev) => prev.filter((item) => item !== skillId));
+    } else {
+      setSelectedSkills((prev) => [...prev, skillId]);
+    }
+  };
 
   const handleMapPress = (e) => {
     setPinLocation({
@@ -70,6 +89,7 @@ const AddPulseModal = ({ setIsAddPulseModalVisible, isAddPulseModalVisible }) =>
         type: newPulse.type,
         urgency_level: newPulse.urgencyLevel,
         content: newPulse.content,
+        skills: selectedSkills,
         latitude: newPulse.latitude,
         longitude: newPulse.longitude,
       });
@@ -105,7 +125,7 @@ const AddPulseModal = ({ setIsAddPulseModalVisible, isAddPulseModalVisible }) =>
       transparent={true}
       visible={isAddPulseModalVisible}
       onRequestClose={() => setIsAddPulseModalVisible(false)}>
-      <View className="mt-[60px] flex w-full flex-col gap-4 rounded-b-3xl bg-surface px-5 pb-6 pt-12 shadow-2xl">
+      <View className="mt-[50px] flex w-full flex-col gap-3 rounded-b-3xl bg-surface px-5 pb-6 pt-1 shadow-2xl">
         <View className="flex-row items-center justify-between">
           <Text className="text-xl font-bold tracking-widest text-text-main">Add pulse</Text>
           <Pressable
@@ -147,7 +167,7 @@ const AddPulseModal = ({ setIsAddPulseModalVisible, isAddPulseModalVisible }) =>
             setNewPulseContent((prev) => ({ ...prev, urgencyLevel: value }))
           }
         />
-        <View className="h-72 w-full overflow-hidden rounded-xl border border-gray-300">
+        <View className="h-60 w-full overflow-hidden rounded-xl border border-gray-300">
           {pinLocation ? (
             <MapView
               style={{ width: '100%', height: '100%' }}
@@ -155,8 +175,8 @@ const AddPulseModal = ({ setIsAddPulseModalVisible, isAddPulseModalVisible }) =>
               onPress={handleMapPress}>
               <Marker
                 coordinate={pinLocation}
-                title="Locația Urgenței"
-                description="Aici va fi postat Pulse-ul tău"
+                title="Pulse location"
+                description="This is where the pulse is located"
               />
             </MapView>
           ) : (
@@ -166,11 +186,36 @@ const AddPulseModal = ({ setIsAddPulseModalVisible, isAddPulseModalVisible }) =>
             </View>
           )}
         </View>
+        <View className="mb-4 mt-6">
+          <Text className="mb-4 text-base text-text-main">
+            Select the tags that suit you to be alerted in case of need.
+          </Text>
+
+          <View className="flex-row flex-wrap gap-2">
+            {AVAILABLE_SKILLS.map((skill) => {
+              const isSelected = selectedSkills.includes(skill.id);
+
+              return (
+                <Pressable
+                  key={skill.id}
+                  onPress={() => toggleSkill(skill.id)}
+                  className={`rounded-full border px-4 py-2 ${
+                    isSelected ? 'border-primary bg-primary' : 'border-gray-300 bg-transparent'
+                  }`}>
+                  <Text className={`font-semibold ${isSelected ? 'text-white' : 'text-text-main'}`}>
+                    {skill.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
         <Pressable
           onPress={addPulse}
           className="self-end rounded-lg bg-green-600 px-6 py-3 active:opacity-50">
           <Ionicons name={'checkmark'} size={24} color="white" />
         </Pressable>
+        <Toast />
       </View>
     </Modal>
   );

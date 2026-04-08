@@ -25,7 +25,6 @@ class User(Base):
     quiet_hours_start = Column(Time, nullable=True)
     quiet_hours_end = Column(Time, nullable=True)
 
-
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
 
@@ -41,3 +40,4 @@ class User(Base):
 
     triggered_notifications = relationship("Notification", foreign_keys="[Notification.actor_id]",
                                            back_populates="actor")
+    missions = relationship("Mission", back_populates="hero", cascade="all, delete-orphan")

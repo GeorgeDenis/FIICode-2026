@@ -27,7 +27,7 @@ const ReactionBar = ({
   };
 
   return (
-    <View className="flex flex-row items-center gap-2">
+    <View className="flex flex-row items-center justify-between gap-2">
       <Pressable onPress={() => handleReaction(true)} className="flex flex-row items-center gap-1">
         <Ionicons name="thumbs-up" color="#6495ED" size={20} />
         <Text className="text-sm font-semibold text-text-main">{likes}</Text>

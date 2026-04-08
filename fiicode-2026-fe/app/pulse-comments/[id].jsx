@@ -23,6 +23,7 @@ import api from '../../services/api';
 import PulseComment from '../../components/feed/PulseComment';
 import { useUser } from '../../hooks/useUser';
 import { errorToast } from '../../utils/toast';
+import NoPulse from '../../assets/img/fail_load.png';
 
 const PulseComments = () => {
   const { user } = useUser();
@@ -30,14 +31,21 @@ const PulseComments = () => {
   const [pulse, setPulse] = useState(null);
   const [message, setMessage] = useState('');
   const [comments, setComments] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const flatListRef = useRef(null);
 
   const handleFetchPulse = async () => {
+    setLoading(true);
     try {
       const response = await api.get('/pulse/by-id/' + id);
       setPulse(response.data);
-    } catch (error) {}
+    } catch (error) {
+      setErrorMessage('Could not fetch pulse data');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSendMessage = async () => {
@@ -92,10 +100,22 @@ const PulseComments = () => {
     }
   }, [comments]);
 
-  if (!pulse) {
+  if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" color="#4F46E5" />
+      </View>
+    );
+  }
+
+  if (!loading && !pulse) {
+    return (
+      <View className="flex-1 items-center gap-2 bg-surface">
+        <View className="mt-20 flex-1 items-center gap-2">
+          <Image source={NoPulse} className="h-52 w-64" />
+          <Text className="text-3xl font-bold text-text-main">{`Couldn't load your request.`}</Text>
+          <Text className="text-center text-base text-text-main">{`It's either your internet connection or that the content was deleted`}</Text>
+        </View>
       </View>
     );
   }

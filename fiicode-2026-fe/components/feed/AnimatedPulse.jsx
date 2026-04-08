@@ -7,14 +7,28 @@ import { useRouter } from 'expo-router';
 
 import Animated, { FadeInUp, LinearTransition } from 'react-native-reanimated';
 import ReactionBar from './ReactionBar';
+import { errorToast } from '../../utils/toast';
+import api from '../../services/api';
+import { useUser } from '../../hooks/useUser';
 
 const AnimatedPulse = ({ item, openEditPulseModal }) => {
+  const { user } = useUser();
   const router = useRouter();
 
   const handleNavigation = () => {
     router.push({
       pathname: '/pulse-comments/' + item.id,
     });
+  };
+
+  const handleCreateMission = async () => {
+    try {
+      const response = await api.post('/mission', {
+        pulse_id: item.id,
+      });
+    } catch (error) {
+      errorToast('You are already part of this mission');
+    }
   };
 
   const getBorderColorByType = (item) => {
@@ -79,11 +93,24 @@ const AnimatedPulse = ({ item, openEditPulseModal }) => {
               {item.author ? `${item.author.first_name} ${item.author.last_name}` : 'Anonym'}
             </Text>
           </View>
-          <Pressable
-            onPress={() => openEditPulseModal(item)}
-            className={`${getTypeBadgeColor(item)} rounded-xl p-2`}>
-            <Ionicons name={'pencil-outline'} size={20} color="white" />
-          </Pressable>
+          <View className="flex flex-row items-center gap-2">
+            {user.user_id === item.author_id && (
+              <Pressable
+                onPress={() => openEditPulseModal(item)}
+                className={`${getTypeBadgeColor(item)} items-center gap-1 rounded-xl px-3 py-1`}>
+                <Ionicons name={'pencil-outline'} size={20} color="white" />
+                <Text className="text-text-inverted">Edit</Text>
+              </Pressable>
+            )}
+            {user.user_id !== item.author_id && item.status === 'Active' && (
+              <Pressable
+                onPress={() => handleCreateMission()}
+                className={`${getTypeBadgeColor(item)} items-center gap-1 rounded-xl px-3 py-1`}>
+                <Ionicons name={'hand-right-outline'} size={20} color="white" />
+                <Text className="text-text-inverted">Help</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
 
         <View className="flex flex-row items-center px-4 py-2">
