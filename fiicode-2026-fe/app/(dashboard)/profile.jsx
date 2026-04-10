@@ -177,11 +177,11 @@ const Profile = () => {
                   imageType="shield-checkmark"
                 />
                 <ProfileDataCard
-                  text="Tags"
+                  text="Missions"
                   value="51"
                   imageColor="green"
                   imageBackground="bg-green-300"
-                  imageType="pricetags"
+                  imageType="star"
                 />
               </View>
               <View className="flex w-full flex-row gap-5">

@@ -24,10 +24,16 @@ const MyMissionCard = ({ mission, onMissionUpdate }) => {
   };
 
   const handleSubmitFeedback = async () => {
-    if (!feedbackText.trim() && !feedbackType) {
+    console.log(feedbackText);
+    console.log(feedbackType);
+    if (
+      status === 'Completed' ||
+      (status === 'Declined' && !feedbackText.trim() && !feedbackType)
+    ) {
       alert('Please provide feedback before updating status');
       return;
     }
+
     try {
       await api.put(`/mission/${mission.id}`, { status });
       alert('Feedback submitted!');
@@ -47,7 +53,7 @@ const MyMissionCard = ({ mission, onMissionUpdate }) => {
             {['Pending', 'Accepted', 'Completed', 'Declined'].map((s) => (
               <TouchableOpacity
                 key={s}
-                onPress={() => handleUpdateStatus(s)}
+                onPress={() => setStatus(s)}
                 className={`rounded-full border px-3 py-1 ${
                   status === s ? 'border-blue-500 bg-blue-500' : 'border-gray-300 bg-white'
                 }`}>
@@ -91,7 +97,7 @@ const MyMissionCard = ({ mission, onMissionUpdate }) => {
           <TouchableOpacity
             className="mt-2 items-center rounded-lg bg-green-500 py-2"
             onPress={handleSubmitFeedback}>
-            <Text className="font-semibold text-white">Submit Feedback</Text>
+            <Text className="font-semibold text-white">Update mission</Text>
           </TouchableOpacity>
         </View>
       </View>

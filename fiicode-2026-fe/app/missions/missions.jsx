@@ -34,8 +34,8 @@ const Missions = () => {
   }, []);
 
   const activeMissions = missions.filter(m => m.hero_id === user?.user_id && m.status !== 'Completed');
-  const myMissions = missions.filter(m => m.pulse.author_id === user?.user_id && m.status !== 'Completed');
-  const historyMissions = missions.filter(m => m.status === 'Completed');
+  const myMissions = missions.filter(m => m.pulse.author_id === user?.user_id && (m.status === 'Pending' || m.status === 'Accepted'));
+  const historyMissions = missions.filter(m => m.status !== 'Pending' && m.status !== 'Accepted');
 
   const renderTab = (key, label) => (
     <Pressable
