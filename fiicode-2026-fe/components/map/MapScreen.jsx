@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import api from '../../services/api';
@@ -13,7 +13,7 @@ import { computeHaversineDistance } from '../../utils/utils_functions';
 import { useLocation } from '../../hooks/useLocation';
 
 export default function MapScreen() {
-  const { location } = useLocation();
+  const { location, loading: locationLoading } = useLocation();
   const [region, setRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [pulses, setPulses] = useState([]);
@@ -77,7 +77,14 @@ export default function MapScreen() {
     const distanceLimit = activeFilters.distance ? distanceH <= activeFilters.distance : true;
     return matchesType && matchesUrgency && matchesStatus && distanceLimit;
   });
-
+  if (locationLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-gray-100">
+        <ActivityIndicator size="large" color="#FF0000" />
+        <Text className="mt-2 text-gray-500">GPS search</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, width: '100%', height: '100%' }}>
@@ -116,7 +123,7 @@ export default function MapScreen() {
               latitude: region.latitude,
               longitude: region.longitude,
             }}
-            pinColor={'blue'}
+            pinColor={'purple'}
             title="Your location"
           />
           {filteredPulses &&

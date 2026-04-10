@@ -106,3 +106,10 @@ class PulseService:
             raise AppException("Pulse not found", 404)
 
         return pulse_repository.react_to_pulse(request, user_id, db)
+
+    def update_pulse_visibility(self, pulse_id: str, visible: bool, db: Session):
+        pulse = pulse_repository.get_pulse_by_id(db, pulse_id)
+        if not pulse:
+            raise AppException("Pulse not found", 404)
+        pulse.is_visible = visible
+        return pulse_repository.update_pulse(pulse, db)

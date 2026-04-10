@@ -50,6 +50,7 @@ const AddInGroupModal = ({ conversationId, setVisible }) => {
   };
 
   const handleSelectUser = (user) => {
+    console.log(user);
     if (selectedUser) {
       if (selectedUser.id === user.id) {
         setSelectedUser(null);
@@ -84,12 +85,12 @@ const AddInGroupModal = ({ conversationId, setVisible }) => {
             data={users}
             renderItem={({ item }) => (
               <Pressable
-                className={`bg-surface shadow-sm" mb-3 mt-2 flex flex-row items-center justify-center gap-2 rounded-3xl border p-3.5 ${
-                  selectedUser?.id === item.id ? 'bg-gray-400' : ''
+                className={`mb-3 mt-2 flex flex-row items-center justify-center gap-2 rounded-3xl border p-3.5 shadow-sm ${
+                  selectedUser?.id === item.id ? 'bg-gray-300' : 'bg-surface '
                 }`}
                 onPress={() => handleSelectUser(item)}>
-                <View className="bg-surface flex flex-row items-center gap-2 rounded-xl shadow-sm">
-                  <View className="h-12 w-12 items-center justify-center rounded-full bg-primary shadow-sm">
+                <View className="flex flex-row items-center gap-2 rounded-xl">
+                  <View className="h-12 w-12 items-center justify-center rounded-full bg-primary">
                     <Text className="text-xl font-bold text-white">
                       {`${item.first_name?.charAt(0) || ''}${item.last_name?.charAt(0) || ''}`.toUpperCase() ||
                         '?'}

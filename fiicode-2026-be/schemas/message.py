@@ -5,6 +5,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, field_serializer
 
+from schemas.user import AuthorBasicSchema
+
 
 class MessageCreateSchema(BaseModel):
     text: str
@@ -17,8 +19,11 @@ class MessageResponseSchema(BaseModel):
     text: str
     author_id: UUID
     conversation_id: UUID
+    is_visible: bool
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+    author: AuthorBasicSchema
 
     class Config:
         from_attributes = True

@@ -1,12 +1,12 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from connection_manager.chat_manager import chat_manager
 from database import get_db
-from dependencies import get_current_user
+from dependencies import get_current_user, is_admin
 from schemas.message import MessageResponseSchema, MessageCreateSchema, ConversationResponseSchema, \
     ConversationDetailResponseSchema, ConversationCreateSchema, AddUserInGroupSchema
 from schemas.user import UserResponseSchema
@@ -64,9 +64,10 @@ def add_user_in_group_conversation(request: AddUserInGroupSchema, db: db_depende
     response = chat_service.add_user_in_group_conversation(request, db)
     return response
 
+
 @chat_router.get("/group/users/", response_model=List[UserResponseSchema], status_code=200)
 def get_users_from_group(conversation_id: str, db: db_dependency,
-                                   user_data=Depends(get_current_user)):
+                         user_data=Depends(get_current_user)):
     response = chat_service.get_users_from_group(conversation_id, db)
     return response
 
@@ -74,3 +75,9 @@ def get_users_from_group(conversation_id: str, db: db_dependency,
 @chat_router.get("/group/search/", response_model=List[UserResponseSchema], status_code=200)
 def get_users_not_in_group(query: str, conversation_id: str, db: db_dependency, user_data=Depends(get_current_user)):
     return chat_service.get_users_not_in_group(db, query, conversation_id)
+
+
+@chat_router.put("/visible/{message_id}", response_model=MessageResponseSchema, status_code=200)
+def update_visibility(db: db_dependency, message_id: str, visible: bool = Query(...),
+                      admin: bool = Depends(is_admin)):
+    return chat_service.update_message_visibility(message_id, visible, db)

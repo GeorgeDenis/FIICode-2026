@@ -6,14 +6,15 @@ import api from '../../services/api';
 import { errorToast } from '../../utils/toast';
 import { Ionicons } from '@expo/vector-icons';
 import ProfileDataCard from '../../components/profile/ProfileDataCard';
-import { Hammer, PawPrint, PersonStanding, Van } from 'lucide-react-native';
+import { Hammer, PawPrint, PersonStanding, TriangleAlert, Van } from 'lucide-react-native';
 import { BriefcaseMedical } from 'lucide-react-native/icons';
+import AddReportModal from '../../components/reports/AddReportModal';
 
 const ProfileDetails = () => {
   const { id } = useLocalSearchParams();
   const [user, setUser] = useState(null);
   const router = useRouter();
-
+  const [isReportModalVisible, setIsReportModalVisible] = useState(false);
   const AVAILABLE_SKILLS = [
     {
       id: 'PHYSICAL_HELP',
@@ -116,13 +117,18 @@ const ProfileDetails = () => {
               )}
             </View>
             <View className="mt-14 w-full flex-1 items-center rounded-t-3xl bg-gray-200 p-4">
-              <View className="mt-10 flex w-full flex-row items-center justify-between">
+              <View className="mt-10 flex w-full flex-row items-center justify-between gap-2">
                 <View className="flex-1 flex-col justify-start gap-2 px-3">
                   <Text className="text-xl font-bold text-text-main">
                     {user?.first_name} {user?.last_name}
                   </Text>
                   <Text className="text-base text-text-muted">{user?.email}</Text>
                 </View>
+                <Pressable
+                  onPress={() => setIsReportModalVisible(true)}
+                  className="flex items-center justify-center rounded-lg bg-primary p-3">
+                  <TriangleAlert color="red" size={24} />
+                </Pressable>
                 <Pressable
                   className="flex items-center justify-center rounded-lg bg-primary p-3"
                   onPress={() => handleNavigation()}>
@@ -191,6 +197,12 @@ const ProfileDetails = () => {
           </View>
         </View>
       </ScrollView>
+      <AddReportModal
+        visible={isReportModalVisible}
+        onClose={() => setIsReportModalVisible(false)}
+        itemType="User"
+        item={user}
+      />
     </UserOnly>
   );
 };

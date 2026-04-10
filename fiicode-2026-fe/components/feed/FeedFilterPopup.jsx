@@ -4,11 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 
 export default function FeedFilterPopup({ visible, onClose, onApply }) {
+  const [target, setTarget] = useState('All');
   const [type, setType] = useState('');
   const [urgency, setUrgency] = useState('');
   const [sortBy, setSortBy] = useState('NEWEST');
   const [distance, setDistance] = useState(10);
 
+  const targets = ['All', 'Owned'];
   const types = ['Emergency', 'Item', 'Skill'];
   const sortOptions1 = ['NEWEST', 'OLDEST'];
 
@@ -33,7 +35,22 @@ export default function FeedFilterPopup({ visible, onClose, onApply }) {
               <Ionicons name="close" size={28} color="gray" />
             </Pressable>
           </View>
-
+          <Text className="mb-2 text-sm font-bold text-text-main">TARGET</Text>
+          <View className="mb-2 flex-row gap-2">
+            {targets.map((item) => (
+              <Pressable
+                key={item}
+                onPress={() => setTarget(item)}
+                className={`flex-1 items-center justify-center rounded-full py-2 ${
+                  target === item ? 'bg-gray-600' : 'bg-gray-200'
+                }`}>
+                <Text
+                  className={`font-bold ${target === item ? 'text-white' : 'text-gray-600'}`}>
+                  {item}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
           <Text className="mb-2 text-sm font-bold text-text-main">TYPE</Text>
           <View className="mb-6 flex-row flex-wrap gap-2">
             {types.map((item) => {
@@ -130,6 +147,7 @@ export default function FeedFilterPopup({ visible, onClose, onApply }) {
                 setUrgency('');
                 setSortBy('NEWEST');
                 setDistance(10);
+                setTarget('All');
               }}>
               <Text className="font-bold text-text-main">CLEAR ALL</Text>
             </Pressable>
@@ -137,7 +155,7 @@ export default function FeedFilterPopup({ visible, onClose, onApply }) {
             <Pressable
               className="rounded-full bg-black px-8 py-3 active:bg-gray-800 dark:bg-white"
               onPress={() => {
-                onApply({ type, urgency, sortBy, distance });
+                onApply({ type, urgency, sortBy, distance, target });
                 onClose();
               }}>
               <Text className="font-bold text-white dark:text-black">APPLY FILTERS</Text>

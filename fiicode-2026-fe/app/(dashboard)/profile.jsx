@@ -28,6 +28,7 @@ const Profile = () => {
     description: '',
     profileImageUrl: null,
     skills: null,
+    role: 0,
   });
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
@@ -67,7 +68,7 @@ const Profile = () => {
   const fetchUserData = async () => {
     try {
       const response = await api.get('/auth/account');
-      const { first_name, last_name, email, description, image, skills } = response.data;
+      const { first_name, last_name, email, description, image, skills, role } = response.data;
       setCurrentUser({
         firstName: first_name,
         lastName: last_name,
@@ -75,6 +76,7 @@ const Profile = () => {
         email,
         profileImageUrl: image,
         skills,
+        role,
       });
     } catch (error) {
       if (error.response && error.response.status === 403) {
@@ -148,12 +150,22 @@ const Profile = () => {
                 </Text>
                 <Text className="text-base text-text-muted">{currentUser.email}</Text>
               </View>
-              <Link href="/missions/missions" asChild>
-                <Pressable className="flex flex-row items-center gap-2 rounded-lg bg-orange-500 p-4 shadow-sm active:bg-orange-400">
-                  <Text className="font-bold text-text-inverted">Missions</Text>
-                  <Ionicons name="star" size={20} color="yellow" />
-                </Pressable>
-              </Link>
+              <View className="flex flex-col gap-2">
+                <Link href="/missions/missions" asChild>
+                  <Pressable className="flex flex-row items-center gap-2 rounded-lg bg-orange-500 p-4 shadow-sm active:bg-orange-400">
+                    <Text className="font-bold text-text-inverted">Missions</Text>
+                    <Ionicons name="star" size={20} color="yellow" />
+                  </Pressable>
+                </Link>
+                {currentUser.role === 1 && (
+                  <Link href="/reports" asChild>
+                    <Pressable className="flex flex-row items-center gap-2 rounded-lg bg-red-500 p-4 shadow-sm active:bg-red-400">
+                      <Text className="font-bold text-text-inverted">Reports</Text>
+                      <Ionicons name="flag" size={20} color="white" />
+                    </Pressable>
+                  </Link>
+                )}
+              </View>
             </View>
             <View className="mt-10 w-full justify-center gap-5">
               <View className="flex w-full flex-row gap-5">

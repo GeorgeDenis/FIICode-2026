@@ -2,12 +2,11 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Query
 from fastapi import Depends
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from connection_manager.feed_manager import feed_manager
 from database import get_db
-from dependencies import get_current_user
+from dependencies import get_current_user, is_admin
 from schemas.pulse import PulseCreateSchema, PulseResponseSchema, PulseCommentResponseSchema, PulseCommentCreateSchema, \
     PulseUpdateSchema, PulseReactionCreateSchema, PulseReactionResponseSchema
 from services.pulse import PulseService
@@ -40,6 +39,7 @@ async def update_pulse(request: PulseUpdateSchema, db: db_dependency, user_data=
 @pulse_router.get("", response_model=List[PulseResponseSchema], status_code=200)
 def get_all_pulses(db: db_dependency, user_data=Depends(get_current_user)):
     return pulse_service.get_all_pulses(db)
+
 
 @pulse_router.get("/account", response_model=List[PulseResponseSchema], status_code=200)
 def get_all_pulses_by_user_limits(db: db_dependency, user_data=Depends(get_current_user)):
@@ -84,3 +84,9 @@ def react_to_pulse(request: PulseReactionCreateSchema, db: db_dependency, user_d
     # pulse_data = PulseResponseSchema.model_validate(response).model_dump(mode="json")
     # feed_manager.broadcast(pulse_data)
     return response
+
+
+@pulse_router.put("/visible/{pulse_id}", response_model=PulseResponseSchema, status_code=200)
+def update_visibility(db: db_dependency, pulse_id: str, visible: bool = Query(...),
+                      admin: bool = Depends(is_admin)):
+    return pulse_service.update_pulse_visibility(pulse_id, visible, db)

@@ -3,6 +3,7 @@ import datetime
 from sqlalchemy import func, case
 from sqlalchemy.orm import Session, joinedload
 
+from exceptions.exceptions import AppException
 from models.pulse import Pulse, PulseComment, PulseReaction, PulseReaction
 from models.user import User
 from schemas.pulse import PulseCreateSchema, PulseCommentCreateSchema, PulseReactionCreateSchema, \
@@ -85,7 +86,6 @@ class PulseRepository:
 
         return nearby_pulses
 
-
     def add_pulse_comment(self, request: PulseCommentCreateSchema, db: Session):
         pulse_comment = PulseComment(
             author_id=request.author_id,
@@ -127,6 +127,11 @@ class PulseRepository:
 
         dislike_count = db.query(PulseReaction).filter(PulseReaction.pulse_id == request.pulse_id,
                                                        PulseReaction.is_like != True).count()
+        print(f"Like count: {like_count}, Dislike count: {dislike_count}")
+        if like_count >= 3:
+            self.set_pulse_verified_status(str(request.pulse_id), True, db)
+        elif like_count <= 3 and dislike_count > like_count:
+            self.set_pulse_verified_status(str(request.pulse_id), False, db)
 
         response = PulseReactionResponseSchema(
             pulse_id=request.pulse_id,
@@ -135,6 +140,14 @@ class PulseRepository:
         )
 
         return response
+
+    def set_pulse_verified_status(self, pulse_id: str, status: bool, db: Session):
+        pulse = db.query(Pulse).filter(Pulse.id == pulse_id).first()
+        if not pulse:
+            raise AppException("Pulse not found", 404)
+        pulse.is_verified = status
+
+        return self.save_pulse(pulse, db)
 
     def save_pulse(self, pulse: Pulse, db: Session):
         db.add(pulse)

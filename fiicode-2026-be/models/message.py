@@ -15,6 +15,7 @@ class Message(Base):
 
     author_id = Column(UUID, ForeignKey("users.id"))
     conversation_id = Column(UUID, ForeignKey("conversations.id"))
+    is_visible = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

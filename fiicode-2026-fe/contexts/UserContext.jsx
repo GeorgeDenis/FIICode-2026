@@ -34,8 +34,9 @@ export function UserProvider({ children }) {
         const token = await SecureStore.getItemAsync('userToken');
         const decoded = jwtDecode(token);
         const user_id = decoded.id;
+        const role = decoded.role;
         if (token) {
-          setUser({ token: token, user_id, });
+          setUser({ token: token, user_id, role });
         }
       } catch (error) {
         console.log('Error reading token:', error);
@@ -55,7 +56,8 @@ export function UserProvider({ children }) {
       await SecureStore.setItemAsync('userToken', token);
       const decoded = jwtDecode(token);
       const user_id = decoded.id;
-      setUser({ token: token, user_id });
+      const role = decoded.role;
+      setUser({ token: token, user_id, role });
       successToast('Login successful');
     } catch (error) {
       const backendMessage = error.response?.data?.error?.message;

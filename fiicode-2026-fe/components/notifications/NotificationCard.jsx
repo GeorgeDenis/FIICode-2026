@@ -26,24 +26,24 @@ const NotificationCard = ({ item, fetchNotifications }) => {
     }
   };
 
+  const getPathnameByType = (itemType) => {
+    switch (item.type) {
+      case 'Comment':
+        return `/pulse-comments/${item.entity_id}`;
+      case 'Mission':
+        return '/missions/missions';
+      case 'Pulse':
+        return `/pulse-comments/${item.entity_id}`;
+      default:
+        return '/';
+    }
+  };
+
   const handleNavigation = () => {
     if (!item.entity_id) {
       return;
     }
-    let pathname = '';
-    switch (item.type) {
-      case 'Comment':
-        pathname = `/pulse-comment/${item.entity_id}`;
-        break;
-      case 'Mission':
-        pathname = '/missions/missions';
-        break;
-      case 'Pulse':
-        pathname = '/(dashboard)/feed';
-        break;
-      default:
-        pathname = '/';
-    }
+    let pathname = getPathnameByType(item.type);
     router.push({
       pathname,
     });

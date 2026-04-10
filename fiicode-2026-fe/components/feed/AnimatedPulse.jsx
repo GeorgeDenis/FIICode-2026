@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { formatMessageDateTime } from '../../utils/utils_functions';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,10 +10,13 @@ import ReactionBar from './ReactionBar';
 import { errorToast } from '../../utils/toast';
 import api from '../../services/api';
 import { useUser } from '../../hooks/useUser';
+import AddReportModal from '../reports/AddReportModal';
+import { TriangleAlert } from 'lucide-react-native';
 
 const AnimatedPulse = ({ item, openEditPulseModal }) => {
   const { user } = useUser();
   const router = useRouter();
+  const [isReportModalVisible, setIsReportModalVisible] = useState(false);
 
   const handleNavigation = () => {
     router.push({
@@ -83,6 +86,14 @@ const AnimatedPulse = ({ item, openEditPulseModal }) => {
             <Text className="text-md font-semibold text-white">{item.type}</Text>
           </View>
           <Text className="text-sm font-bold text-white">Status: {item.status}</Text>
+          <View className="flex flex-row items-center gap-2">
+            <Text className="text-sm font-bold text-white">Verified: </Text>
+            {item.is_verified ? (
+              <Ionicons name={'shield-checkmark'} size={20} color="#10b981" />
+            ) : (
+              <Ionicons name={'close-circle'} size={20} color="#ef4444" />
+            )}
+          </View>
           <Text className="text-sm font-bold text-white">{item.urgency_level.toUpperCase()}</Text>
         </View>
 
@@ -110,6 +121,13 @@ const AnimatedPulse = ({ item, openEditPulseModal }) => {
                 <Text className="text-text-inverted">Help</Text>
               </Pressable>
             )}
+            {user.user_id !== item.author_id && item.status === 'Active' && (
+              <Pressable
+                onPress={() => setIsReportModalVisible(true)}
+                className={`${getTypeBadgeColor(item)} items-center gap-1 rounded-xl px-3 py-3`}>
+                <TriangleAlert color="white" size={24} />
+              </Pressable>
+            )}
           </View>
         </View>
 
@@ -126,6 +144,7 @@ const AnimatedPulse = ({ item, openEditPulseModal }) => {
           </Pressable>
           <ReactionBar
             pulseId={item.id}
+            authorId={item.author_id}
             initialLikes={item.likes_count}
             initialDislikes={item.dislikes_count}
           />
@@ -139,6 +158,12 @@ const AnimatedPulse = ({ item, openEditPulseModal }) => {
           </View>
         </View>
       </View>
+      <AddReportModal
+        visible={isReportModalVisible}
+        onClose={() => setIsReportModalVisible(false)}
+        itemType="Pulse"
+        item={item}
+      />
     </Animated.View>
   );
 };

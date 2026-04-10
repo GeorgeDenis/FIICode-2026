@@ -38,6 +38,9 @@ class Pulse(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
+    is_verified = Column(Boolean, nullable=True, default=False)
+    is_visible = Column(Boolean, nullable=True, default=True)
+
     author = relationship("User", back_populates="pulses")
     missions = relationship("Mission", back_populates="pulse", cascade="all, delete-orphan")
 
@@ -51,6 +54,7 @@ class PulseComment(Base):
     content = Column(String)
 
     author = relationship("User", back_populates="pulse_comments")
+
 
 class PulseReaction(Base):
     __tablename__ = "pulse_reactions"

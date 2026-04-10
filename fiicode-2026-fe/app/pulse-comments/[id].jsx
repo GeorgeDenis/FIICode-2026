@@ -24,15 +24,21 @@ import PulseComment from '../../components/feed/PulseComment';
 import { useUser } from '../../hooks/useUser';
 import { errorToast } from '../../utils/toast';
 import NoPulse from '../../assets/img/fail_load.png';
+import MapView, { Marker, Polyline } from 'react-native-maps';
+import { useLocation } from '../../hooks/useLocation';
+import axios from 'axios';
 
 const PulseComments = () => {
   const { user } = useUser();
+  const { location, loading: locationLoading } = useLocation();
   const { id } = useLocalSearchParams();
   const [pulse, setPulse] = useState(null);
   const [message, setMessage] = useState('');
   const [comments, setComments] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pinLocation, setPinLocation] = useState(null);
+  const [routeCoords, setRouteCoords] = useState([]);
 
   const flatListRef = useRef(null);
 
@@ -89,6 +95,12 @@ const PulseComments = () => {
   useEffect(() => {
     if (pulse) {
       fetchComments();
+      setPinLocation({
+        latitude: pulse.latitude,
+        longitude: pulse.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
     }
   }, [pulse]);
 
@@ -99,6 +111,32 @@ const PulseComments = () => {
       }, 100);
     }
   }, [comments]);
+
+  useEffect(() => {
+    if (location?.coords && pinLocation) {
+      const fetchRoute = async () => {
+        try {
+          const startLoc = `${location.coords.longitude},${location.coords.latitude}`;
+          const endLoc = `${pinLocation.longitude},${pinLocation.latitude}`;
+
+          const response = await axios.get(
+            `http://router.project-osrm.org/route/v1/driving/${startLoc};${endLoc}?geometries=geojson`
+          );
+
+          const coordinates = response.data.routes[0].geometry.coordinates.map((coord) => ({
+            latitude: coord[1],
+            longitude: coord[0],
+          }));
+
+          setRouteCoords(coordinates);
+        } catch (error) {
+          console.error('Error generating route', error);
+        }
+      };
+
+      fetchRoute();
+    }
+  }, [location, pinLocation]);
 
   if (loading) {
     return (
@@ -125,7 +163,7 @@ const PulseComments = () => {
       className="flex-1 bg-background"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
-      <View className="flex flex-1 flex-col bg-background">
+      <View className="flex flex-1 flex-col bg-background p-2">
         <View className={`m-2 border ${getBorderColorByType(pulse)} rounded-xl`}>
           <View
             className={`flex flex-row items-center gap-2 ${getTypeBadgeColor(pulse)} justify-between rounded-xl rounded-b-none p-4`}>
@@ -153,6 +191,35 @@ const PulseComments = () => {
           <View className="pulses-center flex flex-row px-4 py-2">
             <Text className="text-base text-text-main">{pulse.content}</Text>
           </View>
+        </View>
+        <View
+          className={`h-60 w-full overflow-hidden rounded-xl  border ${getBorderColorByType(pulse)} `}>
+          {pinLocation && !locationLoading ? (
+            <MapView style={{ width: '100%', height: '100%' }} initialRegion={pinLocation}>
+              <Marker
+                coordinate={pinLocation}
+                title="Pulse location"
+                description="This is where the pulse is located"
+              />
+
+              <Marker
+                coordinate={{
+                  latitude: location.coords.latitude,
+                  longitude: location.coords.longitude,
+                }}
+                pinColor={'purple'}
+                title="Your location"
+              />
+              {routeCoords.length > 0 && (
+                <Polyline coordinates={routeCoords} strokeWidth={5} strokeColor="#10b981" />
+              )}
+            </MapView>
+          ) : (
+            <View className="flex-1 items-center justify-center bg-gray-100">
+              <ActivityIndicator size="large" color="#FF0000" />
+              <Text className="mt-2 text-gray-500">GPS search</Text>
+            </View>
+          )}
         </View>
         {comments && comments.length > 0 && (
           <FlatList

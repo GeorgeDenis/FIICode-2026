@@ -40,14 +40,15 @@ class ChatService:
         ).all()
 
         receiver_ids = [str(member.user_id) for member in members]
-
         response = MessageResponseSchema(
             id=new_message.id,
             text=new_message.text,
             author_id=new_message.author_id,
             conversation_id=new_message.conversation_id,
             created_at=new_message.created_at,
-            updated_at=new_message.updated_at
+            updated_at=new_message.updated_at,
+            author=new_message.author,
+            is_visible=new_message.is_visible,
         )
 
         return response, receiver_ids
@@ -96,3 +97,10 @@ class ChatService:
         users = user_service.get_users_by_ids(member_ids, db)
 
         return users
+
+    def update_message_visibility(self, message_id, visible, db: Session):
+        message = chat_repository.get_message_by_id(db, message_id)
+        if not message:
+            raise AppException("Message not found", 404)
+        message.visibility = visible
+        return chat_repository.save_message(message, db)

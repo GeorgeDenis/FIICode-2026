@@ -10,8 +10,10 @@ import NoPulse from '../../assets/img/no_pulses.png';
 import EditPulseModal from '../../components/feed/EditPulseModal';
 import { useLocation } from '../../hooks/useLocation';
 import { computeHaversineDistance } from '../../utils/utils_functions';
+import { useUser } from '../../hooks/useUser';
 
 const Feed = () => {
+  const {user} = useUser();
   const { location, loading: locationLoading } = useLocation();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [pulses, setPulses] = useState([]);
@@ -20,6 +22,7 @@ const Feed = () => {
     urgencyLevel: null,
     sortBy: 'DATE (NEWEST)',
     distance: null,
+    target: 'All'
   });
   const [selectedPulse, setSelectedPulse] = useState(null);
   const [isAddPulseModalVisible, setIsAddPulseModalVisible] = useState(false);
@@ -94,7 +97,9 @@ const Feed = () => {
       const matchesUrgency = activeFilters.urgency
         ? pulse.urgency_level === activeFilters.urgency
         : true;
-      return matchesType && matchesUrgency && distanceLimit;
+      const matchesTarget = activeFilters.target === 'Owned' ? pulse.author_id === user.user_id : true
+
+      return matchesType && matchesUrgency && distanceLimit && matchesTarget;
     })
     .sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();

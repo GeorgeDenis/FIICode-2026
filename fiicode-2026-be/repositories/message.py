@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from exceptions.exceptions import AppException
 from models.message import Message, ConversationMember, Conversation
@@ -21,6 +21,10 @@ class ChatRepository:
         db.commit()
         db.refresh(conversation)
         return conversation
+
+    def get_message_by_id(self, db: Session, message_id: str):
+        message = db.query(Message).filter(Message.id == message_id).first()
+        return message
 
     def get_conversation_by_id(self, db: Session, conversation_id: str):
         conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
@@ -54,8 +58,10 @@ class ChatRepository:
             return {"messages": [], "members": []}
 
         members_list = [member.user for member in conversation.members]
-        messages_list = db.query(Message).filter(Message.conversation_id == conversation_id).order_by(
-            Message.created_at.asc()).all()
+        messages_list = (db.query(Message).options(joinedload(Message.author))
+                         .filter(Message.conversation_id == conversation_id).order_by(
+            Message.created_at.asc()).all())
+
 
         return {
             "messages": messages_list,
@@ -92,3 +98,9 @@ class ChatRepository:
         db.refresh(conversation_member)
 
         return conversation
+
+    def save_message(self, message: Message, db: Session):
+        db.add(message)
+        db.commit()
+        db.refresh(message)
+        return message

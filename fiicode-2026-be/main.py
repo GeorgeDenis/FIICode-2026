@@ -6,6 +6,7 @@ import models.pulse as pulse_model
 import models.user as user_model
 import models.notification as notification_model
 import models.mission as hero_mission_model
+import models.report as report_model
 from connection_manager.chat_manager import chat_manager
 from connection_manager.feed_manager import feed_manager
 from database import engine
@@ -14,6 +15,7 @@ from routers.auth import auth_router
 from routers.chat import chat_router
 from routers.notification import notification_router
 from routers.pulse import pulse_router
+from routers.report import report_router
 from routers.user import user_router
 from routers.mission import mission_router
 
@@ -39,6 +41,7 @@ app.include_router(chat_router)
 app.include_router(user_router)
 app.include_router(notification_router)
 app.include_router(mission_router)
+app.include_router(report_router)
 
 register_exception_handlers(app)
 user_model.Base.metadata.create_all(bind=engine)
@@ -46,6 +49,7 @@ pulse_model.Base.metadata.create_all(bind=engine)
 message_model.Base.metadata.create_all(bind=engine)
 notification_model.Base.metadata.create_all(bind=engine)
 hero_mission_model.Base.metadata.create_all(bind=engine)
+report_model.Base.metadata.create_all(bind=engine)
 
 
 @app.get("/")
