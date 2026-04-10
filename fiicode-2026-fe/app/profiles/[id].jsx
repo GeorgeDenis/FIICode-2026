@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ProfileDataCard from '../../components/profile/ProfileDataCard';
 import { Hammer, PawPrint, PersonStanding, TriangleAlert, Van } from 'lucide-react-native';
 import { BriefcaseMedical } from 'lucide-react-native/icons';
-import AddReportModal from '../../components/reports/AddReportModal';
+import AddReportModal from '../../components/admin/reports/AddReportModal';
 
 const ProfileDetails = () => {
   const { id } = useLocalSearchParams();

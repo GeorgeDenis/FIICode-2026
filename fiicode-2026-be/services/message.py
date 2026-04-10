@@ -102,5 +102,5 @@ class ChatService:
         message = chat_repository.get_message_by_id(db, message_id)
         if not message:
             raise AppException("Message not found", 404)
-        message.visibility = visible
+        message.is_visible = visible
         return chat_repository.save_message(message, db)

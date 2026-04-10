@@ -28,6 +28,7 @@ class UserResponseSchema(BaseModel):
     distance_limit_km: Optional[float] = None
     quiet_hours_start: Optional[datetime.time] = None
     quiet_hours_end: Optional[datetime.time] = None
+    is_visible: Optional[bool] = None
     created_at: Optional[datetime.datetime] = None
     updated_at: Optional[datetime.datetime] = None
 

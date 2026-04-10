@@ -7,7 +7,10 @@ from models.report import ReportStatus
 from repositories.pulse import PulseRepository
 from repositories.report import ReportRepository
 from repositories.user import UserRepository
+from routers.chat import chat_service
 from routers.pulse import pulse_service
+from schemas.notification import NotificationCreateSchema
+from services.message import ChatService
 from services.pulse import PulseService
 from services.user import UserService
 
@@ -17,6 +20,7 @@ class ReportService:
         self.report_repository = ReportRepository()
         self.user_service = UserService()
         self.pulse_service = PulseService()
+        self.chat_service = ChatService()
 
     def create_report(self, request, user_id, db: Session):
         self.user_service.find_user_by_id(user_id, db)
@@ -36,6 +40,10 @@ class ReportService:
 
         if request.status == ReportStatus.DELETED:
             if request.target_type == 'Pulse':
-                pulse_service.update_pulse_visibility(request.target_id, False, db)
+                self.pulse_service.update_pulse_visibility(request.target_id, False, db)
+            elif request.target_type == 'Message':
+                self.chat_service.update_message_visibility(request.target_id, False, db)
+            elif request.target_type == 'User':
+                self.user_service.update_user_visibility(request.target_id, False, db)
 
         return self.report_repository.save_report(report, db)

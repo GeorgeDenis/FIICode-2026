@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Integer, Column, String, DateTime, Float, func, LargeBinary, JSON, Time
+from sqlalchemy import Integer, Column, String, DateTime, Float, func, LargeBinary, JSON, Time, Boolean
 from sqlalchemy.dialects.postgresql.base import UUID
 from sqlalchemy.orm import relationship
 
@@ -27,6 +27,8 @@ class User(Base):
 
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+
+    is_visible = Column(Boolean, default=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now())

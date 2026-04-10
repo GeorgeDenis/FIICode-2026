@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 const ReportCard = ({ report, openModal }) => {
@@ -79,11 +78,11 @@ const ReportCard = ({ report, openModal }) => {
             onPress={() => {
               openModal();
             }}>
-            <Text className="text-xs font-bold text-indigo-600">Details</Text>
+            <Text className="text-xs font-bold text-indigo-600">Action</Text>
           </Pressable>
         </View>
         {report.resolved_by_id && (
-          <View className="flex-row items-center justify-between mt-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+          <View className="mt-2 flex-row items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
             <View className="flex-row items-center gap-2">
               <View className="h-8 w-8 items-center justify-center rounded-full bg-indigo-100">
                 <Ionicons name="refresh-outline" size={16} color="#6366F1" />
@@ -96,6 +95,21 @@ const ReportCard = ({ report, openModal }) => {
                     hour: '2-digit',
                     minute: '2-digit',
                   })}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+        {report.resolver_notes && (
+          <View className="mt-2 flex-row items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
+            <View className="flex-row items-center gap-2">
+              <View className="h-8 w-8 items-center justify-center rounded-full bg-indigo-100">
+                <Ionicons name="document-text-outline" size={16} color="#6366F1" />
+              </View>
+              <View>
+                <Text className="text-[10px] text-slate-400">RESOLVER NOTES</Text>
+                <Text className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                  {report.resolver_notes}
                 </Text>
               </View>
             </View>

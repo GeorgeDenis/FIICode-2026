@@ -99,7 +99,7 @@ const Feed = () => {
         : true;
       const matchesTarget = activeFilters.target === 'Owned' ? pulse.author_id === user.user_id : true
 
-      return matchesType && matchesUrgency && distanceLimit && matchesTarget;
+      return matchesType && matchesUrgency && distanceLimit && matchesTarget && pulse.is_visible;
     })
     .sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();

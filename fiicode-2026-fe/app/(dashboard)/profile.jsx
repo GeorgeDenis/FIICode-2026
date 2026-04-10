@@ -152,15 +152,15 @@ const Profile = () => {
               </View>
               <View className="flex flex-col gap-2">
                 <Link href="/missions/missions" asChild>
-                  <Pressable className="flex flex-row items-center gap-2 rounded-lg bg-orange-500 p-4 shadow-sm active:bg-orange-400">
+                  <Pressable className="flex flex-row items-center justify-between gap-2 rounded-lg bg-orange-500 p-4 shadow-sm active:bg-orange-400">
                     <Text className="font-bold text-text-inverted">Missions</Text>
                     <Ionicons name="star" size={20} color="yellow" />
                   </Pressable>
                 </Link>
                 {currentUser.role === 1 && (
-                  <Link href="/reports" asChild>
-                    <Pressable className="flex flex-row items-center gap-2 rounded-lg bg-red-500 p-4 shadow-sm active:bg-red-400">
-                      <Text className="font-bold text-text-inverted">Reports</Text>
+                  <Link href="/admin/admin-dashboard" asChild>
+                    <Pressable className="flex flex-row items-center justify-between gap-2 rounded-lg bg-red-500 p-4 shadow-sm active:bg-red-400">
+                      <Text className="font-bold text-text-inverted">Admin</Text>
                       <Ionicons name="flag" size={20} color="white" />
                     </Pressable>
                   </Link>

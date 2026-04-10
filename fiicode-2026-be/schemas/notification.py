@@ -35,3 +35,11 @@ class NotificationUnreadCountResponseSchema(BaseModel):
     count: int
     class Config:
         from_attributes = True
+
+
+class BroadcastNotificationSchema(BaseModel):
+    latitude: float
+    longitude: float
+    radius: float
+    content: str
+    type: str  # 'Emergency' or 'News'

@@ -59,7 +59,7 @@ const Notifications = () => {
             </View>
           </View>
         ) : (
-          <View className="w-full flex-1 px-4">
+          <View className="w-full flex-1 px-4 py-4">
             <FlatList
               data={notifications}
               renderItem={({ item }) => (

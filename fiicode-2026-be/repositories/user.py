@@ -13,8 +13,8 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
 class UserRepository:
-    def get_all_users(self, db: Session):
-        return db.query(User).all()
+    def get_all_users(self, user_id: str, db: Session):
+        return db.query(User).filter(User.id != user_id).all()
 
     def get_users_by_query(self, query: str, db: Session):
         search_term = f"%{query}%"
@@ -95,6 +95,23 @@ class UserRepository:
             User.longitude.is_not(None),
             distance_expr <= User.distance_limit_km,
             is_available
+        ).all()
+
+    def find_users_in_range(self, latitude: float, longitude: float, radius: float, db: Session):
+        lat1 = func.radians(latitude)
+        lon1 = func.radians(longitude)
+        lat2 = func.radians(User.latitude)
+        lon2 = func.radians(User.longitude)
+
+        distance_expr = 6371.0 * func.acos(
+            func.cos(lat1) * func.cos(lat2) * func.cos(lon2 - lon1) +
+            func.sin(lat1) * func.sin(lat2)
+        )
+
+        return db.query(User).filter(
+            User.latitude.is_not(None),
+            User.longitude.is_not(None),
+            distance_expr <= radius
         ).all()
 
     def save_user(self, user: User, db: Session):

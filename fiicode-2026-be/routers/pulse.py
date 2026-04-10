@@ -90,3 +90,9 @@ def react_to_pulse(request: PulseReactionCreateSchema, db: db_dependency, user_d
 def update_visibility(db: db_dependency, pulse_id: str, visible: bool = Query(...),
                       admin: bool = Depends(is_admin)):
     return pulse_service.update_pulse_visibility(pulse_id, visible, db)
+
+
+@pulse_router.delete("/{pulse_id}", status_code=204)
+def delete_pulse(pulse_id: str, db: db_dependency, admin: bool = Depends(is_admin)):
+    pulse_service.delete_pulse_by_admin(pulse_id, db)
+    return {"success": True, "message": "Pulse deleted and user notified"}

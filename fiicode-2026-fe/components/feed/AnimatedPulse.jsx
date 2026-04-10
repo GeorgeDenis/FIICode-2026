@@ -10,7 +10,7 @@ import ReactionBar from './ReactionBar';
 import { errorToast } from '../../utils/toast';
 import api from '../../services/api';
 import { useUser } from '../../hooks/useUser';
-import AddReportModal from '../reports/AddReportModal';
+import AddReportModal from '../admin/reports/AddReportModal';
 import { TriangleAlert } from 'lucide-react-native';
 
 const AnimatedPulse = ({ item, openEditPulseModal }) => {

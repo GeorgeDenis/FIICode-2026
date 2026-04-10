@@ -9,8 +9,8 @@ user_repository = UserRepository()
 
 
 class UserService:
-    def get_all_users(self, db: Session):
-        return user_repository.get_all_users(db)
+    def get_all_users(self, user_id: str, db: Session):
+        return user_repository.get_all_users(user_id, db)
 
     def get_users_by_query_by_name(self, query: str, db: Session):
         return user_repository.get_users_by_query(query, db)
@@ -89,3 +89,25 @@ class UserService:
         user.longitude = longitude
 
         return user_repository.update_account_db(user, db)
+
+    def update_user_visibility(self, user_id, visible, db: Session):
+        user = self.find_user_by_id(user_id, db)
+        if not user:
+            raise AppException("User not found", 404)
+        user.is_visible = visible
+        return user_repository.save_user(user, db)
+
+    def delete_user_by_id(self, user_id, db: Session):
+        user = self.find_user_by_id(user_id, db)
+        if not user:
+            raise AppException("User not found", 404)
+
+        user_repository.delete_user_from_db(user, db)
+
+    def promote_user_to_admin(self, user_id, db: Session):
+        user = self.find_user_by_id(user_id, db)
+        if not user:
+            raise AppException("User not found", 404)
+
+        user.role = 1
+        return user_repository.save_user(user, db)

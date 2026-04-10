@@ -111,5 +111,29 @@ class PulseService:
         pulse = pulse_repository.get_pulse_by_id(db, pulse_id)
         if not pulse:
             raise AppException("Pulse not found", 404)
+        notification = NotificationCreateSchema(
+            recipient_id=pulse.author_id,
+            actor_id=pulse.author_id,
+            type="Pulse",
+            content=f"Your pulse {pulse.content[:20]}... has been {'hidden' if not visible else 'unhidden'} by an administrator {' for not following the community guidelines.' if not visible else ''}",
+            entity_id=pulse.id,
+        )
+        notification_service.add_notification(notification, db)
         pulse.is_visible = visible
         return pulse_repository.update_pulse(pulse, db)
+
+    def delete_pulse_by_admin(self, pulse_id: str, db: Session):
+        pulse = pulse_repository.get_pulse_by_id(db, pulse_id)
+        if not pulse:
+            raise AppException("Pulse not found", 404)
+
+        notification = NotificationCreateSchema(
+            recipient_id=pulse.author_id,
+            actor_id=pulse.author_id,
+            type="Pulse",
+            content=f"Your pulse '{pulse.content[:20]}...' has been restricted and removed by an administrator for not following community guidelines.",
+            entity_id=None,
+        )
+        notification_service.add_notification(notification, db)
+
+        return pulse_repository.delete_pulse(pulse, db)

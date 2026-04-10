@@ -49,26 +49,63 @@ const NotificationCard = ({ item, fetchNotifications }) => {
     });
   };
 
+  const getSpecialStyles = () => {
+    switch (item.type) {
+      case 'Emergency':
+        return {
+          container: 'border-2 border-rose-500 bg-rose-50 dark:bg-rose-900/20',
+          iconName: 'alert-circle',
+          iconColor: '#F43F5E',
+          title: 'EMERGENCY ALERT',
+          titleColor: 'text-rose-600 font-black',
+        };
+      case 'News':
+        return {
+          container: 'border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20',
+          iconName: 'information-circle',
+          iconColor: '#3B82F6',
+          title: 'COMMUNITY NEWS',
+          titleColor: 'text-blue-600 font-black',
+        };
+      default:
+        return null;
+    }
+  };
+
+  const specialStyles = getSpecialStyles();
+
   return (
     <Pressable
       onPress={handleReadNotification}
       key={item.id}
-      className={`mb-4 w-full flex-1 rounded-lg ${item.is_read ? 'bg-surface' : 'bg-white/75'} p-4 shadow-sm`}>
-      <View className="flex-row items-center gap-3">
-        {item.actor?.image ? (
+      className={`mb-4 w-full flex-1 rounded-xl ${item.is_read ? 'bg-surface' : 'bg-white'} p-4 shadow-sm ${specialStyles?.container || ''}`}>
+      <View className="flex-row items-center gap-4">
+        {specialStyles ? (
+          <View className="flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-slate-800">
+            <Ionicons name={specialStyles.iconName} size={32} color={specialStyles.iconColor} />
+          </View>
+        ) : item.actor?.image ? (
           <Image source={{ uri: item.actor.image }} className={`h-16 w-16 rounded-full`} />
         ) : (
-          <View className="flex h-16 w-16 items-center justify-center rounded-full">
-            <Ionicons name="notifications-outline" size={24} color="#000" />
+          <View className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+            <Ionicons name="notifications-outline" size={24} color={iconColor} />
           </View>
         )}
         <View className="flex-1">
-          <View className="flex-row items-center gap-2">
-            <Text className="font-bold text-text-main">{item.type}</Text>
+          <View className="flex-row items-center justify-between">
+            <Text
+              className={`text-xs uppercase tracking-widest ${specialStyles?.titleColor || 'font-bold text-text-main'}`}>
+              {specialStyles?.title || item.type}
+            </Text>
             {item.is_read ? null : <View className="h-2 w-2 rounded-full bg-red-600" />}
           </View>
-          <Text className="text-sm text-text-muted">{item.content}</Text>
-          <Text className="text-sm text-text-muted">{formatMessageDateTime(item.created_at)}</Text>
+          <Text
+            className={`mt-1 text-base ${specialStyles ? 'font-bold text-slate-800 dark:text-slate-100' : 'text-text-muted'}`}>
+            {item.content}
+          </Text>
+          <Text className="mt-2 text-xs text-slate-400">
+            {formatMessageDateTime(item.created_at)}
+          </Text>
         </View>
       </View>
     </Pressable>

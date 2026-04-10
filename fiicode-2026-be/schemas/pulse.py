@@ -52,6 +52,7 @@ class PulseResponseSchema(BaseModel):
     dislikes_count: int = 0
 
     is_verified: bool
+    is_visible: bool
 
     author: AuthorBasicSchema
 

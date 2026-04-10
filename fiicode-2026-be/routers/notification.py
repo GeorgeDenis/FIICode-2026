@@ -5,9 +5,9 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from database import get_db
-from dependencies import get_current_user
+from dependencies import get_current_user, is_admin
 from schemas.notification import NotificationResponseSchema, NotificationCreateSchema, \
-    NotificationUnreadCountResponseSchema
+    NotificationUnreadCountResponseSchema, BroadcastNotificationSchema
 from services.notification import NotificationService
 
 db_dependency = Annotated[Session, Depends(get_db)]
@@ -41,3 +41,13 @@ def get_unread_count_by_user_id(db: db_dependency, user_data=Depends(get_current
                            status_code=200)
 def mark_notification_as_read(notification_id: str, db: db_dependency, user_data=Depends(get_current_user)):
     return notification_service.mark_notification_as_read(db, notification_id, user_data['id'])
+
+
+@notification_router.post("/broadcast", status_code=201)
+def broadcast_notification(
+        broadcast_data: BroadcastNotificationSchema,
+        db: db_dependency,
+        admin: bool = Depends(is_admin),
+        user_data=Depends(get_current_user)
+):
+    return notification_service.broadcast_to_users(user_data['id'], broadcast_data, db)
