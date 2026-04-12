@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
+import { FlatList, Image, Pressable, Text, TextInput, View } from 'react-native';
 import BasicModal from '../BasicModal';
 import { errorToast, successToast } from '../../utils/toast';
 import api from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
+import { useColorScheme } from 'nativewind';
 
 const AddInGroupModal = ({ conversationId, setVisible }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-
+  const { colorScheme } = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#F8FAFC' : '#0F172A';
   const fetchUsersNotInGroup = async (query) => {
     try {
       const response = await api.get(
@@ -90,12 +92,19 @@ const AddInGroupModal = ({ conversationId, setVisible }) => {
                 }`}
                 onPress={() => handleSelectUser(item)}>
                 <View className="flex flex-row items-center gap-2 rounded-xl">
-                  <View className="h-12 w-12 items-center justify-center rounded-full bg-primary">
-                    <Text className="text-xl font-bold text-white">
-                      {`${item.first_name?.charAt(0) || ''}${item.last_name?.charAt(0) || ''}`.toUpperCase() ||
-                        '?'}
-                    </Text>
-                  </View>
+                    {item?.image ? (
+                      <Image
+                        source={{ uri: item?.image }}
+                        className="h-12 w-12 rounded-full"
+                      />
+                    ) : (
+                      <Ionicons
+                        className="mr-4="
+                        name="person-circle-outline"
+                        size={45}
+                        color={iconColor}
+                      />
+                    )}
                   <View className="flex flex-1 flex-row items-center">
                     <View className="flex flex-1 flex-col">
                       <Text className="text-base font-bold" numberOfLines={1}>

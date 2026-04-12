@@ -14,6 +14,7 @@ from exceptions.handlers import register_exception_handlers
 from routers.auth import auth_router
 from routers.chat import chat_router
 from routers.notification import notification_router
+from routers.pet import pet_router
 from routers.pulse import pulse_router
 from routers.report import report_router
 from routers.user import user_router
@@ -42,6 +43,7 @@ app.include_router(user_router)
 app.include_router(notification_router)
 app.include_router(mission_router)
 app.include_router(report_router)
+app.include_router(pet_router)
 
 register_exception_handlers(app)
 user_model.Base.metadata.create_all(bind=engine)

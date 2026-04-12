@@ -3,10 +3,15 @@ import { Image, Text, View } from 'react-native';
 import { formatMessageDateTime } from '../../utils/utils_functions';
 import ProfilePicture from '../../assets/img/profile-picture.png';
 
-const PulseComment = ({ style, item}) => {
+const PulseComment = ({ style, item }) => {
+  console.log(item);
   return (
     <View className={`flex flex-row items-start gap-2 ${style} m-1 p-4`}>
-      <Image source={ProfilePicture} className="h-8 w-8 rounded-full" />
+      {item.author?.image ? (
+        <Image source={{ uri: item.author?.image }} className="h-12 w-12 rounded-full" />
+      ) : (
+        <Image source={ProfilePicture} className="h-8 w-8 rounded-full" />
+      )}
       <View className="flex-1">
         <View className="flex-row justify-between">
           <Text className="font-bold text-text-main">

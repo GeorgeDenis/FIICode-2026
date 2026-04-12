@@ -28,6 +28,17 @@ class UserResponseSchema(BaseModel):
     distance_limit_km: Optional[float] = None
     quiet_hours_start: Optional[datetime.time] = None
     quiet_hours_end: Optional[datetime.time] = None
+
+    trust_score: Optional[float] = None
+    rank: Optional[str] = None
+    rank_label: Optional[str] = None
+    total_missions: Optional[int] = None
+    missions_completed: Optional[int] = None
+    pulses_created: Optional[int] = None
+    people_helped: Optional[int] = None
+    rank_logo: Optional[str] = None
+
+    pulses_completed: Optional[int] = None
     is_visible: Optional[bool] = None
     created_at: Optional[datetime.datetime] = None
     updated_at: Optional[datetime.datetime] = None
@@ -51,8 +62,8 @@ class UpdateUserAccount(BaseModel):
     phone_number: Optional[str] = None
     skills: List[SkillTag] = []
     distance_limit_km: Optional[float] = None
-    quiet_hours_start: Optional[datetime.datetime] = None
-    quiet_hours_end: Optional[datetime.datetime] = None
+    quiet_hours_start: Optional[datetime.time] = None
+    quiet_hours_end: Optional[datetime.time] = None
 
 
 class AuthorBasicSchema(BaseModel):

@@ -1,11 +1,9 @@
 import React from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { getInitials } from '../../utils/utils_functions';
 
 const PulseCard = ({ pulse, onPress }) => {
-  const getInitials = (first, last) => {
-    return `${first?.[0] || ''}${last?.[0] || ''}`.toUpperCase() || 'H';
-  };
 
   const getTypeConfig = (type) => {
     switch (type) {

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import api from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
+import { useColorScheme } from 'nativewind';
 
 const UsersInGroupModal = ({ conversationId, setVisible }) => {
   const [usersList, setUsersList] = useState([]);
-
+  const { colorScheme } = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#F8FAFC' : '#0F172A';
   const fetchUsersInGroup = async () => {
     try {
       const response = await api.get(`/chat/group/users/?conversation_id=${conversationId}`);
@@ -32,7 +34,7 @@ const UsersInGroupModal = ({ conversationId, setVisible }) => {
           }}>
           <Ionicons className="rounded-full bg-primary p-1" name="close" size={24} color="white" />
         </Pressable>
-        <View className="flex flex-col items-center mb-4">
+        <View className="mb-4 flex flex-col items-center">
           <Text className="text-center text-xl font-bold">Members</Text>
           <Text className="text-sm">{usersList.length} people</Text>
         </View>
@@ -42,10 +44,16 @@ const UsersInGroupModal = ({ conversationId, setVisible }) => {
           renderItem={({ item }) => (
             <View className="mb-3 flex flex-row items-center gap-2 rounded-xl  p-2 shadow-sm">
               <View className="h-12 w-12 items-center justify-center rounded-full bg-primary shadow-sm">
-                <Text className="text-xl font-bold text-white">
-                  {`${item.first_name?.charAt(0) || ''}${item.last_name?.charAt(0) || ''}`.toUpperCase() ||
-                    '?'}
-                </Text>
+                {item?.image ? (
+                  <Image source={{ uri: item?.image }} className="h-12 w-12 rounded-full" />
+                ) : (
+                  <Ionicons
+                    className="mr-4="
+                    name="person-circle-outline"
+                    size={45}
+                    color={iconColor}
+                  />
+                )}
               </View>
               <View className="flex w-full flex-col border-b p-1">
                 <Text className="text-base font-bold ">

@@ -2,10 +2,14 @@ from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
 from exceptions.exceptions import AppException
+from repositories.mission import MissionRepository
+from repositories.pulse import PulseRepository
 from repositories.user import UserRepository
 from schemas.user import UpdateUserAccount
 
 user_repository = UserRepository()
+pulse_repository = PulseRepository()
+mission_repository = MissionRepository()
 
 
 class UserService:
@@ -22,6 +26,16 @@ class UserService:
         user = user_repository.find_user_by_id(user_id, db)
         if not user:
             raise AppException("User not found", 404)
+        reputation = mission_repository.get_user_score_by_missions(db, user.id)
+        total_pulses = pulse_repository.get_pulses_count_by_user(user.id, db)
+        user.trust_score = reputation.get("score", 0)
+        user.rank = reputation.get("rank", "")
+        user.rank_label = reputation.get("rank_label", "")
+        user.total_missions = reputation.get("total_missions", 0)
+        user.missions_completed = reputation.get("missions_completed", 0)
+        user.pulses_created = total_pulses
+        user.rank_logo = reputation.get("rank_logo", "")
+        user.people_helped = reputation.get("people_helped", 0)
         return user
 
     def find_user_by_email(self, email, db: Session):
@@ -34,12 +48,23 @@ class UserService:
         user = user_repository.find_user_by_email(email, db)
         if not user:
             raise AppException("User not found", 404)
+        reputation = mission_repository.get_user_score_by_missions(db, user.id)
+        total_pulses = pulse_repository.get_pulses_count_by_user(user.id, db)
+        user.trust_score = reputation.get("score", 0)
+        user.rank = reputation.get("rank", "")
+        user.rank_label = reputation.get("rank_label", "")
+        user.total_missions = reputation.get("total_missions", 0)
+        user.missions_completed = reputation.get("missions_completed", 0)
+        user.pulses_created = total_pulses
+        user.rank_logo = reputation.get("rank_logo", "")
+        user.people_helped = reputation.get("people_helped", 0)
         return user
 
     def get_other_account_info(self, user_id, db: Session):
         user = user_repository.find_user_by_id(user_id, db)
         if not user:
             raise AppException("User not found", 404)
+
         return user
 
     def delete_account(self, email, db: Session):

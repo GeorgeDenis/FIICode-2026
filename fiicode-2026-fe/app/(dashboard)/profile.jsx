@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ProfileDataCard from '../../components/profile/ProfileDataCard';
 import BasicModal from '../../components/BasicModal';
 import { BriefcaseMedical } from 'lucide-react-native/icons';
+import ProfileRank from '../../components/profile/ProfileRank';
 
 const Profile = () => {
   const { logout, user } = useUser();
@@ -29,6 +30,14 @@ const Profile = () => {
     profileImageUrl: null,
     skills: null,
     role: 0,
+    trust_score: 0,
+    rank: '',
+    rank_label: '',
+    total_missions: 0,
+    missions_completed: 0,
+    pulses_created: 0,
+    people_helped: 0,
+    rank_logo: '',
   });
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
@@ -68,7 +77,22 @@ const Profile = () => {
   const fetchUserData = async () => {
     try {
       const response = await api.get('/auth/account');
-      const { first_name, last_name, email, description, image, skills, role } = response.data;
+      const {
+        first_name,
+        last_name,
+        email,
+        description,
+        image,
+        skills,
+        role,
+        trust_score,
+        rank,
+        rank_label,
+        total_missions,
+        missions_completed,
+        pulses_created,
+        rank_logo,
+      } = response.data;
       setCurrentUser({
         firstName: first_name,
         lastName: last_name,
@@ -77,6 +101,13 @@ const Profile = () => {
         profileImageUrl: image,
         skills,
         role,
+        trust_score,
+        rank,
+        rank_label,
+        total_missions,
+        missions_completed,
+        pulses_created,
+        rank_logo,
       });
     } catch (error) {
       if (error.response && error.response.status === 403) {
@@ -167,18 +198,19 @@ const Profile = () => {
                 )}
               </View>
             </View>
-            <View className="mt-10 w-full justify-center gap-5">
+            <ProfileRank currentUser={currentUser} />
+            <View className="mt-5 w-full justify-center gap-5">
               <View className="flex w-full flex-row gap-5">
                 <ProfileDataCard
                   text="Trust score"
-                  value="51"
+                  value={currentUser.trust_score.toFixed(0) || 0}
                   imageColor="orange"
                   imageBackground="bg-orange-300"
                   imageType="shield-checkmark"
                 />
                 <ProfileDataCard
                   text="Missions"
-                  value="51"
+                  value={currentUser.total_missions || 0}
                   imageColor="green"
                   imageBackground="bg-green-300"
                   imageType="star"
@@ -187,14 +219,14 @@ const Profile = () => {
               <View className="flex w-full flex-row gap-5">
                 <ProfileDataCard
                   text="People helped"
-                  value="51"
+                  value={currentUser.people_helped || 0}
                   imageColor="blue"
                   imageBackground="bg-blue-300"
                   imageType="accessibility"
                 />
                 <ProfileDataCard
                   text="Pulses created"
-                  value="51"
+                  value={currentUser.pulses_created || 0}
                   imageColor="red"
                   imageBackground="bg-red-300"
                   imageType="pulse"

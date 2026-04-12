@@ -43,13 +43,13 @@ const ChatComponent = ({ item }) => {
 
   const buildName = () => {
     if (item.name) return item.name;
-    const otherMember = members.find((member) => member.id !== user.id);
+    const otherMember = members.find((member) => member.id !== user.user_id);
     return otherMember ? otherMember.first_name + ' ' + otherMember.last_name : 'Chat';
   };
 
   const buildImage = () => {
     if (item.is_group) return null;
-    const otherMember = members.find((member) => member.id !== user.id);
+    const otherMember = members.find((member) => member.id !== user.user_id);
     return otherMember && otherMember.image ? { uri: otherMember.image } : null;
   }
 

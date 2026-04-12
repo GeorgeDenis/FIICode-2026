@@ -6,6 +6,7 @@ import { errorToast } from '../../utils/toast';
 import { useUser } from '../../hooks/useUser';
 
 const ReactionBar = ({
+  refetch,
   pulseId,
   authorId,
   initialLikes = 0,
@@ -17,8 +18,8 @@ const ReactionBar = ({
   const [dislikes, setDislikes] = useState(initialDislikes);
 
   const handleReaction = async (isLiking) => {
-    if (user.user_id === authorId){
-      alert("You cannot react to your own pulse.");
+    if (user.user_id === authorId) {
+      alert('You cannot react to your own pulse.');
       return;
     }
     try {
@@ -28,6 +29,7 @@ const ReactionBar = ({
       });
       setLikes(response.data.like_count);
       setDislikes(response.data.dislike_count);
+      refetch();
     } catch (error) {
       errorToast('Failed to submit reaction. Please try again.');
     }

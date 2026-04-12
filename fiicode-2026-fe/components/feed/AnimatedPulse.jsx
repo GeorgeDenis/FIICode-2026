@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
-import { formatMessageDateTime } from '../../utils/utils_functions';
+import { formatMessageDateTime, getInitials } from '../../utils/utils_functions';
 import { Ionicons } from '@expo/vector-icons';
-import ProfilePicture from '../../assets/img/profile-picture.png';
 import { useRouter } from 'expo-router';
 
 import Animated, { FadeInUp, LinearTransition } from 'react-native-reanimated';
 import ReactionBar from './ReactionBar';
-import { errorToast } from '../../utils/toast';
+import { errorToast, successToast } from '../../utils/toast';
 import api from '../../services/api';
 import { useUser } from '../../hooks/useUser';
 import AddReportModal from '../admin/reports/AddReportModal';
 import { TriangleAlert } from 'lucide-react-native';
 
-const AnimatedPulse = ({ item, openEditPulseModal }) => {
+const AnimatedPulse = ({ item, openEditPulseModal, refetch }) => {
   const { user } = useUser();
   const router = useRouter();
   const [isReportModalVisible, setIsReportModalVisible] = useState(false);
@@ -29,6 +28,9 @@ const AnimatedPulse = ({ item, openEditPulseModal }) => {
       const response = await api.post('/mission', {
         pulse_id: item.id,
       });
+      if (response.status === 201) {
+        successToast('You have successfully joined the mission! Check your missions tab for details.');
+      }
     } catch (error) {
       errorToast('You are already part of this mission');
     }
@@ -89,9 +91,9 @@ const AnimatedPulse = ({ item, openEditPulseModal }) => {
           <View className="flex flex-row items-center gap-2">
             <Text className="text-sm font-bold text-white">Verified: </Text>
             {item.is_verified ? (
-              <Ionicons name={'shield-checkmark'} size={20} color="#10b981" />
+              <Ionicons name={'shield-checkmark'} size={20} color="orange" />
             ) : (
-              <Ionicons name={'close-circle'} size={20} color="#ef4444" />
+              <Ionicons name={'close-circle'} size={20} color="black" />
             )}
           </View>
           <Text className="text-sm font-bold text-white">{item.urgency_level.toUpperCase()}</Text>
@@ -99,7 +101,18 @@ const AnimatedPulse = ({ item, openEditPulseModal }) => {
 
         <View className="flex flex-row items-center justify-between gap-2 rounded-xl px-4 py-2">
           <View className="flex flex-row items-center gap-2">
-            <Image source={ProfilePicture} className="mb-2 h-10 w-10" />
+            {item.author?.image ? (
+              <Image
+                source={{ uri: item.author.image }}
+                className="h-8 w-8 rounded-full bg-gray-200"
+              />
+            ) : (
+              <View className="bg-primary/20 h-8 w-8 items-center justify-center rounded-full">
+                <Text className="font-bold text-primary">
+                  {getInitials(item.author?.first_name, item.author?.last_name)}
+                </Text>
+              </View>
+            )}
             <Text className="font-bold text-text-main">
               {item.author ? `${item.author.first_name} ${item.author.last_name}` : 'Anonym'}
             </Text>
@@ -143,6 +156,7 @@ const AnimatedPulse = ({ item, openEditPulseModal }) => {
             <Text className="text-sm font-semibold text-text-main">Comments</Text>
           </Pressable>
           <ReactionBar
+            refetch={refetch}
             pulseId={item.id}
             authorId={item.author_id}
             initialLikes={item.likes_count}

@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 
 from models.user import User
 from schemas.auth import CreateUserSchema
-from utils.utils import is_in_quiet_hours, haversine_distance
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 

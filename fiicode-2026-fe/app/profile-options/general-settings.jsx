@@ -7,7 +7,7 @@ import api from '../../services/api';
 import { errorToast, successToast } from '../../utils/toast';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
-import { parseTimeStringToDate } from '../../utils/utils_functions';
+import { formatTimeForBackend, parseTimeStringToDate } from '../../utils/utils_functions';
 
 const GeneralSettings = () => {
   const router = useRouter();
@@ -81,14 +81,15 @@ const GeneralSettings = () => {
 
   const handleSaveSettings = async () => {
     try {
+
       await api.put('/auth', {
         first_name: user.firstName,
         last_name: user.lastName,
         description: user.description,
         skills: user.skills,
         distance_limit_km: distance,
-        quiet_hours_start: quietStart,
-        quiet_hours_end: quietEnd,
+        quiet_hours_start: formatTimeForBackend(quietStart),
+        quiet_hours_end: formatTimeForBackend(quietEnd),
       });
       successToast('Profile updated successfully.');
     } catch (error) {

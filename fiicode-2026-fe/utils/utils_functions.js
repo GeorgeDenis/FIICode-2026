@@ -101,6 +101,20 @@ export const computeHaversineDistance = (lat1, lon1, lat2, lon2) => {
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-
   return R * c;
+};
+
+export const getInitials = (first, last) => {
+  return `${first?.[0] || ''}${last?.[0] || ''}`.toUpperCase() || 'H';
+};
+
+export const formatTimeForBackend = (date) => {
+  if (typeof date === 'string') {
+    return date.split(':').slice(0, 2).join(':');
+  }
+  console.log(date);
+
+  const h = date.getHours().toString().padStart(2, '0');
+  const m = date.getMinutes().toString().padStart(2, '0');
+  return `${h}:${m}`;
 };

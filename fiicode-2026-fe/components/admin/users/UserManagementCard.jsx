@@ -61,21 +61,21 @@ const UserManagementCard = ({ user, onDelete, onPromote }) => {
         <View className="flex-row items-center space-x-2">
           <Pressable
             onPress={() => router.push(`/profiles/${user.id}`)}
-            className="h-10 w-10 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/30">
+            className="h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/30">
             <Ionicons name="eye-outline" size={20} color="#3B82F6" />
           </Pressable>
 
           {user.role !== 1 && (
             <Pressable
               onPress={handlePromote}
-              className="h-10 w-10 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30">
+              className="h-8 w-8 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30">
               <ShieldCheck size={20} color="#10B981" />
             </Pressable>
           )}
 
           <Pressable
             onPress={handleDelete}
-            className="h-10 w-10 items-center justify-center rounded-full bg-rose-50 dark:bg-rose-900/30">
+            className="h-8 w-8 items-center justify-center rounded-full bg-rose-50 dark:bg-rose-900/30">
             <Trash2 size={20} color="#F43F5E" />
           </Pressable>
         </View>

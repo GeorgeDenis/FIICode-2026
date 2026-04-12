@@ -30,15 +30,17 @@ export default function DashboardLayout() {
               height: 120,
             },
             headerTintColor: titleColor,
-            // headerLeft: () => (
-            //   <Pressable
-            //     className="ml-4 flex h-12 w-12 items-center justify-center rounded-full bg-white active:h-16 active:w-16 active:opacity-60"
-            //     onPress={() => router.back()}>
-            //     <Ionicons name="return-up-back-outline" size={24} color={theme.iconColor} />
-            //   </Pressable>
-            // ),
+            headerLeft: () => (
+              <Pressable
+                className="ml-4 flex flex-row items-center active:opacity-50"
+                onPress={() => router.push('/pets/pets-dashboard')}>
+                <Ionicons name="paw" size={28} color={theme.iconColor} />
+              </Pressable>
+            ),
             headerRight: () => (
-              <Pressable className="flex flex-row items-center mr-4 active:opacity-50" onPress={() => router.push('/search')}>
+              <Pressable
+                className="mr-4 flex flex-row items-center active:opacity-50"
+                onPress={() => router.push('/search')}>
                 <Ionicons name="search" size={28} color={theme.iconColor} />
                 <NotificationBell />
               </Pressable>

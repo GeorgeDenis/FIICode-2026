@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import UserOnly from '../../components/auth/UserOnly';
 import api from '../../services/api';
@@ -9,10 +9,12 @@ import ProfileDataCard from '../../components/profile/ProfileDataCard';
 import { Hammer, PawPrint, PersonStanding, TriangleAlert, Van } from 'lucide-react-native';
 import { BriefcaseMedical } from 'lucide-react-native/icons';
 import AddReportModal from '../../components/admin/reports/AddReportModal';
+import ProfileRank from '../../components/profile/ProfileRank';
 
 const ProfileDetails = () => {
   const { id } = useLocalSearchParams();
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [isReportModalVisible, setIsReportModalVisible] = useState(false);
   const AVAILABLE_SKILLS = [
@@ -49,6 +51,7 @@ const ProfileDetails = () => {
   ];
 
   const handleFetchUser = async () => {
+    setLoading(true);
     try {
       const response = await api.get('/user/by-id/' + id);
       setUser(response.data);
@@ -57,6 +60,8 @@ const ProfileDetails = () => {
         return;
       }
       errorToast(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,12 +91,23 @@ const ProfileDetails = () => {
     });
   };
 
+  if (loading && !user) {
+    return (
+      <View className="mx-4 mb-4 h-32 items-center justify-center rounded-3xl bg-surface shadow-sm">
+        <ActivityIndicator color="#10b981" size="large" />
+      </View>
+    );
+  }
+
+  if (!user) return null;
+
+
   const initials =
     `${user?.first_name?.charAt(0) || ''}${user?.last_name?.charAt(0) || ''}`.toUpperCase();
   return (
     <UserOnly>
       <ScrollView>
-        <View className="flex flex-1 flex-col items-center bg-primary pt-4">
+        <View className="flex flex-1 flex-col items-center bg-indigo-500 pt-4">
           <Stack.Screen
             options={{
               title: '',
@@ -108,7 +124,7 @@ const ProfileDetails = () => {
             }}
           />
 
-          <View className="mt-12 w-full flex-1 items-center bg-primary pt-4">
+          <View className="mt-12 w-full flex-1 items-center bg-indigo-500 pt-4">
             <View className="absolute left-5 top-4 z-10 mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary shadow-sm">
               {user?.image ? (
                 <Image source={{ uri: user?.image }} className="h-full w-full rounded-full" />
@@ -135,18 +151,19 @@ const ProfileDetails = () => {
                   <Ionicons name="chatbubble-ellipses" size={24} color="#ffffff" />
                 </Pressable>
               </View>
+              <ProfileRank currentUser={user} />
               <View className="mt-10 w-full justify-center gap-5 px-2">
                 <View className="flex w-full flex-row gap-5">
                   <ProfileDataCard
                     text="Trust score"
-                    value="51"
+                    value={user.trust_score.toFixed(0) || 0}
                     imageColor="orange"
                     imageBackground="bg-orange-300"
                     imageType="shield-checkmark"
                   />
                   <ProfileDataCard
-                    text="Tags"
-                    value="51"
+                    text="Missions"
+                    value={user.total_missions || 0}
                     imageColor="green"
                     imageBackground="bg-green-300"
                     imageType="pricetags"
@@ -155,14 +172,14 @@ const ProfileDetails = () => {
                 <View className="flex w-full flex-row gap-5">
                   <ProfileDataCard
                     text="People helped"
-                    value="51"
+                    value={user.people_helped || 0}
                     imageColor="blue"
                     imageBackground="bg-blue-300"
                     imageType="accessibility"
                   />
                   <ProfileDataCard
                     text="Pulses created"
-                    value="51"
+                    value={user.pulses_created || 0}
                     imageColor="red"
                     imageBackground="bg-red-300"
                     imageType="pulse"

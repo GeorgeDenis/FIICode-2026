@@ -39,7 +39,7 @@ const Feed = () => {
     useCallback(() => {
       handleFetchPulses();
 
-      const wsUrl = `ws://${IP_CONFIG}:8000/ws/feed`;
+      const wsUrl = `ws://${IP_CONFIG}:5000/ws/feed`;
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
@@ -116,7 +116,7 @@ const Feed = () => {
   };
 
   const renderPulse = ({ item }) => (
-    <AnimatedPulse item={item} openEditPulseModal={openEditPulseModal} />
+    <AnimatedPulse item={item} openEditPulseModal={openEditPulseModal} refetch={handleFetchPulses} />
   );
 
   return (

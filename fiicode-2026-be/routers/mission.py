@@ -38,7 +38,7 @@ def create_mission(request: MissionCreateSchema, db: db_dependency, user_data=De
 @mission_router.put("/{mission_id}", response_model=MissionResponseSchema, status_code=200)
 def update_mission(mission_id: UUID, request: MissionUpdateSchema, db: db_dependency,
                    user_data=Depends(get_current_user)):
-    return mission_service.update_mission(mission_id, request, db)
+    return mission_service.update_mission(mission_id, request, user_data['id'], db)
 
 
 @mission_router.delete("/{mission_id}", status_code=200)

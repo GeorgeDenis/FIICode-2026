@@ -127,7 +127,6 @@ class PulseRepository:
 
         dislike_count = db.query(PulseReaction).filter(PulseReaction.pulse_id == request.pulse_id,
                                                        PulseReaction.is_like != True).count()
-        print(f"Like count: {like_count}, Dislike count: {dislike_count}")
         if like_count >= 3:
             self.set_pulse_verified_status(str(request.pulse_id), True, db)
         elif like_count <= 3 and dislike_count > like_count:
@@ -148,6 +147,9 @@ class PulseRepository:
         pulse.is_verified = status
 
         return self.save_pulse(pulse, db)
+
+    def get_pulses_count_by_user(self, user_id: str, db: Session):
+        return db.query(Pulse).filter(Pulse.author_id == user_id).count()
 
     def save_pulse(self, pulse: Pulse, db: Session):
         db.add(pulse)

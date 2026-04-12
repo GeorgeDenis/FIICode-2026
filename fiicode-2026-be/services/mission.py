@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from exceptions.exceptions import AppException
+from models.mission import StatusType
 from repositories.mission import MissionRepository
 from schemas.mission import MissionCreateSchema, MissionUpdateSchema, MissionResponseSchema
 from schemas.notification import NotificationCreateSchema
@@ -15,25 +16,25 @@ class MissionService:
         self.mission_repository = MissionRepository()
         self.notification_service = NotificationService()
 
-    def get_all_missions(self, db: Session) -> List[MissionResponseSchema]:
+    def get_all_missions(self, db: Session):
         missions = self.mission_repository.get_all(db)
         return [MissionResponseSchema.model_validate(mission) for mission in missions]
 
-    def get_mission_by_id(self, db: Session, mission_id: UUID) -> MissionResponseSchema:
+    def get_mission_by_id(self, db: Session, mission_id: UUID):
         mission = self.mission_repository.get_by_id(db, mission_id)
         if not mission:
             raise AppException("Mission not found", 404)
         return MissionResponseSchema.model_validate(mission)
 
-    def get_missions_by_hero(self, db: Session, hero_id: UUID) -> List[MissionResponseSchema]:
+    def get_missions_by_hero(self, db: Session, hero_id: UUID):
         missions = self.mission_repository.get_by_hero_id(db, hero_id)
         return [MissionResponseSchema.model_validate(mission) for mission in missions]
 
-    def get_missions_by_pulse(self, db: Session, pulse_id: UUID) -> List[MissionResponseSchema]:
+    def get_missions_by_pulse(self, db: Session, pulse_id: UUID):
         missions = self.mission_repository.get_by_pulse_id(db, pulse_id)
         return [MissionResponseSchema.model_validate(mission) for mission in missions]
 
-    def create_mission(self, request: MissionCreateSchema, user_id, db: Session) -> MissionResponseSchema:
+    def create_mission(self, request: MissionCreateSchema, user_id, db: Session):
         if self.mission_repository.check_user_in_mission(user_id, str(request.pulse_id), db):
             raise AppException("You are already part of this mission!", 400)
 
@@ -42,20 +43,39 @@ class MissionService:
             recipient_id=mission.pulse.author_id,
             actor_id=user_id,
             type="Mission",
-            content=f"The hero {mission.pulse.author.first_name} {mission.pulse.author.last_name} has accepted your pulse! Check out the mission details.",
+            content=f"The hero {mission.hero.first_name} {mission.hero.last_name} has accepted your pulse! Check out the mission details.",
             entity_id=mission.id,
         )
         self.notification_service.add_notification(notification, db)
         return MissionResponseSchema.model_validate(mission)
 
-    def update_mission(self, mission_id: UUID, request: MissionUpdateSchema, db: Session) -> MissionResponseSchema:
+    def update_mission(self, mission_id: UUID, request: MissionUpdateSchema, user_id: str, db: Session):
         mission = self.mission_repository.update(db, mission_id, request)
         if not mission:
             raise AppException("Mission not found", 404)
+
+        notification = NotificationCreateSchema(
+            recipient_id=mission.hero.id,
+            actor_id=user_id,
+            type="Mission",
+            entity_id=mission.id,
+            content=self.get_update_mission_notification_message(mission, request.status),
+        )
+
+        self.notification_service.add_notification(notification, db)
+
         return MissionResponseSchema.model_validate(mission)
 
-    def delete_mission(self, mission_id: UUID, db: Session) -> dict:
+    def delete_mission(self, mission_id: UUID, db: Session):
         deleted = self.mission_repository.delete(db, mission_id)
         if not deleted:
             raise AppException("Mission not found", 404)
         return {"detail": "Mission successfully deleted"}
+
+    def get_update_mission_notification_message(self, mission, status):
+        if status == StatusType.ACCEPTED:
+            return f"The hero {mission.pulse.author.first_name} {mission.pulse.author.last_name} has accepted your help! Check out the mission details."
+        elif status == StatusType.COMPLETED or status == StatusType.DECLINED:
+            return f"The hero {mission.pulse.author.first_name} {mission.pulse.author.last_name} has marked the mission as {status.value} with a {mission.feedback_type.value} feedback!"
+        else:
+            return ""

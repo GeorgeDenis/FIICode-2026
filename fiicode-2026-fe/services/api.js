@@ -5,7 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 
 export const IP_CONFIG = '192.168.1.13';
 
-let API_URL = `http://${IP_CONFIG}:8000/api/v1`;
+let API_URL = `http://${IP_CONFIG}:5000/api/v1`;
 
 if (Platform.OS === 'android') {
   if (Device.isDevice) {

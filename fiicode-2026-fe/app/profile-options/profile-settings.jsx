@@ -17,7 +17,7 @@ import { Check } from 'lucide-react-native';
 import api from '../../services/api';
 import * as ImagePicker from 'expo-image-picker';
 import { errorToast, successToast } from '../../utils/toast';
-import { parseTimeStringToDate } from '../../utils/utils_functions';
+import { formatTimeForBackend, parseTimeStringToDate } from '../../utils/utils_functions';
 
 const ProfileSettings = () => {
   const [user, setUser] = useState({
@@ -105,8 +105,8 @@ const ProfileSettings = () => {
         description: user.description,
         skills: selectedSkills,
         distance_limit_km: user.distanceLimitKm,
-        quiet_hours_start: parseTimeStringToDate(user.quietHoursStart),
-        quiet_hours_end: parseTimeStringToDate(user.quietHoursEnd),
+        quiet_hours_start: formatTimeForBackend(user.quietHoursStart),
+        quiet_hours_end: formatTimeForBackend(user.quietHoursEnd),
       });
 
       successToast('Profile updated successfully.');

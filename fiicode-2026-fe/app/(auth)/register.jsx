@@ -28,9 +28,21 @@ const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const router = useRouter();
+
+  const validatePassword = (pw) => {
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(\W|_)).{8,}$/.test(pw);
+  };
+
   const handleRegister = async () => {
     if (!email || !firstName || !lastName || !password || !confirmPassword) {
       errorToast('Please fill in all fields');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      errorToast(
+        'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character'
+      );
       return;
     }
 

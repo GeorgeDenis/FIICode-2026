@@ -16,6 +16,7 @@ import {
   formatMessageDateTime,
   getBorderColorByType,
   getIconName,
+  getInitials,
   getTypeBadgeColor,
 } from '../../utils/utils_functions';
 import { useLocalSearchParams } from 'expo-router';
@@ -178,7 +179,18 @@ const PulseComments = () => {
           <View
             className={`pulses-center flex flex-row justify-between gap-2 rounded-xl px-4 py-2`}>
             <View className="pulses-center flex flex-row gap-2">
-              <Image source={ProfilePicture} className="mb-2 h-10 w-10" />
+              {pulse.author?.image ? (
+                <Image
+                  source={{ uri: pulse.author.image }}
+                  className="h-8 w-8 rounded-full bg-gray-200"
+                />
+              ) : (
+                <View className="bg-primary/20 h-8 w-8 items-center justify-center rounded-full">
+                  <Text className="font-bold text-primary">
+                    {getInitials(pulse.author?.first_name, pulse.author?.last_name)}
+                  </Text>
+                </View>
+              )}
               <Text className="font-bold text-text-main">
                 {pulse.author?.first_name + ' ' + pulse.author?.last_name || 'Anonym'}
               </Text>

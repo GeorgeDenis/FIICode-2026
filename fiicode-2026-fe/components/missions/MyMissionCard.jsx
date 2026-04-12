@@ -24,24 +24,36 @@ const MyMissionCard = ({ mission, onMissionUpdate }) => {
   };
 
   const handleSubmitFeedback = async () => {
-    console.log(feedbackText);
-    console.log(feedbackType);
     if (
-      status === 'Completed' ||
-      (status === 'Declined' && !feedbackText.trim() && !feedbackType)
+      (status === 'Completed' || status === 'Declined') &&
+      feedbackText.trim() === '' &&
+      !feedbackType
     ) {
       alert('Please provide feedback before updating status');
       return;
     }
-
+    console.log(status)
+    console.log(feedbackText)
+    console.log(feedbackType)
     try {
-      await api.put(`/mission/${mission.id}`, { status });
+      await api.put(`/mission/${mission.id}`, {
+        status,
+        feedback_type: feedbackType || null,
+        feedback_text: feedbackText || null,
+      });
       alert('Feedback submitted!');
       if (onMissionUpdate) onMissionUpdate();
     } catch (error) {
-      console.error('Failed to submit feedback', error);
+      // console.log(error.message.details)
+      // console.error('Failed to submit feedback', error);
       alert('Failed to submit feedback');
     }
+  };
+
+  const handleCancelFeedback = () => {
+    setStatus(mission.status);
+    setFeedbackText(mission.feedback_text || '');
+    setFeedbackType(mission.feedback_type || '');
   };
 
   return (
@@ -94,11 +106,18 @@ const MyMissionCard = ({ mission, onMissionUpdate }) => {
             multiline
             textAlignVertical="top"
           />
-          <TouchableOpacity
-            className="mt-2 items-center rounded-lg bg-green-500 py-2"
-            onPress={handleSubmitFeedback}>
-            <Text className="font-semibold text-white">Update mission</Text>
-          </TouchableOpacity>
+          <View className="flex-1 flex-row items-center justify-center gap-5">
+            <TouchableOpacity
+              className="mt-2 items-center rounded-lg bg-green-500 px-4 py-2"
+              onPress={handleSubmitFeedback}>
+              <Text className="font-semibold text-white">Update mission</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="mt-2 items-center rounded-lg bg-red-500 px-4 py-2"
+              onPress={handleCancelFeedback}>
+              <Text className="font-semibold text-white">Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </MissionCard>

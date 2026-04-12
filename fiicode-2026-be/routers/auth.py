@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from typing import Annotated
 
-from websockets.sync.client import connect_socks_proxy
 
 from database import get_db
 from dependencies import get_current_user
@@ -54,12 +53,10 @@ def delete_account(db: db_dependency, user_data=Depends(get_current_user)):
 @auth_router.put("", status_code=200)
 def update_account(updated_user: UpdateUserAccount, db: db_dependency, user_data=Depends(get_current_user)):
     response = user_service.update_account(updated_user, user_data["email"], db)
-
     return UserResponseSchema.model_validate(response).model_dump()
 
 
 @auth_router.put("/update-image", response_model=UserResponseSchema, status_code=status.HTTP_200_OK)
 async def update_image_endpoint(db: db_dependency, user_data=Depends(get_current_user), image: UploadFile = File(None)):
     response = await user_service.update_user_image(image, user_data["email"], db)
-
     return response

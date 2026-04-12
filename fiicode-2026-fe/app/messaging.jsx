@@ -39,7 +39,7 @@ const Messaging = () => {
   useFocusEffect(
     useCallback(() => {
       handleFetchMessages();
-      const wsUrl = `ws://${IP_CONFIG}:8000/ws/chat/${user.user_id}`;
+      const wsUrl = `ws://${IP_CONFIG}:5000/ws/chat/${user.user_id}`;
       console.log('Connecting to WebSocket at:', wsUrl);
       const ws = new WebSocket(wsUrl);
 
@@ -54,7 +54,6 @@ const Messaging = () => {
           if (alreadyExists) {
             return prevMessages;
           }
-          console.log('Received message', newMessage);
           return [...prevMessages, newMessage];
         });
       };
@@ -103,7 +102,7 @@ const Messaging = () => {
       if (response.status === 201) {
         router.setParams({
           conversationId: response.data.conversation_id,
-          isGroup: response.data.is_group,
+          isGroup: response.data.is_group !== undefined ? response.data.is_group : isGroup,
         });
       }
 
