@@ -7,6 +7,7 @@ import models.user as user_model
 import models.notification as notification_model
 import models.mission as hero_mission_model
 import models.report as report_model
+import models.document as document_model
 from connection_manager.chat_manager import chat_manager
 from connection_manager.feed_manager import feed_manager
 from database import engine
@@ -19,6 +20,7 @@ from routers.pulse import pulse_router
 from routers.report import report_router
 from routers.user import user_router
 from routers.mission import mission_router
+from routers.document import document_router
 
 app = FastAPI()
 
@@ -44,6 +46,7 @@ app.include_router(notification_router)
 app.include_router(mission_router)
 app.include_router(report_router)
 app.include_router(pet_router)
+app.include_router(document_router)
 
 register_exception_handlers(app)
 user_model.Base.metadata.create_all(bind=engine)
@@ -52,6 +55,7 @@ message_model.Base.metadata.create_all(bind=engine)
 notification_model.Base.metadata.create_all(bind=engine)
 hero_mission_model.Base.metadata.create_all(bind=engine)
 report_model.Base.metadata.create_all(bind=engine)
+document_model.Base.metadata.create_all(bind=engine)
 
 
 @app.get("/")

@@ -105,8 +105,8 @@ const ProfileSettings = () => {
         description: user.description,
         skills: selectedSkills,
         distance_limit_km: user.distanceLimitKm,
-        quiet_hours_start: formatTimeForBackend(user.quietHoursStart),
-        quiet_hours_end: formatTimeForBackend(user.quietHoursEnd),
+        // quiet_hours_start: formatTimeForBackend(user.quietHoursStart),
+        // quiet_hours_end: formatTimeForBackend(user.quietHoursEnd),
       });
 
       successToast('Profile updated successfully.');

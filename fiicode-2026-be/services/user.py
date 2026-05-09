@@ -84,8 +84,10 @@ class UserService:
         user.description = updated_user.description
         user.skills = updated_user.skills
         user.distance_limit_km = updated_user.distance_limit_km
-        user.quiet_hours_start = updated_user.quiet_hours_start
-        user.quiet_hours_end = updated_user.quiet_hours_end
+        if updated_user.quiet_hours_start is not None:
+            user.quiet_hours_start = updated_user.quiet_hours_start
+        if updated_user.quiet_hours_end is not None:
+            user.quiet_hours_end = updated_user.quiet_hours_end
 
         updated_user = user_repository.update_account_db(user, db)
 

@@ -42,13 +42,13 @@ const WeatherWidget = ({ latitude, longitude }) => {
     }, [latitude, longitude])
   );
 
-  if (loading) {
-    return (
-      <View className="mx-4 mb-4 h-32 items-center justify-center rounded-3xl bg-surface shadow-sm">
-        <ActivityIndicator color="#10b981" size="large" />
-      </View>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <View className="mx-4 mb-4 h-32 items-center justify-center rounded-3xl bg-surface shadow-sm">
+  //       <ActivityIndicator color="#10b981" size="large" />
+  //     </View>
+  //   );
+  // }
 
   if (!weatherData) return null;
 
