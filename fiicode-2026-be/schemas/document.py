@@ -37,12 +37,13 @@ class DocumentPublicResponseSchema(BaseModel):
     id: UUID
     doc_type: Optional[str] = None
     status: str
-    ai_first_name: Optional[str] = None   # only first letter + ***
-    ai_last_name: Optional[str] = None    # only first letter + ***
+    ai_first_name: Optional[str] = None
+    ai_last_name: Optional[str] = None
     ai_birth_year: Optional[int] = None
     ai_issuing_city: Optional[str] = None
     ai_has_face: Optional[bool] = None
     ai_gender: Optional[str] = None
+    finder_id: Optional[UUID] = None
     location_lat: Optional[float] = None
     location_lng: Optional[float] = None
     created_at: Optional[datetime.datetime] = None

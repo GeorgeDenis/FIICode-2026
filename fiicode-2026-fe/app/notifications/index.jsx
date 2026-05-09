@@ -66,6 +66,7 @@ const Notifications = () => {
                 <NotificationCard item={item} fetchNotifications={handleFetchNotifications} />
               )}
               keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingBottom: 24 }}
             />
           </View>
         )}

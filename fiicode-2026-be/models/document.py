@@ -10,7 +10,6 @@ from database import Base
 
 
 class DocumentStatus(enum.Enum):
-    LOST = "LOST"
     FOUND = "Found"
     CLAIMED = "Claimed"
     ARCHIVED = "Archived"
@@ -20,7 +19,7 @@ class Document(Base):
     __tablename__ = 'documents'
     id = Column(UUID, primary_key=True, index=True, default=uuid.uuid4)
     doc_type = Column(String)
-    status = Column(Enum(DocumentStatus), default=DocumentStatus.LOST)
+    status = Column(Enum(DocumentStatus), default=DocumentStatus.FOUND)
 
     image_data = Column(LargeBinary, nullable=False)
 

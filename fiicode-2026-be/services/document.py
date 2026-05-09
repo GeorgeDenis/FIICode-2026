@@ -174,7 +174,7 @@ class DocumentService:
         notification = NotificationCreateSchema(
             recipient_id=user.id,
             actor_id=finder_id,
-            type="DOCUMENT_FOUND",
+            type="Document",
             content=content,
             entity_id=doc.id,
         )

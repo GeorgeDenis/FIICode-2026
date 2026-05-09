@@ -17,9 +17,11 @@ import { Link, useRouter } from 'expo-router';
 import { errorToast } from '../../utils/toast';
 import Logo from '../../assets/img/logo.png';
 import { Eye, EyeOff } from 'lucide-react-native';
+import { useLocation } from '../../hooks/useLocation';
 
 const Register = () => {
   const { register } = useUser();
+  const { location, loading: locationLoading } = useLocation();
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -51,8 +53,19 @@ const Register = () => {
       return;
     }
 
+    if(!location || locationLoading){
+      return;
+    }
+
     try {
-      await register(email, firstName, lastName, password);
+      await register(
+        email,
+        firstName,
+        lastName,
+        password,
+        location.coords.longitude,
+        location.coords.longitude
+      );
       clearInput();
       router.replace('/login');
     } catch (error) {

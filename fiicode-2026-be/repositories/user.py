@@ -36,6 +36,8 @@ class UserRepository:
                             last_name=user.last_name,
                             email=user.email,
                             password=bcrypt_context.hash(user.password.get_secret_value()),
+                            latitude=user.latitude,
+                            longitude=user.longitude,
                             role=0,
                             created_at=datetime.datetime.now(datetime.UTC),
                             updated_at=datetime.datetime.now(datetime.UTC))

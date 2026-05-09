@@ -11,6 +11,8 @@ class CreateUserSchema(BaseModel):
                 "last_name": "lastname",
                 "email": "student123@yahoo.com",
                 "password": "Password1@",
+                "latitude": 45.0,
+                "longitude": 60.0,
             }]
         }
     )
@@ -19,6 +21,8 @@ class CreateUserSchema(BaseModel):
     last_name: str = Field(default=None)
     email: EmailStr
     password: SecretStr
+    latitude: float
+    longitude: float
 
     @field_validator("password")
     @classmethod

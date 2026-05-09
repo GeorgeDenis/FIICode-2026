@@ -34,6 +34,8 @@ const NotificationCard = ({ item, fetchNotifications }) => {
         return '/missions/missions';
       case 'Pulse':
         return `/pulse-comments/${item.entity_id}`;
+      case 'Document':
+        return `/documents/documents-dashboard`;
       default:
         return '/';
     }
@@ -78,7 +80,7 @@ const NotificationCard = ({ item, fetchNotifications }) => {
     <Pressable
       onPress={handleReadNotification}
       key={item.id}
-      className={`mb-4 w-full flex-1 rounded-xl ${item.is_read ? 'bg-surface' : 'bg-white'} p-4 shadow-sm ${specialStyles?.container || ''}`}>
+      className={`mb-4 w-full rounded-xl ${item.is_read ? 'bg-surface' : 'bg-white'} p-4 shadow-sm ${specialStyles?.container || ''}`}>
       <View className="flex-row items-center gap-4">
         {specialStyles ? (
           <View className="flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-slate-800">

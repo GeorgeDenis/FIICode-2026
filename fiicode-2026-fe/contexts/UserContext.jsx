@@ -65,13 +65,15 @@ export function UserProvider({ children }) {
     }
   }
 
-  async function register(email, firstName, lastName, password) {
+  async function register(email, firstName, lastName, password, latitude, longitude) {
     try {
       const response = await api.post('/auth/register', {
         email,
         first_name: firstName,
         last_name: lastName,
         password,
+        latitude,
+        longitude,
       });
       if (response.status === 201) {
         successToast('Registration successful');
