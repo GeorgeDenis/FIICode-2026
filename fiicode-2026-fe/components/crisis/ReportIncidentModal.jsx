@@ -7,17 +7,31 @@ import { useCrisis } from '../../hooks/useCrisis';
 import { useUser } from '../../hooks/useUser';
 import { errorToast, successToast } from '../../utils/toast';
 import ToastManager from 'toastify-react-native';
+import * as Network from 'expo-network';
+import * as SMS from 'expo-sms';
 
 const ReportIncidentModal = ({ visible, onClose }) => {
   const { user } = useUser();
-  const { isCrisisActive, incidentTypes, submitReport, refreshCrisisStatus } = useCrisis();
+  const { isCrisisActive, incidentTypes, submitReport, refreshCrisisStatus, fetchIncidentTypes } = useCrisis();
   const [selectedType, setSelectedType] = useState(null);
   const [description, setDescription] = useState('');
   const [pinLocation, setPinLocation] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
+  const [smsNumber, setSmsNumber] = useState('112');
 
   useEffect(() => {
     if (!visible) return;
+    fetchIncidentTypes();
+    
+    (async () => {
+      try {
+        const networkState = await Network.getNetworkStateAsync();
+        setIsOffline(networkState.isConnected === false || networkState.isInternetReachable === false);
+      } catch (e) {
+        setIsOffline(false);
+      }
+    })();
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') return;
@@ -56,9 +70,50 @@ const ReportIncidentModal = ({ visible, onClose }) => {
       onClose();
       refreshCrisisStatus();
     } catch (error) {
-      errorToast('Failed to submit report');
+      if (!error.response || error.message === 'Network Error') {
+        errorToast('Network unavailable. Trying SMS Fallback...');
+        await handleSmsFallback();
+      } else {
+        errorToast('Failed to submit report');
+      }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleSmsFallback = async () => {
+    if (!selectedType) {
+      errorToast('Please select an incident type');
+      return;
+    }
+    if (!pinLocation) {
+      errorToast('Location not available');
+      return;
+    }
+
+    const isAvailable = await SMS.isAvailableAsync();
+    if (!isAvailable) {
+      errorToast('SMS is not available on this device');
+      return;
+    }
+    if (!smsNumber.trim()) {
+      errorToast('Please provide an emergency SMS number');
+      return;
+    }
+
+    const message = `UP-SOS: Type=${selectedType.name}, Lat=${pinLocation.latitude.toFixed(4)}, Lon=${pinLocation.longitude.toFixed(4)}, Desc=${description || 'None'}`;
+    
+    try {
+      const { result } = await SMS.sendSMSAsync(
+        [smsNumber],
+        message
+      );
+      if (result === 'sent' || result === 'unknown') {
+        successToast('SMS Fallback drafted/sent successfully');
+        onClose();
+      }
+    } catch (error) {
+      errorToast('Failed to open SMS composer');
     }
   };
 
@@ -152,19 +207,42 @@ const ReportIncidentModal = ({ visible, onClose }) => {
               )}
             </View>
 
-            <Pressable
-              onPress={handleSubmit}
-              disabled={submitting}
-              className={`rounded-2xl py-4 items-center ${submitting
-                  ? (isCrisisActive ? 'bg-gray-700' : 'bg-gray-300')
-                  : (isCrisisActive ? 'bg-red-600 active:bg-red-700' : 'bg-amber-600 active:bg-amber-700')
-                }`}>
-              {submitting ? (
-                <ActivityIndicator color={isCrisisActive ? '#FFF' : '#666'} />
-              ) : (
-                <Text className={`text-lg font-bold ${submitting ? (isCrisisActive ? 'text-gray-400' : 'text-gray-500') : 'text-white'}`}>Report Incident</Text>
-              )}
-            </Pressable>
+            {isOffline && (
+              <View className="mb-4">
+                <Text className={`mb-2 text-sm font-semibold ${isCrisisActive ? 'text-gray-400' : 'text-gray-500'}`}>EMERGENCY SMS NUMBER</Text>
+                <TextInput
+                  className={`h-12 rounded-xl border-2 px-3 ${isCrisisActive ? 'border-[#333] bg-[#1A1A1A] text-white' : 'border-gray-200 bg-gray-100 text-gray-900'}`}
+                  placeholder="e.g. 112, 911, or a family member"
+                  placeholderTextColor={isCrisisActive ? '#666' : '#999'}
+                  keyboardType="phone-pad"
+                  value={smsNumber}
+                  onChangeText={setSmsNumber}
+                />
+              </View>
+            )}
+
+            {isOffline ? (
+              <Pressable
+                onPress={handleSmsFallback}
+                className="rounded-2xl py-4 items-center flex-row justify-center gap-2 bg-blue-600 active:bg-blue-700">
+                <Ionicons name="chatbubble-ellipses" size={24} color="#FFF" />
+                <Text className="text-lg font-bold text-white">Send via SMS Fallback</Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={handleSubmit}
+                disabled={submitting}
+                className={`rounded-2xl py-4 items-center ${submitting
+                    ? (isCrisisActive ? 'bg-gray-700' : 'bg-gray-300')
+                    : (isCrisisActive ? 'bg-red-600 active:bg-red-700' : 'bg-amber-600 active:bg-amber-700')
+                  }`}>
+                {submitting ? (
+                  <ActivityIndicator color={isCrisisActive ? '#FFF' : '#666'} />
+                ) : (
+                  <Text className={`text-lg font-bold ${submitting ? (isCrisisActive ? 'text-gray-400' : 'text-gray-500') : 'text-white'}`}>Report Incident</Text>
+                )}
+              </Pressable>
+            )}
           </ScrollView>
         </View>
       </View>

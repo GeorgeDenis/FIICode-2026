@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { HeartHandshake, MessageSquareWarning, AlertTriangle } from 'lucide-react-native';
+import { HeartHandshake, MessageSquareWarning, AlertTriangle, ShieldCheck } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import ReportIncidentModal from '../crisis/ReportIncidentModal';
 
@@ -26,12 +26,21 @@ const ActionZone = () => {
         </Pressable>
       </View>
 
-      <Pressable
-        className="flex-col items-center justify-center rounded-3xl border border-amber-100 bg-amber-200 p-4 shadow-sm active:bg-amber-300"
-        onPress={() => setReportModalVisible(true)}>
-        <AlertTriangle size={28} color="#d97706" className="mb-2" />
-        <Text className="text-base font-extrabold text-amber-700">Report an Incident</Text>
-      </Pressable>
+      <View className="flex-row items-center justify-center gap-4">
+        <Pressable
+          className="flex-1 flex-col items-center justify-center rounded-3xl border border-amber-100 bg-amber-200 p-4 shadow-sm active:bg-amber-300"
+          onPress={() => setReportModalVisible(true)}>
+          <AlertTriangle size={28} color="#d97706" className="mb-2" />
+          <Text className="text-base font-extrabold text-amber-700">Report Incident</Text>
+        </Pressable>
+
+        <Pressable
+          className="flex-1 flex-col items-center justify-center rounded-3xl border border-blue-100 bg-blue-200 p-4 shadow-sm active:bg-blue-300"
+          onPress={() => router.push('/(dashboard)/safety')}>
+          <ShieldCheck size={28} color="#2563eb" className="mb-2" />
+          <Text className="text-base font-extrabold text-blue-700">Safety Hub</Text>
+        </Pressable>
+      </View>
 
       <ReportIncidentModal
         visible={reportModalVisible}

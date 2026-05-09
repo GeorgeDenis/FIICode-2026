@@ -14,9 +14,10 @@ export function UserProvider({ children }) {
     const interceptor = api.interceptors.response.use(
       (response) => response,
       async (error) => {
-        if (error.response && error.response.status === 403) {
-          // errorToast('Your session has expired. Please log in again.');
+        const status = error.response?.status;
+        if (status === 401 || status === 403) {
           await logout();
+          return Promise.reject(error);
         }
 
         return Promise.reject(error);
