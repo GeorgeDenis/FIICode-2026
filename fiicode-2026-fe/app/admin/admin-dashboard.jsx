@@ -10,7 +10,7 @@ import Reports from '../../components/admin/reports/reports';
 import UserDashboard from '../../components/admin/users/UserDashboard';
 import PulseDashboard from '../../components/admin/pulses/PulseDashboard';
 import BroadcastNotificationPanel from '../../components/admin/notifications/BroadcastNotificationPanel';
-
+import DocumentsDashboard from '../../components/admin/documents/DocumentsDashboard'
 const AdminDashboard = () => {
   const router = useRouter();
   const { user } = useContext(UserContext);
@@ -39,6 +39,8 @@ const AdminDashboard = () => {
         return <PulseDashboard />;
       case 'broadcast':
         return <BroadcastNotificationPanel />;
+      case 'documents':
+        return <DocumentsDashboard/>
       default:
         return null;
     }
@@ -71,6 +73,7 @@ const AdminDashboard = () => {
             {renderTab('reports', 'Reports')}
             {renderTab('pulses', 'Pulses')}
             {renderTab('users', 'Users')}
+            {renderTab('documents', 'Documents')}
             {renderTab('broadcast', 'Broadcast')}
           </ScrollView>
         </View>

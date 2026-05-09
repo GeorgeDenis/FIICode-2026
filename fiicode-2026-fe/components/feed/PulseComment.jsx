@@ -4,7 +4,6 @@ import { formatMessageDateTime } from '../../utils/utils_functions';
 import ProfilePicture from '../../assets/img/profile-picture.png';
 
 const PulseComment = ({ style, item }) => {
-  console.log(item);
   return (
     <View className={`flex flex-row items-start gap-2 ${style} m-1 p-4`}>
       {item.author?.image ? (

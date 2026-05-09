@@ -6,7 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { useUser } from '../../hooks/useUser';
 import { useLocation } from '../../hooks/useLocation';
 import DocumentService from '../../services/documentService';
-import { formatMessageDateTime } from '../../utils/utils_functions';
+import { fetchOsrmRoute, formatMessageDateTime } from '../../utils/utils_functions';
 import api from '../../services/api';
 import { useRouter } from 'expo-router';
 import { errorToast } from '../../utils/toast';
@@ -28,16 +28,6 @@ const maskName = (name) => (name ? `${name[0].toUpperCase()}***` : '???');
 
 const withAlpha = (hex, alpha) => `${hex}${alpha}`;
 
-const fetchOsrmRoute = async (fromLat, fromLng, toLat, toLng) => {
-  const start = `${fromLng},${fromLat}`;
-  const end = `${toLng},${toLat}`;
-  const url = `http://router.project-osrm.org/route/v1/driving/${start};${end}?geometries=geojson`;
-  const response = await api.get(url, { baseURL: '' }); // bypass the app's baseURL
-  return response.data.routes[0].geometry.coordinates.map(([lon, lat]) => ({
-    latitude: lat,
-    longitude: lon,
-  }));
-};
 
 const InfoChip = ({ icon, label, theme }) => (
   <View className="bg-secondary/10 flex-row items-center gap-1.5 rounded-xl px-3 py-2">
@@ -234,7 +224,6 @@ const DocumentCard = ({ doc, onRefresh, showClaimButton = true }) => {
   };
 
   const fetchFinderDetails = async () => {
-    console.log(doc)
     try {
       const response = await api.get('/user/by-id/' + doc.finder_id);
       setFinder(response.data);

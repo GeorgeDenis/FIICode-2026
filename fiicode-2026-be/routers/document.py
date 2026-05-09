@@ -36,6 +36,11 @@ async def scan_document(
     )
 
 
+@document_router.get("/all", response_model=List[DocumentPublicResponseSchema], status_code=200)
+def get_all_documents(db: db_dependency, _admin=Depends(is_admin)):
+    return document_service.get_all(db)
+
+
 @document_router.get("", response_model=List[DocumentPublicResponseSchema], status_code=200)
 def get_all_found_documents(db: db_dependency, user_data=Depends(get_current_user)):
     return document_service.get_all_found(db)

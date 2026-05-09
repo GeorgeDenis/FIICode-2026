@@ -32,9 +32,6 @@ const MyMissionCard = ({ mission, onMissionUpdate }) => {
       alert('Please provide feedback before updating status');
       return;
     }
-    console.log(status)
-    console.log(feedbackText)
-    console.log(feedbackType)
     try {
       await api.put(`/mission/${mission.id}`, {
         status,

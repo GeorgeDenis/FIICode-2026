@@ -183,6 +183,9 @@ class DocumentService:
         except Exception as e:
             logger.error(f"Failed to send document notification: {e}")
 
+    def get_all(self, db: Session):
+        return self.doc_repo.get_all(db)
+
     def get_all_found(self, db: Session):
         return self.doc_repo.get_all_found(db)
 
@@ -264,6 +267,29 @@ class DocumentService:
 
         if not is_admin and not is_finder:
             raise AppException("Only the finder or an admin can delete this document.", 403)
+
+        if is_admin and not is_finder:
+            from repositories.notification import NotificationRepository
+            notification_repo = NotificationRepository()
+
+            doc_label = {
+                "ID_CARD": "ID Card",
+                "PASSPORT": "Passport",
+                "DRIVER_LICENSE": "Driver's License",
+                "OTHER": "document",
+            }.get(doc.doc_type, "document")
+
+            notification = NotificationCreateSchema(
+                recipient_id=doc.finder_id,
+                actor_id=requester_id,
+                type="Document",
+                content=f"The {doc_label} you reported has been removed by an administrator.",
+                entity_id=None,
+            )
+            try:
+                notification_repo.add_notification(notification, db)
+            except Exception as e:
+                logger.error(f"Failed to notify finder of document deletion: {e}")
 
         self.doc_repo.delete(doc, db)
         return {"success": True}

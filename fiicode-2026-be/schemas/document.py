@@ -33,7 +33,6 @@ class DocumentScanResponseSchema(BaseModel):
 
 
 class DocumentPublicResponseSchema(BaseModel):
-    """Public view — no full image, masked data only."""
     id: UUID
     doc_type: Optional[str] = None
     status: str

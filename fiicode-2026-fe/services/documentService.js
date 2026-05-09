@@ -41,6 +41,21 @@ const DocumentService = {
     const response = await api.delete(`/documents/${docId}`);
     return response.data;
   },
+
+  async getAllDocumentsForAdmin() {
+    const response = await api.get('/documents/all');
+    return response.data;
+  },
+
+  async updateDocumentStatus(docId, status) {
+    const response = await api.patch(`/documents/${docId}/status`, { status });
+    return response.data;
+  },
+
+  async getDocumentImage(docId) {
+    const response = await api.get(`/documents/${docId}/image`);
+    return response.data;
+  },
 };
 
 export default DocumentService;

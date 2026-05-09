@@ -1,5 +1,6 @@
 import * as Location from 'expo-location';
 import { errorToast } from './toast';
+import api from '../services/api';
 
 export const formatMessageDateTime = (dateString) => {
   if (!dateString) return 'now';
@@ -112,9 +113,19 @@ export const formatTimeForBackend = (date) => {
   if (typeof date === 'string') {
     return date.split(':').slice(0, 2).join(':');
   }
-  console.log(date);
 
   const h = date.getHours().toString().padStart(2, '0');
   const m = date.getMinutes().toString().padStart(2, '0');
   return `${h}:${m}`;
+};
+
+export const fetchOsrmRoute = async (fromLat, fromLng, toLat, toLng) => {
+  const start = `${fromLng},${fromLat}`;
+  const end = `${toLng},${toLat}`;
+  const url = `http://router.project-osrm.org/route/v1/driving/${start};${end}?geometries=geojson`;
+  const response = await api.get(url, { baseURL: '' }); // bypass the app's baseURL
+  return response.data.routes[0].geometry.coordinates.map(([lon, lat]) => ({
+    latitude: lat,
+    longitude: lon,
+  }));
 };
