@@ -13,7 +13,7 @@ import { useUser } from '../../hooks/useUser';
 import { Link } from 'expo-router';
 import { errorToast } from '../../utils/toast';
 import { Eye, EyeOff } from 'lucide-react-native';
-import Logo from '../../assets/img/logo.png'
+import Logo from '../../assets/img/logo.png';
 
 const Login = () => {
   const { login } = useUser();
@@ -42,13 +42,13 @@ const Login = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View className="flex-1 items-center justify-center bg-background">
-        <Image source={Logo} style={{width: 200, height:200}} />
-        <Text title={true} className="mb-8 text-center text-2xl font-bold text-text">
+        <Image source={Logo} style={{ width: 200, height: 200 }} />
+        <Text title={true} className="text-text mb-8 text-center text-2xl font-bold">
           Login to UrbanPulse
         </Text>
 
         <TextInput
-          className="bg-surface mb-5 w-[85%] rounded-xl border-2 border-primary px-4 py-3.5 text-text"
+          className="text-text mb-5 w-[85%] rounded-xl border-2 border-primary bg-surface px-4 py-3.5"
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
@@ -56,9 +56,9 @@ const Login = () => {
           autoCapitalize="none"
         />
 
-        <View className="bg-surface border-primary mb-8 w-[85%] flex-row items-center justify-between rounded-xl border-2 px-4 py-1.5">
+        <View className="mb-8 w-[85%] flex-row items-center justify-between rounded-xl border-2 border-primary bg-surface px-4 py-1.5">
           <TextInput
-            className="flex-1 py-2 text-text"
+            className="text-text flex-1 py-2"
             placeholder="Password"
             secureTextEntry={!passwordVisible}
             value={password}
@@ -83,7 +83,7 @@ const Login = () => {
 
         <Link href="/register" replace asChild>
           <Pressable className="mt-6 p-2">
-            <Text className="text-center font-medium text-text">
+            <Text className="text-text text-center font-medium">
               Don&#39;t have an account? <Text className="text-primary">Sign up</Text>
             </Text>
           </Pressable>

@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 18.11.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://urbanpulse-production-9bbb.up.railway.app/api/v1",
+        "EXPO_PUBLIC_WS_URL": "wss://urbanpulse-production-9bbb.up.railway.app/ws"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

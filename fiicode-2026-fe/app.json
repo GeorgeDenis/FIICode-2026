@@ -50,6 +50,12 @@
         "projectId": "f0c3fb04-db41-4074-993b-dc2ad4e12d7b"
       }
     },
-    "owner": "georgedenis08"
+    "owner": "georgedenis08",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f0c3fb04-db41-4074-993b-dc2ad4e12d7b"
+    }
   }
 }

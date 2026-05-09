@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
-import api, { IP_CONFIG } from '../../services/api';
+import api, { WS_BASE_URL } from '../../services/api';
 import AnimatedPulse from '../../components/feed/AnimatedPulse';
 import { Ionicons } from '@expo/vector-icons';
 import FeedFilterPopup from '../../components/feed/FeedFilterPopup';
@@ -13,7 +13,7 @@ import { computeHaversineDistance } from '../../utils/utils_functions';
 import { useUser } from '../../hooks/useUser';
 
 const Feed = () => {
-  const {user} = useUser();
+  const { user } = useUser();
   const { location, loading: locationLoading } = useLocation();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [pulses, setPulses] = useState([]);
@@ -22,7 +22,7 @@ const Feed = () => {
     urgencyLevel: null,
     sortBy: 'DATE (NEWEST)',
     distance: null,
-    target: 'All'
+    target: 'All',
   });
   const [selectedPulse, setSelectedPulse] = useState(null);
   const [isAddPulseModalVisible, setIsAddPulseModalVisible] = useState(false);
@@ -39,7 +39,7 @@ const Feed = () => {
     useCallback(() => {
       handleFetchPulses();
 
-      const wsUrl = `ws://${IP_CONFIG}:5000/ws/feed`;
+      const wsUrl = `${WS_BASE_URL}/feed`;
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
@@ -97,7 +97,8 @@ const Feed = () => {
       const matchesUrgency = activeFilters.urgency
         ? pulse.urgency_level === activeFilters.urgency
         : true;
-      const matchesTarget = activeFilters.target === 'Owned' ? pulse.author_id === user.user_id : true
+      const matchesTarget =
+        activeFilters.target === 'Owned' ? pulse.author_id === user.user_id : true;
 
       return matchesType && matchesUrgency && distanceLimit && matchesTarget && pulse.is_visible;
     })
@@ -116,7 +117,11 @@ const Feed = () => {
   };
 
   const renderPulse = ({ item }) => (
-    <AnimatedPulse item={item} openEditPulseModal={openEditPulseModal} refetch={handleFetchPulses} />
+    <AnimatedPulse
+      item={item}
+      openEditPulseModal={openEditPulseModal}
+      refetch={handleFetchPulses}
+    />
   );
 
   return (

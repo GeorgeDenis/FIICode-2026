@@ -13,7 +13,7 @@ import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-rou
 import MessageComponent from '../components/chat/MessageComponent';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/Colors';
-import api, { IP_CONFIG } from '../services/api';
+import api, { WS_BASE_URL } from '../services/api';
 import { errorToast } from '../utils/toast';
 import { useUser } from '../hooks/useUser';
 import AddInGroupModal from '../components/chat/AddInGroupModal';
@@ -39,7 +39,7 @@ const Messaging = () => {
   useFocusEffect(
     useCallback(() => {
       handleFetchMessages();
-      const wsUrl = `ws://${IP_CONFIG}:5000/ws/chat/${user.user_id}`;
+      const wsUrl = `${WS_BASE_URL}/chat/${user.user_id}`;
       console.log('Connecting to WebSocket at:', wsUrl);
       const ws = new WebSocket(wsUrl);
 

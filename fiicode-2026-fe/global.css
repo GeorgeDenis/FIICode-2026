@@ -4,140 +4,104 @@
 
 @layer base {
     :root {
-        /* =========================================
-           1. FUNDALURI & LAYOUT DE BAZĂ
-           ========================================= */
-        --color-background: #F3F4F6; /* Un gri și mai fin pentru fundalul general */
-        --color-surface: #FFFFFF; /* Pentru cardurile de conversații din listă */
-        --color-surface-active: #F9FAFB; /* Când ții apăsat pe o conversație în listă */
+        --color-background: #F3F4F6;
+        --color-surface: #FFFFFF;
+        --color-surface-active: #F9FAFB;
 
-        /* =========================================
-           2. CHAT BUBBLES (Bulele de mesaje)
-           ========================================= */
-        /* Mesajele Trimise de TINE (Spre dreapta) */
         --color-bubble-sent: #4F46E5; /* Indigo-ul tău de brand */
         --color-bubble-sent-text: #FFFFFF; /* Text alb pe fundal închis */
         --color-bubble-sent-muted: #818CF8; /* Pentru ora mesajului (timestamp) în bula ta */
 
-        /* Mesajele Primite de la ALȚII (Spre stânga) */
         --color-bubble-received: #E5E7EB; /* Gri deschis */
         --color-bubble-received-text: #111827; /* Text aproape negru pentru contrast */
         --color-bubble-received-muted: #6B7280; /* Pentru ora mesajului în bula lor */
 
-        /* =========================================
-           3. AVATARE & ELEMENTE UI
-           ========================================= */
         --color-avatar-bg: #E0E7FF; /* Fundal pentru userii fără poză (Primary Muted) */
         --color-avatar-text: #4338CA; /* Inițialele userului (Primary închis) */
 
-        --color-input-bg: #F9FAFB; /* Fundalul căsuței unde scrii mesajul */
-        --color-border-input: #D1D5DB; /* Chenarul căsuței de text */
-        --color-border: #E5E7EB; /* Liniile subțiri care despart conversațiile în listă */
+        --color-input-bg: #F9FAFB;
+        --color-border-input: #D1D5DB;
+        --color-border: #E5E7EB;
 
-        /* =========================================
-           4. TYPOGRAPHY (Texte)
-           ========================================= */
-        --color-text-main: #111827; /* Numele userului, text principal */
-        --color-text-muted: #6B7280; /* Preview-ul ultimului mesaj din listă */
-        --color-text-tiny: #9CA3AF; /* Ora la care a fost trimis ultimul mesaj (în listă) */
-        --color-text-inverted: #F9FAFB; /* Text principal alb strălucitor */
 
-        /* =========================================
-           5. SEMANTIC & STATUS
-           ========================================= */
+        --color-text-main: #111827;
+        --color-text-muted: #6B7280;
+        --color-text-tiny: #9CA3AF;
+        --color-text-inverted: #F9FAFB;
+
+
         --color-primary: #4F46E5;
-        --color-unread-badge: #EF4444; /* Punctul roșu pentru "3 mesaje noi" */
-        --color-online-dot: #10B981; /* Punctul verde pentru user online */
+        --color-unread-badge: #EF4444;
+        --color-online-dot: #10B981;
         --color-alert: #EF4444;
         --color-success: #10B981;
 
 
-        /* =========================================
-           6. Buttons
-           ========================================= */
+        --color-btn-primary: #4F46E5;
+        --color-btn-primary-active: #4338CA;
 
-        --color-btn-primary: #4F46E5; /* Albastru/Indigo pentru butoane principale */
-        --color-btn-primary-active: #4338CA; /* Mai închis când e apăsat */
+        --color-btn-success: #10B981;
+        --color-btn-success-active: #059669;
 
-        --color-btn-success: #10B981; /* Verde pentru "Send" / "Create" */
-        --color-btn-success-active: #059669; /* Verde mai închis la apăsare */
+        --color-btn-danger: #EF4444;
+        --color-btn-danger-active: #DC2626;
 
-        --color-btn-danger: #EF4444; /* Roșu pentru "Cancel" / "Delete" */
-        --color-btn-danger-active: #DC2626; /* Roșu mai închis la apăsare */
-
-        --color-btn-secondary: #F3F4F6; /* Gri deschis pentru butoane neutre */
+        --color-btn-secondary: #F3F4F6;
         --color-btn-secondary-active: #E5E7EB;
-        --color-btn-secondary-text: #111827; /* Text negru pe butonul gri */
+        --color-btn-secondary-text: #111827;
 
-        --color-btn-disabled: #E5E7EB; /* Buton dezactivat */
-        --color-btn-disabled-text: #9CA3AF; /* Text pe buton dezactivat */
+        --color-btn-disabled: #E5E7EB;
+        --color-btn-disabled-text: #9CA3AF;
     }
 
     @media (prefers-color-scheme: dark) {
         :root {
-            /* =========================================
-               1. FUNDALURI & LAYOUT DE BAZĂ (Întunecate)
-               ========================================= */
-            --color-background: #111827; /* Gri foarte închis (aproape negru) pentru fundalul din spate */
-            --color-surface: #1F2937; /* Gri mediu pentru carduri și elemente elevate */
-            --color-surface-active: #374151; /* Gri mai deschis când ții apăsat pe o conversație */
 
-            /* =========================================
-               2. CHAT BUBBLES (Bulele de mesaje)
-               ========================================= */
-            /* Mesajele Trimise de TINE (Rămân cam la fel, arată bine pe negru) */
-            --color-bubble-sent: #4F46E5; /* Indigo-ul tău de brand */
-            --color-bubble-sent-text: #FFFFFF; /* Alb curat pentru contrast maxim */
-            --color-bubble-sent-muted: #A5B4FC; /* Un indigo foarte deschis pentru ora mesajului */
+            --color-background: #111827;
+            --color-surface: #1F2937;
+            --color-surface-active: #374151;
 
-            /* Mesajele Primite de la ALȚII (Aici e marea schimbare) */
-            --color-bubble-received: #374151; /* Gri închis (în loc de gri deschis) */
-            --color-bubble-received-text: #F9FAFB; /* Text alb/gri foarte deschis */
-            --color-bubble-received-muted: #9CA3AF; /* Gri mediu pentru ora mesajului în bula lor */
+            --color-bubble-sent: #4F46E5;
+            --color-bubble-sent-text: #FFFFFF;
+            --color-bubble-sent-muted: #A5B4FC;
 
-            /* =========================================
-               3. AVATARE & ELEMENTE UI
-               ========================================= */
-            --color-avatar-bg: #374151; /* Fundal închis pentru userii fără poză */
-            --color-avatar-text: #A5B4FC; /* Inițialele userului (Indigo luminos) */
+            --color-bubble-received: #374151;
+            --color-bubble-received-text: #F9FAFB;
+            --color-bubble-received-muted: #9CA3AF;
 
-            --color-input-bg: #111827; /* Fundalul căsuței de text (la fel ca background-ul) */
-            --color-border-input: #4B5563; /* Chenarul căsuței de text ceva mai vizibil */
-            --color-border: #374151; /* Liniile care despart conversațiile */
+            --color-avatar-bg: #374151;
+            --color-avatar-text: #A5B4FC;
 
-            /* =========================================
-               4. TYPOGRAPHY (Texte inversate)
-               ========================================= */
-            --color-text-main: #F9FAFB; /* Text principal alb strălucitor */
-            --color-text-muted: #9CA3AF; /* Text secundar gri (Preview-ul mesajului) */
-            --color-text-tiny: #6B7280; /* Text mic (Ora la care a fost trimis) */
-            --color-text-inverted: #111827; /* Numele userului, text principal */
+            --color-input-bg: #111827;
+            --color-border-input: #4B5563;
+            --color-border: #374151;
 
-            /* =========================================
-               5. SEMANTIC & STATUS
-               ========================================= */
-            --color-primary: #6366F1; /* Un indigo cu un ton mai deschis ca să "țipe" pe negru */
-            --color-primary-muted: #312E81; /* Indigo foarte închis (pentru efecte subtile) */
-            --color-unread-badge: #F87171; /* Roșu puțin mai deschis/pastelat */
-            --color-online-dot: #34D399; /* Verde puțin mai deschis/pastelat */
+            --color-text-main: #F9FAFB;
+            --color-text-muted: #9CA3AF;
+            --color-text-tiny: #6B7280;
+            --color-text-inverted: #111827;
+
+
+            --color-primary: #6366F1;
+            --color-primary-muted: #312E81;
+            --color-unread-badge: #F87171;
+            --color-online-dot: #34D399;
             --color-alert: #F87171;
             --color-success: #34D399;
 
-            /* =========================================
-               6. Buttons
-               ========================================= */
-            --color-btn-primary: #6366F1; /* Albastru mai deschis ca să iasă în evidență pe negru */
+
+            --color-btn-primary: #6366F1;
             --color-btn-primary-active: #4F46E5;
 
-            --color-btn-success: #34D399; /* Verde pastelat pentru contrast bun */
+            --color-btn-success: #34D399;
             --color-btn-success-active: #10B981;
 
-            --color-btn-danger: #F87171; /* Roșu pastelat */
+            --color-btn-danger: #F87171;
             --color-btn-danger-active: #EF4444;
 
-            --color-btn-secondary: #374151; /* Gri închis pentru butoane neutre */
+            --color-btn-secondary: #374151;
             --color-btn-secondary-active: #4B5563;
-            --color-btn-secondary-text: #F9FAFB; /* Text alb pe butonul gri */
+            --color-btn-secondary-text: #F9FAFB;
 
             --color-btn-disabled: #374151;
             --color-btn-disabled-text: #6B7280;
