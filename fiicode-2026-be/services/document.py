@@ -155,7 +155,6 @@ class DocumentService:
         return matches[:3]
 
     def notify_possible_owner(self, doc: Document, user, score: int, finder_id: str, db: Session):
-        from repositories.notification import NotificationRepository
         notification_repo = NotificationRepository()
 
         doc_label = {
@@ -186,6 +185,42 @@ class DocumentService:
     def get_all(self, db: Session):
         return self.doc_repo.get_all(db)
 
+    def get_all_found_excluding_user(self, user_id: str, db: Session, lat: float = None, lng: float = None,
+                                     radius: float = None):
+        return self.doc_repo.get_all_found_excluding_user(user_id, db, lat, lng, radius)
+
+    def get_smart_matches_for_user(self, user_id: str, db: Session):
+        user = self.user_repo.find_user_by_id(user_id, db)
+        if not user:
+            return []
+
+        all_found = self.doc_repo.get_all_found_excluding_user(user_id, db)
+        matches = []
+
+        user_first = (user.first_name or "").lower()
+        user_last = (user.last_name or "").lower()
+
+        if not user_first and not user_last:
+            return []
+
+        for doc in all_found:
+            score = 0.0
+            first_frag = (doc.ai_first_name or "").strip().lower()
+            last_frag = (doc.ai_last_name or "").strip().lower()
+
+            if first_frag and first_frag in user_first:
+                score += 0.30
+            if last_frag and last_frag in user_last:
+                score += 0.20
+
+            if score >= 0.30:
+                doc_dict = doc.__dict__.copy()
+                doc_dict["match_percentage"] = int(score * 100)
+                matches.append(doc_dict)
+
+        matches.sort(key=lambda x: x["match_percentage"], reverse=True)
+        return matches
+
     def get_all_found(self, db: Session):
         return self.doc_repo.get_all_found(db)
 
@@ -215,13 +250,15 @@ class DocumentService:
         doc = self.get_document_by_id(doc_id, db)
 
         if doc.status == DocumentStatus.CLAIMED:
-            raise AppException("This document has already been claimed.", 400)
+            raise AppException("This document has already been claimed and returned.", 400)
 
         if doc.status == DocumentStatus.ARCHIVED:
             raise AppException("This document has been archived and is no longer available.", 400)
 
+        if doc.matched_owner_id is not None:
+            raise AppException("Someone is currently claiming this document. Please wait.", 400)
+
         doc.matched_owner_id = claimer_id
-        doc.status = DocumentStatus.CLAIMED
         self.doc_repo.save(doc, db)
 
         notification_repo = NotificationRepository()
@@ -236,8 +273,8 @@ class DocumentService:
         notification = NotificationCreateSchema(
             recipient_id=doc.finder_id,
             actor_id=claimer_id,
-            type="DOCUMENT_CLAIMED",
-            content=f"Someone has claimed the {doc_label} you found. You can now chat with them to arrange the return.",
+            type="Document",
+            content=f"Someone has claimed the {doc_label} you found. Please verify and coordinate the return.",
             entity_id=doc.id,
         )
         try:
@@ -246,6 +283,30 @@ class DocumentService:
             logger.error(f"Failed to notify finder of claim: {e}")
 
         return doc
+
+    def reject_claim(self, doc_id: str, finder_id: str, db: Session):
+        doc = self.get_document_by_id(doc_id, db)
+        if str(doc.finder_id) != str(finder_id):
+            raise AppException("Only the finder can reject a claim.", 403)
+
+        if doc.status == DocumentStatus.CLAIMED:
+            raise AppException("Document is already fully resolved.", 400)
+
+        doc.matched_owner_id = None
+        self.doc_repo.save(doc, db)
+        return {"success": True}
+
+    def mark_returned(self, doc_id: str, finder_id: str, db: Session):
+        doc = self.get_document_by_id(doc_id, db)
+        if str(doc.finder_id) != str(finder_id):
+            raise AppException("Only the finder can mark the document as returned.", 403)
+
+        if doc.matched_owner_id is None:
+            raise AppException("No active claim to confirm.", 400)
+
+        doc.status = DocumentStatus.CLAIMED
+        self.doc_repo.save(doc, db)
+        return {"success": True}
 
     def update_status(self, doc_id: str, new_status: str, requester_role: int, db: Session):
         if requester_role not in (1, 2):
@@ -269,7 +330,6 @@ class DocumentService:
             raise AppException("Only the finder or an admin can delete this document.", 403)
 
         if is_admin and not is_finder:
-            from repositories.notification import NotificationRepository
             notification_repo = NotificationRepository()
 
             doc_label = {

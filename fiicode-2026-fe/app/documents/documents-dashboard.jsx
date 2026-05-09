@@ -14,10 +14,13 @@ import { Colors } from '../../constants/Colors';
 import DocumentService from '../../services/documentService';
 import DocumentCard from '../../components/documents/DocumentCard';
 import UploadLostDocumentModal from '../../components/documents/UploadLostDocumentModal';
+import { useLocation } from '../../hooks/useLocation';
+import Slider from '@react-native-community/slider';
 
 const TABS = [
   { key: 'all', label: 'ALL FOUND', icon: 'search-outline' },
   { key: 'mine', label: 'MY REPORTS', icon: 'folder-open-outline' },
+  { key: 'matching', label: 'MATCHING ME', icon: 'person-outline' },
 ];
 
 const DocumentsDashboard = () => {
@@ -25,10 +28,12 @@ const DocumentsDashboard = () => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
 
+  const { location } = useLocation();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [searchRadius, setSearchRadius] = useState(50); // Default 50km
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
@@ -36,10 +41,18 @@ const DocumentsDashboard = () => {
   const loadDocuments = async () => {
     try {
       setLoading(true);
-      const data =
-        activeTab === 'mine'
-          ? await DocumentService.getMyFoundDocuments()
-          : await DocumentService.getAllFoundDocuments();
+      let data = [];
+      if (activeTab === 'mine') {
+        data = await DocumentService.getMyFoundDocuments();
+      } else if (activeTab === 'matching') {
+        data = await DocumentService.getSmartMatches();
+      } else {
+        data = await DocumentService.getAllFoundDocuments(
+          location?.coords?.latitude,
+          location?.coords?.longitude,
+          searchRadius
+        );
+      }
       setDocuments(data);
     } catch (error) {
       console.error('Failed to load documents:', error);
@@ -51,7 +64,7 @@ const DocumentsDashboard = () => {
 
   useEffect(() => {
     loadDocuments();
-  }, [activeTab]);
+  }, [activeTab, searchRadius, location?.coords?.latitude, location?.coords?.longitude]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -94,7 +107,7 @@ const DocumentsDashboard = () => {
       <ScrollView
         className="flex-1 px-4 pt-4"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <View className="mb-6 flex-row items-center justify-between">
+        <View className="mb-6 flex-row items-center justify-between border-b p-2">
           <View>
             <Text className="text-foreground text-2xl font-black">Lost Documents</Text>
             <Text className="text-foreground text-sm opacity-60">
@@ -129,6 +142,34 @@ const DocumentsDashboard = () => {
           ))}
         </View>
 
+        {activeTab === 'all' && (
+          <View className="bg-surface mb-6 flex flex-col items-start justify-between rounded-2xl border">
+            <View className="bg-secondary/10 mb-2 mt-2 w-full rounded-2xl p-4 shadow-sm">
+              <View className="mb-4 flex-row items-center justify-between">
+                <View className="flex-row items-center gap-2">
+                  <Ionicons name="location" size={24} color="#10b981" />
+                  <Text className="text-lg font-bold text-text-main">Action Range</Text>
+                </View>
+                <Text className="text-lg font-bold text-primary">
+                  {searchRadius?.toFixed(1)} km
+                </Text>
+              </View>
+
+              <Slider
+                style={{ width: '100%', height: 5 }}
+                minimumValue={1}
+                maximumValue={10}
+                step={0.5}
+                value={searchRadius}
+                onValueChange={(val) => setSearchRadius(val)}
+                minimumTrackTintColor="#10b981"
+                maximumTrackTintColor="#d1d5db"
+                thumbTintColor="#10b981"
+              />
+            </View>
+          </View>
+        )}
+
         {loading && !refreshing ? (
           <View className="mt-20 items-center justify-center">
             <ActivityIndicator size="large" color={theme.tabIconSelected} />
@@ -147,11 +188,17 @@ const DocumentsDashboard = () => {
             <Text className="text-foreground mt-2 text-center text-xs opacity-50">
               {activeTab === 'mine'
                 ? "You haven't reported any found documents yet."
-                : 'No documents have been reported in your community yet.'}
+                : activeTab === 'matching'
+                  ? "We couldn't find any reported documents matching your profile."
+                  : 'No documents have been reported in your community yet.'}
             </Text>
             {activeTab === 'all' && (
               <Pressable
-                onPress={() => router.push('/documents/scan')}
+                onPress={() => {
+                  if (!isSearchModalVisible) {
+                    setIsModalVisible(true);
+                  }
+                }}
                 className="mt-8 rounded-2xl bg-primary px-10 py-4 shadow-lg">
                 <Text className="font-bold text-white">REPORT A FOUND DOC</Text>
               </Pressable>

@@ -11,6 +11,7 @@ from schemas.document import (
     DocumentWithImageSchema,
 )
 from services.document import DocumentService
+from schemas.document import DocumentMatchResponseSchema
 
 document_router = APIRouter(prefix="/api/v1/documents", tags=["documents"])
 document_service = DocumentService()
@@ -42,8 +43,14 @@ def get_all_documents(db: db_dependency, _admin=Depends(is_admin)):
 
 
 @document_router.get("", response_model=List[DocumentPublicResponseSchema], status_code=200)
-def get_all_found_documents(db: db_dependency, user_data=Depends(get_current_user)):
-    return document_service.get_all_found(db)
+def get_all_found_documents(
+        db: db_dependency,
+        user_data=Depends(get_current_user),
+        lat: Optional[float] = None,
+        lng: Optional[float] = None,
+        radius: Optional[float] = None,
+):
+    return document_service.get_all_found_excluding_user(user_data["id"], db, lat=lat, lng=lng, radius=radius)
 
 
 @document_router.get("/mine/found", response_model=List[DocumentPublicResponseSchema], status_code=200)
@@ -54,6 +61,12 @@ def get_my_found_documents(db: db_dependency, user_data=Depends(get_current_user
 @document_router.get("/mine/matches", response_model=List[DocumentPublicResponseSchema], status_code=200)
 def get_documents_matched_to_me(db: db_dependency, user_data=Depends(get_current_user)):
     return document_service.get_matched_to_me(user_data["id"], db)
+
+
+
+@document_router.get("/mine/smart-matches", response_model=List[DocumentMatchResponseSchema], status_code=200)
+def get_smart_matches(db: db_dependency, user_data=Depends(get_current_user)):
+    return document_service.get_smart_matches_for_user(user_data["id"], db)
 
 
 @document_router.get("/{doc_id}", response_model=DocumentPublicResponseSchema, status_code=200)
@@ -79,6 +92,23 @@ def claim_document(doc_id: str, db: db_dependency, user_data=Depends(get_current
         db=db,
     )
 
+
+@document_router.patch("/{doc_id}/reject-claim", status_code=200)
+def reject_claim(doc_id: str, db: db_dependency, user_data=Depends(get_current_user)):
+    return document_service.reject_claim(
+        doc_id=doc_id,
+        finder_id=user_data["id"],
+        db=db,
+    )
+
+
+@document_router.patch("/{doc_id}/mark-returned", status_code=200)
+def mark_returned(doc_id: str, db: db_dependency, user_data=Depends(get_current_user)):
+    return document_service.mark_returned(
+        doc_id=doc_id,
+        finder_id=user_data["id"],
+        db=db,
+    )
 
 @document_router.patch("/{doc_id}/status", status_code=200)
 def update_document_status(

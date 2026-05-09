@@ -10,6 +10,8 @@ import { fetchOsrmRoute, formatMessageDateTime } from '../../utils/utils_functio
 import api from '../../services/api';
 import { useRouter } from 'expo-router';
 import { errorToast } from '../../utils/toast';
+import ClaimantActionCard from './ClaimantActionCard';
+import { DocumentCardHeader } from './DocumentCardHeader';
 
 const DOC_TYPE_CONFIG = {
   ID_CARD: { label: 'ID Card', icon: 'card-outline', color: '#6849a7' },
@@ -18,15 +20,7 @@ const DOC_TYPE_CONFIG = {
   OTHER: { label: 'Document', icon: 'document-outline', color: '#d97706' },
 };
 
-const STATUS_CONFIG = {
-  Claimed: { label: 'CLAIMED', color: '#059669' },
-  Archived: { label: 'ARCHIVED', color: '#6b7280' },
-  Found: { label: 'FOUND', color: '#e11d48' },
-};
-
 const maskName = (name) => (name ? `${name[0].toUpperCase()}***` : '???');
-
-const withAlpha = (hex, alpha) => `${hex}${alpha}`;
 
 
 const InfoChip = ({ icon, label, theme }) => (
@@ -36,58 +30,6 @@ const InfoChip = ({ icon, label, theme }) => (
   </View>
 );
 
-const StatusBadge = ({ status }) => {
-  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.Found;
-  return (
-    <View
-      style={{ backgroundColor: withAlpha(cfg.color, '22') }}
-      className="rounded-full px-3 py-1">
-      <Text style={{ color: cfg.color }} className="text-[10px] font-black">
-        {cfg.label}
-      </Text>
-    </View>
-  );
-};
-
-const CardHeader = ({ doc, isMyDoc, isDeleting, onDelete, docConfig, handleChatNavigation }) => (
-  <View
-    style={{ backgroundColor: withAlpha(docConfig.color, '18') }}
-    className="flex-row items-center justify-between border-b border-border px-4 py-3">
-    <View className="flex-row items-center gap-3">
-      <View
-        style={{ backgroundColor: withAlpha(docConfig.color, '22') }}
-        className="h-10 w-10 items-center justify-center rounded-full">
-        <Ionicons name={docConfig.icon} size={22} color={docConfig.color} />
-      </View>
-      <View>
-        <Text className="text-foreground text-sm font-black">{docConfig.label}</Text>
-        <Text className="text-foreground text-[10px] opacity-50">
-          Found {formatMessageDateTime(doc.created_at)}
-        </Text>
-      </View>
-    </View>
-    <View className="flex-row items-center gap-2">
-      <StatusBadge status={doc.status} />
-      {isMyDoc && (
-        <Pressable
-          onPress={onDelete}
-          disabled={isDeleting}
-          className="rounded-full bg-red-500/10 p-2">
-          {isDeleting ? (
-            <ActivityIndicator size={14} color="#ef4444" />
-          ) : (
-            <Ionicons name="trash-outline" size={16} color="#ef4444" />
-          )}
-        </Pressable>
-      )}
-    </View>
-    <Pressable
-      className="flex items-center justify-center rounded-lg bg-primary p-3"
-      onPress={() => handleChatNavigation()}>
-      <Ionicons name="chatbubble-ellipses" size={22} color="#ffffff" />
-    </Pressable>
-  </View>
-);
 
 const DocumentMap = ({ doc, userLocation, routeCoords }) => {
   const hasUserLocation = !!userLocation?.coords;
@@ -133,12 +75,14 @@ const DocumentCard = ({ doc, onRefresh, showClaimButton = true }) => {
 
   const [isClaiming, setIsClaiming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
   const [routeCoords, setRouteCoords] = useState(null);
   const [finder, setFinder] = useState(null);
+  const [claimant, setClaimant] = useState(null);
 
   const isMyDoc = user?.user_id === doc.finder_id;
-  const isClaimed = doc.status === 'Claimed';
-  const isArchived = doc.status === 'Archived';
+  const isClaimed = doc.status?.toUpperCase() === 'CLAIMED';
+  const isArchived = doc.status?.toUpperCase() === 'ARCHIVED';
   const hasDocLocation = doc.location_lat != null && doc.location_lng != null;
 
   const docConfig = DOC_TYPE_CONFIG[doc.doc_type] || DOC_TYPE_CONFIG.OTHER;
@@ -169,6 +113,9 @@ const DocumentCard = ({ doc, onRefresh, showClaimButton = true }) => {
 
   useEffect(() => {
     fetchFinderDetails();
+    if (isMyDoc && doc.matched_owner_id) {
+      fetchClaimantDetails();
+    }
   }, [doc]);
 
   const handleClaim = () => {
@@ -228,18 +175,26 @@ const DocumentCard = ({ doc, onRefresh, showClaimButton = true }) => {
       const response = await api.get('/user/by-id/' + doc.finder_id);
       setFinder(response.data);
     } catch (error) {
-      if (error.response && error.response.status === 403) {
-        return;
-      }
+      if (error.response && error.response.status === 403) return;
       errorToast(error.message);
     }
   };
 
-  const handleChatNavigation = async () => {
+  const fetchClaimantDetails = async () => {
+    try {
+      const response = await api.get('/user/by-id/' + doc.matched_owner_id);
+      setClaimant(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChatNavigation = async (targetUser = finder) => {
+    if (!targetUser) return;
     let conversationId = null;
     let isGroup = false;
     try {
-      const response = await api.get(`/chat/conversations/${user.id}`);
+      const response = await api.get(`/chat/conversations/${targetUser.id}`);
       if (response.data.id) {
         conversationId = response.data.id;
         isGroup = response.data.is_group;
@@ -251,15 +206,15 @@ const DocumentCard = ({ doc, onRefresh, showClaimButton = true }) => {
       params: {
         conversationId,
         isGroup,
-        receiverId: finder.id,
-        name: finder.first_name + ' ' + finder.last_name,
+        receiverId: targetUser.id,
+        name: targetUser.first_name + ' ' + targetUser.last_name,
       },
     });
   };
 
   return (
-    <View className="bg-card mb-4 overflow-hidden rounded-3xl border border-border shadow-sm">
-      <CardHeader
+    <View className="mb-4 overflow-hidden rounded-xl border-2 border-primary bg-surface">
+      <DocumentCardHeader
         doc={doc}
         isMyDoc={isMyDoc}
         isDeleting={isDeleting}
@@ -279,21 +234,40 @@ const DocumentCard = ({ doc, onRefresh, showClaimButton = true }) => {
           </View>
         </View>
 
+        {doc.match_percentage != null && (
+          <View className="mb-3 flex-row items-center gap-2 rounded-xl bg-indigo-50 px-3 py-2 dark:bg-indigo-900/30">
+            <Ionicons name="sparkles" size={16} color="#6366F1" />
+            <Text className="font-bold text-indigo-700 dark:text-indigo-300">
+              {doc.match_percentage}% Smart Match
+            </Text>
+          </View>
+        )}
+
         <View className="flex-row flex-wrap gap-2">
           {doc.ai_birth_year && (
-            <InfoChip icon="calendar-outline" label={`Born ${doc.ai_birth_year}`} theme={theme} />
+            <View className="rounded-xl border bg-surface">
+              <InfoChip icon="calendar-outline" label={`Born ${doc.ai_birth_year}`} theme={theme} />
+            </View>
           )}
           {doc.ai_issuing_city && (
-            <InfoChip icon="location-outline" label={doc.ai_issuing_city} theme={theme} />
+            <View className="rounded-xl border bg-surface">
+              <InfoChip icon="location-outline" label={doc.ai_issuing_city} theme={theme} />
+            </View>
           )}
           {doc.ai_gender && (
-            <InfoChip
-              icon={doc.ai_gender === 'M' ? 'male-outline' : 'female-outline'}
-              label={doc.ai_gender === 'M' ? 'Male' : 'Female'}
-              theme={theme}
-            />
+            <View className="rounded-xl border bg-surface">
+              <InfoChip
+                icon={doc.ai_gender === 'M' ? 'male-outline' : 'female-outline'}
+                label={doc.ai_gender === 'M' ? 'Male' : 'Female'}
+                theme={theme}
+              />
+            </View>
           )}
-          {doc.ai_has_face && <InfoChip icon="image-outline" label="Has photo" theme={theme} />}
+          {doc.ai_has_face && (
+            <View className="rounded-xl border bg-surface">
+              <InfoChip icon="image-outline" label="Has photo" theme={theme} />
+            </View>
+          )}
         </View>
 
         {hasDocLocation && !locationLoading && (
@@ -301,12 +275,12 @@ const DocumentCard = ({ doc, onRefresh, showClaimButton = true }) => {
         )}
       </View>
 
-      {showClaimButton && !isClaimed && !isArchived && !isMyDoc && (
+      {showClaimButton && !isClaimed && !isArchived && !isMyDoc && !doc.matched_owner_id && (
         <View className="border-t border-border px-4 pb-4 pt-3">
           <Pressable
             onPress={handleClaim}
             disabled={isClaiming}
-            className="flex-row items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 active:opacity-80">
+            className="flex-row items-center justify-center gap-2 rounded-xl bg-primary py-3.5 active:opacity-80">
             {isClaiming ? (
               <ActivityIndicator color="white" />
             ) : (
@@ -319,11 +293,47 @@ const DocumentCard = ({ doc, onRefresh, showClaimButton = true }) => {
         </View>
       )}
 
+      {showClaimButton && !isClaimed && !isArchived && !isMyDoc && doc.matched_owner_id && (
+        <View className="border-t border-border px-4 pb-4 pt-3">
+          <View className="flex-row items-center justify-center gap-2 rounded-xl bg-orange-500/10 py-3">
+            <Ionicons name="time-outline" size={18} color="#ea580c" />
+            <Text className="font-bold text-orange-700">Claim Pending Verification</Text>
+          </View>
+        </View>
+      )}
+
+      {isMyDoc && doc.matched_owner_id && !isClaimed && !isArchived && (
+        <ClaimantActionCard
+          doc={doc}
+          claimant={claimant}
+          handleChatNavigation={handleChatNavigation}
+          theme={theme}
+          onRefresh={onRefresh}
+        />
+      )}
+
       {isClaimed && !isMyDoc && (
         <View className="border-t border-border px-4 pb-4 pt-3">
-          <View className="flex-row items-center justify-center gap-2 rounded-2xl bg-green-500/10 py-3">
+          <View className="flex-row items-center justify-center gap-2 rounded-xl bg-green-500/10 py-3">
             <Ionicons name="checkmark-circle-outline" size={18} color="#059669" />
             <Text className="font-bold text-green-700">Document has been claimed</Text>
+          </View>
+        </View>
+      )}
+
+      {isClaimed && isMyDoc && claimant && (
+        <View className="border-t border-border bg-green-50/50 px-4 pb-4 pt-3 dark:bg-green-950/20">
+          <Text className="mb-2 text-xs font-bold text-green-600 dark:text-green-400">
+            RETURNED SUCCESSFULLY
+          </Text>
+          <View className="flex-row items-center gap-2">
+            <Ionicons name="person-circle" size={36} color="#059669" />
+            <View>
+              <Text className="text-foreground font-bold">
+                {claimant.first_name} {claimant.last_name}
+              </Text>
+              <Text className="text-foreground text-xs opacity-60">Verified Owner</Text>
+            </View>
           </View>
         </View>
       )}

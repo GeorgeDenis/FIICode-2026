@@ -43,6 +43,7 @@ class DocumentPublicResponseSchema(BaseModel):
     ai_has_face: Optional[bool] = None
     ai_gender: Optional[str] = None
     finder_id: Optional[UUID] = None
+    matched_owner_id: Optional[UUID] = None
     location_lat: Optional[float] = None
     location_lng: Optional[float] = None
     created_at: Optional[datetime.datetime] = None
@@ -63,6 +64,10 @@ class DocumentWithImageSchema(DocumentPublicResponseSchema):
         if image_data is None:
             return None
         return f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}"
+
+
+class DocumentMatchResponseSchema(DocumentPublicResponseSchema):
+    match_percentage: int
 
 
 class DocumentClaimSchema(BaseModel):

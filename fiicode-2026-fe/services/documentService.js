@@ -1,8 +1,14 @@
 import api from './api';
 
 const DocumentService = {
-  async getAllFoundDocuments() {
-    const response = await api.get('/documents');
+  async getAllFoundDocuments(lat, lng, radius) {
+    const params = {};
+    if (lat != null && lng != null && radius != null) {
+      params.lat = lat;
+      params.lng = lng;
+      params.radius = radius;
+    }
+    const response = await api.get('/documents', { params });
     return response.data;
   },
 
@@ -13,6 +19,11 @@ const DocumentService = {
 
   async getDocumentsMatchedToMe() {
     const response = await api.get('/documents/mine/matches');
+    return response.data;
+  },
+
+  async getSmartMatches() {
+    const response = await api.get('/documents/mine/smart-matches');
     return response.data;
   },
 
@@ -39,6 +50,16 @@ const DocumentService = {
 
   async deleteDocument(docId) {
     const response = await api.delete(`/documents/${docId}`);
+    return response.data;
+  },
+
+  async rejectClaim(docId) {
+    const response = await api.patch(`/documents/${docId}/reject-claim`);
+    return response.data;
+  },
+
+  async markDocumentReturned(docId) {
+    const response = await api.patch(`/documents/${docId}/mark-returned`);
     return response.data;
   },
 
