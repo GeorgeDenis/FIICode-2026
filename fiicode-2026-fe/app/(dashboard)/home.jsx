@@ -6,9 +6,13 @@ import HeroWidget from '../../components/home/HeroWidget';
 import PulsesCarousel from '../../components/home/PulsesCarousel';
 import ActionZone from '../../components/home/ActionZone';
 import api from '../../services/api';
+import { useCrisis } from '../../hooks/useCrisis';
+import CrisisHomeScreen from '../../components/crisis/CrisisHomeScreen';
 
 const Home = () => {
   const { location, loading: locationLoading } = useLocation();
+  const { isCrisisActive } = useCrisis();
+
   useEffect(() => {
     const syncLocationWithDatabase = async () => {
       if (!location || !location.coords) {
@@ -26,6 +30,10 @@ const Home = () => {
 
     syncLocationWithDatabase();
   }, [location]);
+
+  if (isCrisisActive) {
+    return <CrisisHomeScreen />;
+  }
 
   return (
     <ScrollView className="flex-1 bg-background">

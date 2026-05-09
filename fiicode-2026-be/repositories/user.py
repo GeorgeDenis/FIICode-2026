@@ -66,10 +66,12 @@ class UserRepository:
         lat2 = func.radians(User.latitude)
         lon2 = func.radians(User.longitude)
 
-        distance_expr = 6371.0 * func.acos(
+        cos_expr = (
             func.cos(lat1) * func.cos(lat2) * func.cos(lon2 - lon1) +
             func.sin(lat1) * func.sin(lat2)
         )
+        clamped_cos_expr = func.least(1.0, func.greatest(-1.0, cos_expr))
+        distance_expr = 6371.0 * func.acos(clamped_cos_expr)
 
         is_in_quiet_hours = or_(
             and_(
@@ -104,10 +106,12 @@ class UserRepository:
         lat2 = func.radians(User.latitude)
         lon2 = func.radians(User.longitude)
 
-        distance_expr = 6371.0 * func.acos(
+        cos_expr = (
             func.cos(lat1) * func.cos(lat2) * func.cos(lon2 - lon1) +
             func.sin(lat1) * func.sin(lat2)
         )
+        clamped_cos_expr = func.least(1.0, func.greatest(-1.0, cos_expr))
+        distance_expr = 6371.0 * func.acos(clamped_cos_expr)
 
         return db.query(User).filter(
             User.latitude.is_not(None),

@@ -15,6 +15,7 @@ import PetService from '../../services/petService';
 import PetCard from '../../components/pets/PetCard';
 import UploadLostAnimalModal from '../../components/pets/UploadLostAnimalModal';
 import SimilaritySearchModal from '../../components/pets/SimilaritySearchModal';
+import EmergencyBanner from '../../components/crisis/EmergencyBanner';
 
 const PetsDashboard = () => {
   const router = useRouter();
@@ -91,7 +92,7 @@ const PetsDashboard = () => {
           ),
         }}
       />
-
+      <EmergencyBanner />
       <ScrollView
         className="flex-1 px-4 pt-4"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>

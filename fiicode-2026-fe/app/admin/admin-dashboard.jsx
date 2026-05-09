@@ -11,6 +11,7 @@ import UserDashboard from '../../components/admin/users/UserDashboard';
 import PulseDashboard from '../../components/admin/pulses/PulseDashboard';
 import BroadcastNotificationPanel from '../../components/admin/notifications/BroadcastNotificationPanel';
 import DocumentsDashboard from '../../components/admin/documents/DocumentsDashboard'
+import CrisisDashboard from '../../components/admin/crisis/CrisisDashboard'
 const AdminDashboard = () => {
   const router = useRouter();
   const { user } = useContext(UserContext);
@@ -41,6 +42,8 @@ const AdminDashboard = () => {
         return <BroadcastNotificationPanel />;
       case 'documents':
         return <DocumentsDashboard/>
+      case 'crisis':
+        return <CrisisDashboard />
       default:
         return null;
     }
@@ -75,6 +78,7 @@ const AdminDashboard = () => {
             {renderTab('users', 'Users')}
             {renderTab('documents', 'Documents')}
             {renderTab('broadcast', 'Broadcast')}
+            {renderTab('crisis', 'Crisis')}
           </ScrollView>
         </View>
         <View className="w-full flex-1">{renderContent()}</View>

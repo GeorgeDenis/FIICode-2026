@@ -11,9 +11,12 @@ import EditPulseModal from '../../components/feed/EditPulseModal';
 import { useLocation } from '../../hooks/useLocation';
 import { computeHaversineDistance } from '../../utils/utils_functions';
 import { useUser } from '../../hooks/useUser';
+import { useCrisis } from '../../hooks/useCrisis';
+import CrisisLifelineFeed from '../../components/crisis/CrisisLifelineFeed';
 
 const Feed = () => {
   const { user } = useUser();
+  const { isCrisisActive } = useCrisis();
   const { location, loading: locationLoading } = useLocation();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [pulses, setPulses] = useState([]);
@@ -68,6 +71,10 @@ const Feed = () => {
       };
     }, [])
   );
+
+  if (isCrisisActive) {
+    return <CrisisLifelineFeed />;
+  }
 
   if (locationLoading || !location) {
     return (

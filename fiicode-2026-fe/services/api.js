@@ -46,7 +46,6 @@
 
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import Constants from 'expo-constants';
 
 export const IP_CONFIG = '172.24.65.189';
 

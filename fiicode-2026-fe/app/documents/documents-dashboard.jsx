@@ -16,6 +16,7 @@ import DocumentCard from '../../components/documents/DocumentCard';
 import UploadLostDocumentModal from '../../components/documents/UploadLostDocumentModal';
 import { useLocation } from '../../hooks/useLocation';
 import Slider from '@react-native-community/slider';
+import EmergencyBanner from '../../components/crisis/EmergencyBanner';
 
 const TABS = [
   { key: 'all', label: 'ALL FOUND', icon: 'search-outline' },
@@ -33,7 +34,7 @@ const DocumentsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
-  const [searchRadius, setSearchRadius] = useState(50); // Default 50km
+  const [searchRadius, setSearchRadius] = useState(5);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
@@ -103,7 +104,7 @@ const DocumentsDashboard = () => {
           ),
         }}
       />
-
+      <EmergencyBanner />
       <ScrollView
         className="flex-1 px-4 pt-4"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
@@ -143,7 +144,7 @@ const DocumentsDashboard = () => {
         </View>
 
         {activeTab === 'all' && (
-          <View className="bg-surface mb-6 flex flex-col items-start justify-between rounded-2xl border">
+          <View className="mb-6 flex flex-col items-start justify-between rounded-2xl border bg-surface">
             <View className="bg-secondary/10 mb-2 mt-2 w-full rounded-2xl p-4 shadow-sm">
               <View className="mb-4 flex-row items-center justify-between">
                 <View className="flex-row items-center gap-2">

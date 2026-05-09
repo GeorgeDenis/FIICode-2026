@@ -18,6 +18,7 @@ import { errorToast } from '../utils/toast';
 import { useUser } from '../hooks/useUser';
 import AddInGroupModal from '../components/chat/AddInGroupModal';
 import UsersInGroupModal from '../components/chat/UsersInGroupModal';
+import { useCrisis } from '../hooks/useCrisis';
 
 const Messaging = () => {
   const { receiverId, conversationId, name, isGroup } = useLocalSearchParams();
@@ -26,6 +27,7 @@ const Messaging = () => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
   const backgroundColor = colorScheme === 'dark' ? '#0F172A' : '#E5E7EB';
+  const { isCrisisActive } = useCrisis();
   const router = useRouter();
 
   const [chatMessages, setChatMessages] = useState([]);
@@ -114,21 +116,22 @@ const Messaging = () => {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-background"
+      className={`flex-1 ${isCrisisActive ? 'bg-[#0A0A0A]' : 'bg-background'}`}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
-      <View className="flex-1 bg-background">
+      <View className={`flex-1 ${isCrisisActive ? 'bg-[#0A0A0A]' : 'bg-background'}`}>
         <Stack.Screen
           options={{
             title: name || 'Chat',
             headerBackTitleVisible: false,
             headerTitleAlign: 'center',
-            backgroundColor: backgroundColor,
+            headerStyle: { backgroundColor: isCrisisActive ? '#0A0A0A' : backgroundColor },
+            headerTintColor: isCrisisActive ? '#FFFFFF' : undefined,
             headerLeft: () => (
               <Pressable
                 className="flex h-10 w-10 items-center justify-center rounded-full active:opacity-50"
                 onPress={() => router.back()}>
-                <Ionicons name="return-up-back-outline" size={20} color={theme.iconColor} />
+                <Ionicons name="return-up-back-outline" size={20} color={isCrisisActive ? '#9CA3AF' : theme.iconColor} />
               </Pressable>
             ),
             headerRight: () =>
@@ -138,14 +141,14 @@ const Messaging = () => {
                     disabled={isUserListModalVisibile || isAddUserModalVisibile}
                     className="mr-4 flex h-10 w-10 items-center justify-center rounded-full border active:opacity-50"
                     onPress={() => setIsUserListModalVisibile(true)}>
-                    <Ionicons name="people" size={20} color={theme.iconColor} />
+                    <Ionicons name="people" size={20} color={isCrisisActive ? '#9CA3AF' : theme.iconColor} />
                   </Pressable>
 
                   <Pressable
                     disabled={isUserListModalVisibile || isAddUserModalVisibile}
                     className="flex h-10 w-10 items-center justify-center rounded-full border active:opacity-50"
                     onPress={() => setIsAddUserModalVisibile(true)}>
-                    <Ionicons name="person-add" size={20} color={theme.iconColor} />
+                    <Ionicons name="person-add" size={20} color={isCrisisActive ? '#9CA3AF' : theme.iconColor} />
                   </Pressable>
                 </View>
               ) : null,
@@ -163,18 +166,18 @@ const Messaging = () => {
             />
           ) : (
             <View className="my-auto flex flex-col items-center  justify-center rounded-xl">
-              <Ionicons name="chatbubble-ellipses-outline" size={30} color={theme.iconColor} />
-              <Text className="font-bold">No messages yet.</Text>
-              <Text className="text-gray-600">Start the conversation by sending a message!</Text>
+              <Ionicons name="chatbubble-ellipses-outline" size={30} color={isCrisisActive ? '#6B7280' : theme.iconColor} />
+              <Text className={`font-bold ${isCrisisActive ? 'text-gray-400' : ''}`}>No messages yet.</Text>
+              <Text className={isCrisisActive ? 'text-gray-500' : 'text-gray-600'}>Start the conversation by sending a message!</Text>
             </View>
           )}
         </View>
 
-        <View className="flex min-h-[100px] w-full flex-row justify-center bg-background px-3.5 py-7 text-black">
+        <View className={`flex min-h-[100px] w-full flex-row justify-center px-3.5 py-7 ${isCrisisActive ? 'bg-[#111] border-t border-red-900/30' : 'bg-background'}`}>
           <TextInput
-            className="mr-2.5 flex-1 rounded-2xl border p-3.5"
+            className={`mr-2.5 flex-1 rounded-2xl border p-3.5 ${isCrisisActive ? 'border-[#333] bg-[#1A1A1A] text-white' : ''}`}
             placeholder="Type your message..."
-            placeholderTextColor="#6b7280"
+            placeholderTextColor={isCrisisActive ? '#666' : '#6b7280'}
             value={message}
             onChangeText={setMessage}
           />

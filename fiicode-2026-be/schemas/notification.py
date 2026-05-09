@@ -9,7 +9,7 @@ from schemas.user import AuthorBasicSchema
 
 class NotificationCreateSchema(BaseModel):
     recipient_id: UUID
-    actor_id: UUID = None
+    actor_id: Optional[UUID] = None
     type: str
     content: str
     entity_id: Optional[UUID] = None
@@ -42,4 +42,4 @@ class BroadcastNotificationSchema(BaseModel):
     longitude: float
     radius: float
     content: str
-    type: str  # 'Emergency' or 'News'
+    type: str

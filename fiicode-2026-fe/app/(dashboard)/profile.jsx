@@ -19,6 +19,7 @@ import ProfileDataCard from '../../components/profile/ProfileDataCard';
 import BasicModal from '../../components/BasicModal';
 import { BriefcaseMedical } from 'lucide-react-native/icons';
 import ProfileRank from '../../components/profile/ProfileRank';
+import EmergencyBanner from '../../components/crisis/EmergencyBanner';
 
 const Profile = () => {
   const { logout, user } = useUser();
@@ -147,6 +148,7 @@ const Profile = () => {
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
       showsVerticalScrollIndicator={false}>
+      <EmergencyBanner />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="mt-2 flex-1 items-center bg-indigo-500 pt-4">
           <View className="absolute left-5 top-20 z-10 mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary shadow-sm">
