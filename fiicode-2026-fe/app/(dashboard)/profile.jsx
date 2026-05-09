@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useUser } from '../../hooks/useUser';
-import { Link, useFocusEffect } from 'expo-router';
+import { Link, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 
 import { Hammer, PawPrint, PersonStanding, Trash, Van } from 'lucide-react-native';
@@ -23,6 +23,7 @@ import EmergencyBanner from '../../components/crisis/EmergencyBanner';
 
 const Profile = () => {
   const { logout, user } = useUser();
+  const router = useRouter();
   const [currentUser, setCurrentUser] = useState({
     firstName: '',
     lastName: '',
@@ -190,6 +191,12 @@ const Profile = () => {
                     <Ionicons name="star" size={20} color="yellow" />
                   </Pressable>
                 </Link>
+                <Pressable
+                  className="flex flex-row items-center justify-between gap-2 rounded-lg bg-indigo-500 p-4 shadow-sm active:bg-indigo-400"
+                  onPress={() => router.push('/(dashboard)/safety')}>
+                  <Text className="font-bold text-text-inverted">Safety Hub</Text>
+                  <Ionicons name="shield-checkmark" size={20} color="white" />
+                </Pressable>
                 {currentUser.role === 1 && (
                   <Link href="/admin/admin-dashboard" asChild>
                     <Pressable className="flex flex-row items-center justify-between gap-2 rounded-lg bg-red-500 p-4 shadow-sm active:bg-red-400">

@@ -169,6 +169,10 @@ export default function DashboardLayout() {
             ),
           }}
         />
+        <Tabs.Screen
+          name="safety"
+          options={{ href: null, headerShown: false }}
+        />
       </Tabs>
     </UserOnly>
   );

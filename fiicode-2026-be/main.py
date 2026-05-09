@@ -10,6 +10,7 @@ import models.report as report_model
 import models.document as document_model
 import models.incident as incident_model
 import models.crisis as crisis_model
+import models.safety as safety_model
 from connection_manager.chat_manager import chat_manager
 from connection_manager.crisis_manager import crisis_manager
 from connection_manager.feed_manager import feed_manager
@@ -26,6 +27,7 @@ from routers.mission import mission_router
 from routers.document import document_router
 from routers.incident import incident_router
 from routers.crisis import crisis_router
+from routers.safety import safety_router
 
 app = FastAPI()
 
@@ -54,6 +56,7 @@ app.include_router(pet_router)
 app.include_router(document_router)
 app.include_router(incident_router)
 app.include_router(crisis_router)
+app.include_router(safety_router)
 
 register_exception_handlers(app)
 user_model.Base.metadata.create_all(bind=engine)
@@ -65,6 +68,7 @@ report_model.Base.metadata.create_all(bind=engine)
 document_model.Base.metadata.create_all(bind=engine)
 incident_model.Base.metadata.create_all(bind=engine)
 crisis_model.Base.metadata.create_all(bind=engine)
+safety_model.Base.metadata.create_all(bind=engine)
 
 
 @app.get("/")
