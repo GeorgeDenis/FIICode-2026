@@ -2,12 +2,14 @@ import React, { useCallback, useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import api, { WS_BASE_URL } from '../../services/api';
+import { useCrisis } from '../../hooks/useCrisis';
 import LifelinePulseCard from './LifelinePulseCard';
 import QuickEmergencyPulse from './QuickEmergencyPulse';
 import { Ionicons } from '@expo/vector-icons';
 import VoiceSOSButton from './VoiceSOSButton';
 
 const CrisisLifelineFeed = () => {
+  const { activeCrisis, isSurvivalMode } = useCrisis();
   const [pulses, setPulses] = useState([]);
   const [activeTab, setActiveTab] = useState('lifeline');
   const [quickPulseVisible, setQuickPulseVisible] = useState(false);
@@ -41,16 +43,20 @@ const CrisisLifelineFeed = () => {
   const lifelinePulses = pulses
     .filter((p) => p.type === 'Emergency' && p.is_visible)
     .sort((a, b) => {
-      const aVerified = a.is_verified || a.author?.role >= 1 ? 0 : 1;
-      const bVerified = b.is_verified || b.author?.role >= 1 ? 0 : 1;
-      if (aVerified !== bVerified) return aVerified - bVerified;
+      // Primary: newest first
+      const dateDiff = new Date(b.created_at) - new Date(a.created_at);
+      if (dateDiff !== 0) return dateDiff;
 
+      // Tie-break 1: urgency
       const urgencyOrder = { High: 0, Medium: 1, Low: 2 };
       const aUrg = urgencyOrder[a.urgency_level] ?? 2;
       const bUrg = urgencyOrder[b.urgency_level] ?? 2;
       if (aUrg !== bUrg) return aUrg - bUrg;
 
-      return new Date(b.created_at) - new Date(a.created_at);
+      // Tie-break 2: verified / authority
+      const aVerified = a.is_verified || a.author?.role >= 1 ? 0 : 1;
+      const bVerified = b.is_verified || b.author?.role >= 1 ? 0 : 1;
+      return aVerified - bVerified;
     });
 
   const regularPulses = pulses
@@ -60,7 +66,13 @@ const CrisisLifelineFeed = () => {
   const displayedPulses = activeTab === 'lifeline' ? lifelinePulses : regularPulses;
 
   return (
-    <View className="flex-1 bg-[#0A0A0A]">
+    <View className={`flex-1 ${isSurvivalMode ? 'bg-[#000000]' : 'bg-[#0A0A0A]'}`}>
+      {isSurvivalMode && (
+        <View className="bg-amber-600 px-4 py-2 flex-row items-center justify-center gap-2">
+          <Ionicons name="battery-dead" size={18} color="#FFF" />
+          <Text className="text-white font-bold text-xs">SURVIVAL MODE ACTIVE</Text>
+        </View>
+      )}
       <View className="flex-row gap-2 px-4 pb-2 pt-3">
         <Pressable
           onPress={() => setActiveTab('lifeline')}

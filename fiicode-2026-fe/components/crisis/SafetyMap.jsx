@@ -25,7 +25,7 @@ const STATUS_LABELS = {
 
 const SafetyMap = () => {
   const { user } = useUser();
-  const { activeCrisis } = useCrisis();
+  const { activeCrisis, isSurvivalMode } = useCrisis();
   const [region, setRegion] = useState(null);
   const [checkins, setCheckins] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +63,6 @@ const SafetyMap = () => {
     useCallback(() => {
       fetchCheckins();
 
-      // Listen for real-time check-in updates
       const wsUrl = `${WS_BASE_URL}/crisis/${user?.user_id}`;
       const ws = new WebSocket(wsUrl);
 
@@ -88,6 +87,35 @@ const SafetyMap = () => {
       <View className="flex-1 items-center justify-center bg-[#0A0A0A]">
         <ActivityIndicator size="large" color="#EF4444" />
         <Text className="mt-2 text-gray-500">Loading safety map...</Text>
+      </View>
+    );
+  }
+
+  // SURVIVAL MODE: Disable MapView to save extreme amounts of battery
+  if (isSurvivalMode) {
+    return (
+      <View className="flex-1 bg-black p-4">
+        <View className="bg-yellow-900/40 border border-yellow-600 p-4 rounded-xl mb-4 items-center flex-row gap-3">
+          <Ionicons name="battery-dead" size={24} color="#FBBF24" />
+          <View className="flex-1">
+            <Text className="text-yellow-400 font-bold">SURVIVAL MODE ACTIVE</Text>
+            <Text className="text-yellow-500 text-xs">Map rendering disabled to conserve extreme battery.</Text>
+          </View>
+        </View>
+        <Text className="text-white font-bold mb-2">Check-in Statuses near you:</Text>
+        {checkins.length === 0 ? (
+          <Text className="text-gray-500 text-sm">No check-ins available.</Text>
+        ) : (
+          checkins.map(c => (
+            <View key={c.id} className="flex-row items-center gap-2 mb-2 p-2 border-b border-[#333]">
+              <View className="h-3 w-3 rounded-full" style={{ backgroundColor: STATUS_COLORS[c.status] || '#6B7280' }} />
+              <Text className="text-gray-300 font-medium">
+                {c.user ? `${c.user.first_name} ${c.user.last_name}` : 'Unknown'}
+              </Text>
+              <Text className="text-gray-500 text-xs ml-auto">{c.status}</Text>
+            </View>
+          ))
+        )}
       </View>
     );
   }

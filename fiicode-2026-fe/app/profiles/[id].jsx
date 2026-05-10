@@ -188,7 +188,7 @@ const ProfileDetails = () => {
               </View>
               <View className="mt-5 flex w-full flex-col items-start">
                 <Text className="text-xl font-bold text-text-main">About</Text>
-                <Text className="min-h-[200px] w-full rounded-xl bg-surface p-2 p-5 text-text-main shadow-sm">
+                <Text className="min-h-[200px] w-full rounded-xl bg-surface p-2 text-text-main shadow-sm">
                   {user?.description ||
                     'No description provided. This user has not added any information about themselves yet.'}
                 </Text>

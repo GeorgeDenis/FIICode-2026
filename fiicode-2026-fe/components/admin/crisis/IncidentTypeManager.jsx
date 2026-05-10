@@ -56,6 +56,8 @@ const IncidentTypeManager = () => {
           placeholderTextColor="#999"
           value={newName}
           onChangeText={setNewName}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
         <TextInput
           className="mb-3 rounded-xl border border-gray-300 bg-gray-50 px-3 py-2 text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
@@ -63,8 +65,12 @@ const IncidentTypeManager = () => {
           placeholderTextColor="#999"
           value={newIcon}
           onChangeText={setNewIcon}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
-        <Pressable onPress={handleCreate} className="self-end rounded-full bg-blue-600 px-4 py-2 active:bg-blue-700">
+        <Pressable
+          onPress={handleCreate}
+          className="self-end rounded-full bg-blue-600 px-4 py-2 active:bg-blue-700">
           <Text className="font-semibold text-white">+ Add</Text>
         </Pressable>
       </View>

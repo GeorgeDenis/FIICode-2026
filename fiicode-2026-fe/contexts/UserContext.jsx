@@ -17,10 +17,11 @@ export function UserProvider({ children }) {
       async (error) => {
         const status = error.response?.status;
         const url = error.config?.url || '';
-        
+
         if ((status === 401 || status === 403) && !url.includes('/auth/login')) {
           await logout();
-          return Promise.reject(error);
+          // Return a permanently-pending promise so no downstream catch / errorToast fires.
+          return new Promise(() => {});
         }
 
         return Promise.reject(error);

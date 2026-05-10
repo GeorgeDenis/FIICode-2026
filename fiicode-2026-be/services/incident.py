@@ -3,12 +3,14 @@ from sqlalchemy.orm import Session
 from exceptions.exceptions import AppException
 from repositories.incident import IncidentRepository
 from schemas.incident import IncidentTypeCreateSchema, IncidentTypeUpdateSchema, IncidentReportCreateSchema
+from services.crisis import CrisisService
 
 incident_repository = IncidentRepository()
 
 CLUSTER_RADIUS_M = 500
 CLUSTER_TIME_WINDOW_MIN = 30
 AUTO_ACTIVATE_THRESHOLD = 5
+
 
 class IncidentService:
     def create_incident_type(self, data: IncidentTypeCreateSchema, db: Session):
@@ -39,8 +41,7 @@ class IncidentService:
 
         from repositories.crisis import CrisisRepository
         crisis_repo = CrisisRepository()
-        
-        # 1. Check if there's already an active crisis (cluster) for this area and type
+
         existing_cluster = crisis_repo.find_cluster_for_location(
             type_id=str(data.incident_type_id),
             lat=data.latitude,
@@ -71,7 +72,6 @@ class IncidentService:
             report_count = len(nearby_reports)
 
             if report_count >= AUTO_ACTIVATE_THRESHOLD:
-                from services.crisis import CrisisService
                 crisis_service = CrisisService()
 
                 incident_type = incident_repository.get_incident_type_by_id(

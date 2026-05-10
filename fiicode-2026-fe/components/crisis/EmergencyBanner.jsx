@@ -16,12 +16,15 @@ const CRISIS_ICONS = {
 };
 
 const EmergencyBanner = () => {
-  const { isCrisisActive, activeCrisis } = useCrisis();
+  const { isCrisisActive, activeCrisis, isSurvivalMode } = useCrisis();
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const router = useRouter();
 
   useEffect(() => {
-    if (!isCrisisActive) return;
+    if (!isCrisisActive || isSurvivalMode) {
+      pulseAnim.setValue(1);
+      return;
+    }
 
     const animation = Animated.loop(
       Animated.sequence([
@@ -40,7 +43,7 @@ const EmergencyBanner = () => {
     animation.start();
 
     return () => animation.stop();
-  }, [isCrisisActive]);
+  }, [isCrisisActive, isSurvivalMode]);
 
   if (!isCrisisActive || !activeCrisis) return null;
 

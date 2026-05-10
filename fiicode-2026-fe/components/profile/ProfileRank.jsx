@@ -19,7 +19,7 @@ const ProfileRank = ({ currentUser }) => {
     }
   };
   return (
-    <View className="mt-5 w-full flex-row items-center rounded-3xl bg-surface p-5">
+    <View className={`mt-5 w-full flex-row items-center rounded-3xl p-5 bg-surface`}>
       <View className="relative">
         <View className="rounded-2xl border bg-background p-2 shadow-sm">
           <Image source={getLogoImage(currentUser.trust_score)} className="h-36 w-28" />

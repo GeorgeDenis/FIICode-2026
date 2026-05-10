@@ -1,23 +1,45 @@
 import { Tabs, useRouter } from 'expo-router';
-import { Pressable, useColorScheme } from 'react-native';
+import { Pressable, useColorScheme, View } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 
 import UserOnly from '../../components/auth/UserOnly';
 import NotificationBell from '../../components/NotificationBell';
+import { useCrisis } from '../../hooks/useCrisis';
 
 export default function DashboardLayout() {
   const colorScheme = useColorScheme();
+  const { isCrisisActive, isSurvivalMode, toggleSurvivalMode } = useCrisis();
+  
   const theme = Colors[colorScheme] ?? Colors.light;
-  const backgroundColor = colorScheme === 'dark' ? '#0F172A' : '#E5E7EB';
-  const titleColor = colorScheme === 'dark' ? '#E5E7EB' : '#0F172A';
+  const backgroundColor = isSurvivalMode ? '#000000' : (colorScheme === 'dark' ? '#0F172A' : '#E5E7EB');
+  const titleColor = isSurvivalMode ? '#FFFFFF' : (colorScheme === 'dark' ? '#E5E7EB' : '#0F172A');
   const router = useRouter();
+
+  const HeaderRight = () => (
+    <View className="flex-row items-center">
+      {isCrisisActive && (
+        <Pressable
+          className={`mr-3 flex flex-row items-center active:opacity-50 p-2 rounded-full border ${isSurvivalMode ? 'border-amber-400 bg-amber-900/30' : 'border-gray-500'}`}
+          onPress={toggleSurvivalMode}>
+          <Ionicons name="battery-half" size={22} color={isSurvivalMode ? '#FBBF24' : theme.iconColor} />
+        </Pressable>
+      )}
+      <Pressable
+        className="mr-4 flex flex-row items-center active:opacity-50"
+        onPress={() => router.push('/search')}>
+        <Ionicons name="search" size={28} color={theme.iconColor} />
+        <NotificationBell />
+      </Pressable>
+    </View>
+  );
+
   return (
     <UserOnly>
       <Tabs
         screenOptions={{
           // headerShown: false,
-          tabBarStyle: { backgroundColor: backgroundColor, paddingTop: 10, height: 80 },
+          tabBarStyle: { backgroundColor: backgroundColor, paddingTop: 10, height: 80, borderTopColor: isSurvivalMode ? '#333' : undefined },
           tabBarActiveTintColor: theme.iconColorFocused,
           tabBarInactiveTintColor: theme.iconColor,
         }}>
@@ -28,6 +50,7 @@ export default function DashboardLayout() {
             headerStyle: {
               backgroundColor: backgroundColor,
               height: 120,
+              borderBottomColor: isSurvivalMode ? '#333' : undefined,
             },
             headerTintColor: titleColor,
             headerLeft: () => (
@@ -48,14 +71,7 @@ export default function DashboardLayout() {
                 </Pressable>
               </>
             ),
-            headerRight: () => (
-              <Pressable
-                className="mr-4 flex flex-row items-center active:opacity-50"
-                onPress={() => router.push('/search')}>
-                <Ionicons name="search" size={28} color={theme.iconColor} />
-                <NotificationBell />
-              </Pressable>
-            ),
+            headerRight: HeaderRight,
             headerShadowVisible: false,
             tabBarIcon: ({ focused }) => (
               <Ionicons
@@ -108,6 +124,7 @@ export default function DashboardLayout() {
                 <Ionicons name="return-up-back-outline" size={24} color={theme.iconColor} />
               </Pressable>
             ),
+            headerRight: HeaderRight,
             headerShadowVisible: false,
             tabBarIcon: ({ focused }) => (
               <Ionicons
@@ -134,6 +151,7 @@ export default function DashboardLayout() {
                 <Ionicons name="return-up-back-outline" size={24} color={theme.iconColor} />
               </Pressable>
             ),
+            headerRight: HeaderRight,
             tabBarIcon: ({ focused }) => (
               <Ionicons
                 size={20}

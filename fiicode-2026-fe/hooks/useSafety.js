@@ -32,6 +32,13 @@ export const useSafety = () => {
   useEffect(() => {
     fetchContacts();
     fetchTimer();
+
+    // Poll every 10s so status changes made by the other party (e.g. accepting) are reflected in near-real-time.
+    const interval = setInterval(() => {
+      fetchContacts();
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, [fetchContacts, fetchTimer]);
 
   const requestContact = async (email) => {
@@ -93,7 +100,13 @@ export const useSafety = () => {
       setActiveTimer(null);
       successToast('Safety timer cancelled');
     } catch (e) {
-      errorToast('Failed to cancel timer');
+      // 404 means the timer already expired on the backend — treat as success
+      if (e.response?.status === 404) {
+        setActiveTimer(null);
+        successToast("You're safe — timer already resolved");
+      } else {
+        errorToast('Failed to cancel timer');
+      }
     } finally {
       setLoading(false);
     }

@@ -31,10 +31,12 @@ export function CrisisProvider({ children }) {
   const [activeCrisis, setActiveCrisis] = useState(null);
   const [myCheckInStatus, setMyCheckInStatus] = useState(null);
   const [incidentTypes, setIncidentTypes] = useState([]);
+  const [isSurvivalMode, setIsSurvivalMode] = useState(false);
   const wsRef = useRef(null);
 
   const locationRef = useRef(location);
   const activeCrisisIdRef = useRef(null);
+  const isCrisisActiveRef = useRef(false);
 
   useEffect(() => {
     locationRef.current = location;
@@ -43,6 +45,33 @@ export function CrisisProvider({ children }) {
   useEffect(() => {
     activeCrisisIdRef.current = activeCrisis?.id ?? null;
   }, [activeCrisis]);
+
+  useEffect(() => {
+    isCrisisActiveRef.current = isCrisisActive;
+  }, [isCrisisActive]);
+
+  useEffect(() => {
+    let batterySubscription;
+    (async () => {
+      const Battery = await import('expo-battery');
+      const level = await Battery.getBatteryLevelAsync();
+      
+      const checkBattery = (lvl) => {
+        if (isCrisisActiveRef.current && lvl > 0 && lvl <= 0.15) {
+          setIsSurvivalMode(true);
+        }
+      };
+      
+      checkBattery(level);
+      
+      batterySubscription = Battery.addBatteryLevelListener(({ batteryLevel }) => {
+        checkBattery(batteryLevel);
+      });
+    })();
+    return () => {
+      if (batterySubscription) batterySubscription.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -129,6 +158,7 @@ export function CrisisProvider({ children }) {
           setIsCrisisActive(false);
           setActiveCrisis(null);
           setMyCheckInStatus(null);
+          setIsSurvivalMode(false);
         }
         break;
       case 'CHECKIN_UPDATE':
@@ -164,6 +194,7 @@ export function CrisisProvider({ children }) {
         setIsCrisisActive(false);
         setActiveCrisis(null);
         setMyCheckInStatus(null);
+        setIsSurvivalMode(false);
       }
     } catch (error) {
       console.error('Failed to check crisis status:', error);
@@ -191,6 +222,10 @@ export function CrisisProvider({ children }) {
     }
   };
 
+  const toggleSurvivalMode = () => {
+    setIsSurvivalMode(prev => !prev);
+  };
+
   return (
     <CrisisContext.Provider
       value={{
@@ -198,6 +233,8 @@ export function CrisisProvider({ children }) {
         activeCrisis,
         myCheckInStatus,
         incidentTypes,
+        isSurvivalMode,
+        toggleSurvivalMode,
         submitReport,
         submitCheckIn,
         refreshCrisisStatus,

@@ -20,8 +20,10 @@ import BasicModal from '../../components/BasicModal';
 import { BriefcaseMedical } from 'lucide-react-native/icons';
 import ProfileRank from '../../components/profile/ProfileRank';
 import EmergencyBanner from '../../components/crisis/EmergencyBanner';
+import { useCrisis } from '../../hooks/useCrisis';
 
 const Profile = () => {
+  const { isSurvivalMode } = useCrisis();
   const { logout, user } = useUser();
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState({
@@ -112,7 +114,7 @@ const Profile = () => {
         rank_logo,
       });
     } catch (error) {
-      if (error.response && error.response.status === 403) {
+      if (error.response && (error.response.status === 403 || error.response.status === 401)) {
         return;
       }
       errorToast(error.message);
@@ -179,10 +181,10 @@ const Profile = () => {
           <View className="mt-10 w-full flex-1 rounded-t-3xl bg-gray-200 p-5">
             <View className="mt-14 flex w-full flex-row items-center justify-between gap-2 px-5">
               <View className="flex flex-col justify-start gap-2">
-                <Text className="text-xl font-bold text-text-main">
+                <Text className={`text-xl font-bold ${isSurvivalMode ? 'text-white' : 'text-text-main'}`}>
                   {currentUser.firstName} {currentUser.lastName}
                 </Text>
-                <Text className="text-base text-text-muted">{currentUser.email}</Text>
+                <Text className={`text-base ${isSurvivalMode ? 'text-gray-400' : 'text-text-muted'}`}>{currentUser.email}</Text>
               </View>
               <View className="flex flex-col gap-2">
                 <Link href="/missions/missions" asChild>
@@ -207,7 +209,7 @@ const Profile = () => {
                 )}
               </View>
             </View>
-            <ProfileRank currentUser={currentUser} />
+            <ProfileRank currentUser={currentUser} isSurvivalMode={isSurvivalMode} />
             <View className="mt-5 w-full justify-center gap-5">
               <View className="flex w-full flex-row gap-5">
                 <ProfileDataCard
@@ -243,8 +245,8 @@ const Profile = () => {
               </View>
             </View>
             <View className="mt-5 flex w-full flex-col items-start">
-              <Text className="text-xl font-bold text-text-main">About</Text>
-              <Text className="min-h-[200px] w-full rounded-xl bg-surface p-5 text-text-main shadow-sm">
+              <Text className={`text-xl font-bold ${isSurvivalMode ? 'text-white' : 'text-text-main'}`}>About</Text>
+              <Text className={`min-h-[200px] w-full rounded-xl p-5 shadow-sm ${isSurvivalMode ? 'bg-[#1A1A1A] text-gray-300' : 'bg-surface text-text-main'}`}>
                 {currentUser.description ||
                   'No description provided. You can add a bio in your profile settings.'}
               </Text>

@@ -47,7 +47,7 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-export const IP_CONFIG = '172.24.65.189';
+export const IP_CONFIG = '192.168.1.80';
 
 export const API_BASE_URL = __DEV__
   ? `http://${IP_CONFIG}:5000/api/v1`

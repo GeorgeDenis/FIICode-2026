@@ -259,6 +259,8 @@ const PulseComments = () => {
           placeholderTextColor="#6b7280"
           value={message}
           onChangeText={setMessage}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
         <Pressable
           className="flex w-[30%] flex-row items-center justify-center rounded-sm rounded-b-3xl bg-btn-primary active:bg-btn-primary-active"

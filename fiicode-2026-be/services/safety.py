@@ -63,7 +63,7 @@ class SafetyService:
         if not contact:
             raise HTTPException(status_code=404, detail="Contact not found")
 
-        if contact.user_id != user_id and contact.contact_id != user_id:
+        if str(contact.user_id) != str(user_id) and str(contact.contact_id) != str(user_id):
             raise HTTPException(status_code=403, detail="Not authorized")
 
         self.repo.delete_trusted_contact(db, contact)
