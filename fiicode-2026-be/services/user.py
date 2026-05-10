@@ -89,6 +89,10 @@ class UserService:
         if updated_user.quiet_hours_end is not None:
             user.quiet_hours_end = updated_user.quiet_hours_end
 
+        user.birth_year = updated_user.birth_year
+        user.gender = updated_user.gender
+        user.issuing_city = updated_user.issuing_city
+
         updated_user = user_repository.update_account_db(user, db)
 
         return updated_user

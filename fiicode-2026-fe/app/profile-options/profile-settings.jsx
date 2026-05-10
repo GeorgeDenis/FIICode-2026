@@ -30,6 +30,9 @@ const ProfileSettings = () => {
     distanceLimitKm: null,
     quietHoursStart: null,
     quietHoursEnd: null,
+    birthYear: '',
+    gender: '',
+    issuingCity: '',
   });
   const [selectedSkills, setSelectedSkills] = useState(user?.skills || []);
   const router = useRouter();
@@ -66,6 +69,9 @@ const ProfileSettings = () => {
         distance_limit_km,
         quiet_hours_start,
         quiet_hours_end,
+        birth_year,
+        gender,
+        issuing_city,
       } = response.data;
       setUser({
         firstName: first_name,
@@ -77,6 +83,9 @@ const ProfileSettings = () => {
         distanceLimitKm: distance_limit_km,
         quietHoursStart: quiet_hours_start,
         quietHoursEnd: quiet_hours_end,
+        birthYear: birth_year ? String(birth_year) : '',
+        gender: gender || '',
+        issuingCity: issuing_city || '',
       });
       setSelectedSkills([...skills]);
     } catch (error) {
@@ -105,6 +114,9 @@ const ProfileSettings = () => {
         description: user.description,
         skills: selectedSkills,
         distance_limit_km: user.distanceLimitKm,
+        birth_year: user.birthYear ? parseInt(user.birthYear, 10) : null,
+        gender: user.gender || null,
+        issuing_city: user.issuingCity || null,
         // quiet_hours_start: formatTimeForBackend(user.quietHoursStart),
         // quiet_hours_end: formatTimeForBackend(user.quietHoursEnd),
       });
@@ -123,6 +135,12 @@ const ProfileSettings = () => {
     } else if (property === 'description') {
       const trimmedValue = value.trimStart();
       setUser({ ...user, description: trimmedValue });
+    } else if (property === 'birthYear') {
+      setUser({ ...user, birthYear: value.replace(/[^0-9]/g, '') });
+    } else if (property === 'gender') {
+      setUser({ ...user, gender: value });
+    } else if (property === 'issuingCity') {
+      setUser({ ...user, issuingCity: value });
     }
   };
 
@@ -240,6 +258,51 @@ const ProfileSettings = () => {
               <Ionicons name="clipboard-outline" color={iconColor} size={20} />
             </View>
           </View>
+          
+          {/* New Fields for Document Matching */}
+          <View className="flex w-full flex-row justify-between gap-4">
+            <View className="flex flex-1 flex-col items-start gap-2">
+              <Text className="text-text-muted">Birth Year</Text>
+              <View className="w-full flex-row items-center justify-between rounded-3xl border-2 border-primary bg-surface px-3 py-1">
+                <TextInput
+                  className="w-full py-3 text-text-main"
+                  value={user.birthYear}
+                  onChangeText={(value) => handleSetProfileData(value, 'birthYear')}
+                  placeholder="YYYY"
+                  keyboardType="numeric"
+                  maxLength={4}
+                />
+              </View>
+            </View>
+
+            <View className="flex flex-1 flex-col items-start gap-2">
+              <Text className="text-text-muted">Gender</Text>
+              <View className="w-full flex-row items-center justify-between rounded-3xl border-2 border-primary bg-surface px-3 py-1">
+                <TextInput
+                  className="w-full py-3 text-text-main"
+                  value={user.gender}
+                  onChangeText={(value) => handleSetProfileData(value, 'gender')}
+                  placeholder="M/F/Other"
+                  maxLength={10}
+                />
+              </View>
+            </View>
+          </View>
+
+          <View className="flex flex-col items-start gap-2 w-full">
+            <Text className="text-text-muted">City of Residence / Issuing City</Text>
+            <View className="w-full flex-row items-center justify-between rounded-3xl border-2 border-primary bg-surface px-3 py-1">
+              <TextInput
+                className="w-[80%] py-3 text-text-main"
+                value={user.issuingCity}
+                onChangeText={(value) => handleSetProfileData(value, 'issuingCity')}
+                placeholder="City (e.g. Bucuresti)"
+              />
+              <Ionicons name="location-outline" color={iconColor} size={20} />
+            </View>
+            <Text className="text-xs text-text-muted px-2">Used for matching lost IDs and documents to you.</Text>
+          </View>
+
           <View className="mb-4 mt-6">
             <Text className="mb-3 text-lg font-bold text-text-main">
               How can you help the community?

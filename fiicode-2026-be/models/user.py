@@ -21,6 +21,10 @@ class User(Base):
     image = Column(LargeBinary)
     skills = Column(JSON, default=list)
 
+    birth_year = Column(Integer, nullable=True)
+    gender = Column(String, nullable=True)
+    issuing_city = Column(String, nullable=True)
+
     distance_limit_km = Column(Float, default=5.0)
     quiet_hours_start = Column(Time, nullable=True)
     quiet_hours_end = Column(Time, nullable=True)

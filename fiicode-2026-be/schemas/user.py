@@ -28,6 +28,10 @@ class UserResponseSchema(BaseModel):
     distance_limit_km: Optional[float] = None
     quiet_hours_start: Optional[datetime.time] = None
     quiet_hours_end: Optional[datetime.time] = None
+    
+    birth_year: Optional[int] = None
+    gender: Optional[str] = None
+    issuing_city: Optional[str] = None
 
     trust_score: Optional[float] = None
     rank: Optional[str] = None
@@ -64,6 +68,10 @@ class UpdateUserAccount(BaseModel):
     distance_limit_km: Optional[float] = None
     quiet_hours_start: Optional[datetime.time] = None
     quiet_hours_end: Optional[datetime.time] = None
+
+    birth_year: Optional[int] = None
+    gender: Optional[str] = None
+    issuing_city: Optional[str] = None
 
 
 class AuthorBasicSchema(BaseModel):

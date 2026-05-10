@@ -124,32 +124,97 @@ class DocumentService:
             "possible_owners_notified": len(notified),
         }
 
-    def smart_match(self, doc: Document, db: Session):
+    def _compute_match_score(self, doc: Document, user: User) -> float:
+        import difflib
+        import math
 
+        score = 0.0
+        first_frag = (doc.ai_first_name or "").strip().lower()
+        last_frag = (doc.ai_last_name or "").strip().lower()
+        user_first = (user.first_name or "").strip().lower()
+        user_last = (user.last_name or "").strip().lower()
+
+        if not first_frag and not last_frag:
+            return 0.0
+
+        def match_name(frag, name):
+            if not frag or not name: return 0.0
+            if frag in name or name in frag: return 0.9
+            sim = difflib.SequenceMatcher(None, frag, name).ratio()
+            return sim if sim > 0.7 else 0.0
+
+        f_score = match_name(first_frag, user_first)
+        l_score = match_name(last_frag, user_last)
+        swapped_f_score = match_name(first_frag, user_last)
+        swapped_l_score = match_name(last_frag, user_first)
+
+        best_f = max(f_score, swapped_f_score)
+        best_l = max(l_score, swapped_l_score)
+
+        name_score = 0.0
+        if first_frag and last_frag:
+            name_score = (best_f * 0.5) + (best_l * 0.5)
+        elif first_frag:
+            name_score = best_f
+        elif last_frag:
+            name_score = best_l
+
+        score += name_score * 0.50
+
+        if doc.ai_birth_year and user.birth_year:
+            try:
+                if int(doc.ai_birth_year) == int(user.birth_year):
+                    score += 0.20
+                else:
+                    score -= 0.15
+            except (ValueError, TypeError):
+                pass
+
+        if doc.ai_issuing_city and user.issuing_city:
+            doc_city = doc.ai_issuing_city.strip().lower()
+            user_city = user.issuing_city.strip().lower()
+            if doc_city in user_city or user_city in doc_city:
+                score += 0.15
+            else:
+                city_sim = difflib.SequenceMatcher(None, doc_city, user_city).ratio()
+                if city_sim > 0.8:
+                    score += 0.15
+                elif city_sim > 0.6:
+                    score += 0.05
+
+        if doc.ai_gender and user.gender:
+            if doc.ai_gender.strip().upper() == user.gender.strip().upper():
+                score += 0.05
+            else:
+                score -= 0.05
+
+        if doc.location_lat and doc.location_lng and user.latitude and user.longitude:
+            R = 6371.0
+            lat1, lon1 = math.radians(doc.location_lat), math.radians(doc.location_lng)
+            lat2, lon2 = math.radians(user.latitude), math.radians(user.longitude)
+            dlat = lat2 - lat1
+            dlon = lon2 - lon1
+            a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            dist = R * c
+
+            if dist <= 2.0:
+                score += 0.10
+            elif dist <= 10.0:
+                score += 0.05
+            elif dist <= 50.0:
+                score += 0.02
+
+        return max(0.0, min(1.0, score))
+
+    def smart_match(self, doc: Document, db: Session):
         candidates = db.query(User).all()
         matches = []
 
-        first_frag = (doc.ai_first_name or "").strip().lower()
-        last_frag = (doc.ai_last_name or "").strip().lower()
-
-        if not first_frag and not last_frag:
-            return []
-
         for user in candidates:
-            score = 0.0
-            user_first = (user.first_name or "").lower()
-            user_last = (user.last_name or "").lower()
-
-            if first_frag and first_frag in user_first:
-                score += 0.30
-            if last_frag and last_frag in user_last:
-                score += 0.20
-
-            if score == 0.0:
-                continue
-
-            if score >= 0.30:
-                matches.append((user, round(score * 100)))
+            score = self._compute_match_score(doc, user)
+            if score >= 0.40:
+                matches.append((user, int(score * 100)))
 
         matches.sort(key=lambda x: x[1], reverse=True)
         return matches[:3]
@@ -197,23 +262,9 @@ class DocumentService:
         all_found = self.doc_repo.get_all_found_excluding_user(user_id, db)
         matches = []
 
-        user_first = (user.first_name or "").lower()
-        user_last = (user.last_name or "").lower()
-
-        if not user_first and not user_last:
-            return []
-
         for doc in all_found:
-            score = 0.0
-            first_frag = (doc.ai_first_name or "").strip().lower()
-            last_frag = (doc.ai_last_name or "").strip().lower()
-
-            if first_frag and first_frag in user_first:
-                score += 0.30
-            if last_frag and last_frag in user_last:
-                score += 0.20
-
-            if score >= 0.30:
+            score = self._compute_match_score(doc, user)
+            if score >= 0.40:
                 doc_dict = doc.__dict__.copy()
                 doc_dict["match_percentage"] = int(score * 100)
                 matches.append(doc_dict)
