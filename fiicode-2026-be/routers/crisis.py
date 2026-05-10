@@ -1,25 +1,83 @@
 from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, Query, Depends, UploadFile, File, Form
 from sqlalchemy.orm import Session
 
 from connection_manager.crisis_manager import crisis_manager
+from connection_manager.feed_manager import feed_manager
 from database import get_db
 from dependencies import get_current_user, is_admin
+from models.incident import IncidentType
+from repositories.crisis import CrisisRepository
 from schemas.crisis import (
-    CrisisActivateSchema, CrisisZoneResponseSchema,
-    SafetyCheckInCreateSchema, SafetyCheckInResponseSchema, SafetyCheckInUpdateSchema,
+    CrisisActivateSchema, SafetyCheckInCreateSchema, SafetyCheckInResponseSchema, SafetyCheckInUpdateSchema,
 )
-from services.crisis import CrisisService
+from schemas.crisis import CrisisZoneResponseSchema
+from schemas.incident import IncidentReportCreateSchema
+from schemas.pulse import PulseCreateSchema
+from schemas.pulse import PulseResponseSchema
 from services.ai_summary import AISummaryService
+from services.crisis import CrisisService
+from services.incident import IncidentService
+from services.pulse import PulseService
+from services.voice_sos import VoiceSOSService
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
 crisis_service = CrisisService()
 ai_summary_service = AISummaryService()
+voice_sos_service = VoiceSOSService()
+pulse_service = PulseService()
 
 crisis_router = APIRouter(prefix="/api/v1/crisis", tags=["crisis"])
 
+
+@crisis_router.post("/voice-sos", response_model=PulseResponseSchema, status_code=201)
+async def upload_voice_sos(
+        file: UploadFile = File(...),
+        latitude: float = Form(...),
+        longitude: float = Form(...),
+        db: Session = Depends(get_db),
+        user_data=Depends(get_current_user)
+):
+    pulse_data_dict = await voice_sos_service.parse_audio_sos(
+        file=file,
+        latitude=latitude,
+        longitude=longitude,
+        author_id=user_data['id']
+    )
+
+    pulse_create = PulseCreateSchema(**pulse_data_dict)
+    pulse = pulse_service.create_pulse(pulse_create, db)
+
+    incident_service = IncidentService()
+
+    incident_type = db.query(IncidentType).first()
+
+    if incident_type:
+        incident_report = IncidentReportCreateSchema(
+            reporter_id=user_data['id'],
+            incident_type_id=incident_type.id,
+            description=pulse_data_dict["content"],
+            latitude=latitude,
+            longitude=longitude
+        )
+        report = incident_service.submit_report(incident_report, db)
+
+        crisis_repo = CrisisRepository()
+        if report.cluster_id:
+            crisis = crisis_repo.get_crisis_by_id(str(report.cluster_id), db)
+            if crisis:
+                crisis_data = CrisisZoneResponseSchema.model_validate(crisis).model_dump(mode="json")
+                await crisis_manager.broadcast({
+                    "type": "CRISIS_ACTIVATED",
+                    "data": crisis_data,
+                })
+
+    pulse_dict = PulseResponseSchema.model_validate(pulse).model_dump(mode="json")
+    await feed_manager.broadcast(pulse_dict)
+
+    return pulse
 
 
 @crisis_router.post("/activate", response_model=CrisisZoneResponseSchema, status_code=201)
