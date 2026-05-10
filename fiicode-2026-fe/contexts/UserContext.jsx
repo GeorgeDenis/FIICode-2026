@@ -3,6 +3,7 @@ import api from '../services/api';
 import { successToast } from '../utils/toast';
 import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from 'jwt-decode';
+import { router } from 'expo-router';
 
 export const UserContext = createContext();
 
@@ -15,7 +16,9 @@ export function UserProvider({ children }) {
       (response) => response,
       async (error) => {
         const status = error.response?.status;
-        if (status === 401 || status === 403) {
+        const url = error.config?.url || '';
+        
+        if ((status === 401 || status === 403) && !url.includes('/auth/login')) {
           await logout();
           return Promise.reject(error);
         }
@@ -86,8 +89,15 @@ export function UserProvider({ children }) {
   }
 
   async function logout() {
+    if (router.canDismiss()) {
+      router.dismissAll();
+    }
+    router.replace('/(auth)/login');
+    
     await SecureStore.deleteItemAsync('userToken');
-    setUser(null);
+    setTimeout(() => {
+      setUser(null);
+    }, 150);
   }
 
   return (
