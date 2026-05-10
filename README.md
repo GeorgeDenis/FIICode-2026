@@ -57,5 +57,6 @@ Neon provides automatic daily snapshots and point-in-time recovery for up to 7 d
 ## Demo Access
 
 The live application is accessible via Expo Go. Install Expo Go on your device and then scan this QR code with your camera:
-<img width="994" height="612" alt="image" src="https://github.com/user-attachments/assets/de320f44-4ad4-44d0-83f3-896a6e17c2ca" />
+<img width="994" height="612" alt="image" src="https://github.com/user-attachments/assets/153ebdee-d348-49b6-aaff-33fbd389c578" />
+
 
