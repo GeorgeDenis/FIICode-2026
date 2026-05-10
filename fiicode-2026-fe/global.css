@@ -8,16 +8,16 @@
         --color-surface: #FFFFFF;
         --color-surface-active: #F9FAFB;
 
-        --color-bubble-sent: #4F46E5; /* Indigo-ul tău de brand */
-        --color-bubble-sent-text: #FFFFFF; /* Text alb pe fundal închis */
-        --color-bubble-sent-muted: #818CF8; /* Pentru ora mesajului (timestamp) în bula ta */
+        --color-bubble-sent: #4F46E5;
+        --color-bubble-sent-text: #FFFFFF;
+        --color-bubble-sent-muted: #818CF8;
 
-        --color-bubble-received: #E5E7EB; /* Gri deschis */
-        --color-bubble-received-text: #111827; /* Text aproape negru pentru contrast */
-        --color-bubble-received-muted: #6B7280; /* Pentru ora mesajului în bula lor */
+        --color-bubble-received: #E5E7EB;
+        --color-bubble-received-text: #111827;
+        --color-bubble-received-muted: #6B7280;
 
-        --color-avatar-bg: #E0E7FF; /* Fundal pentru userii fără poză (Primary Muted) */
-        --color-avatar-text: #4338CA; /* Inițialele userului (Primary închis) */
+        --color-avatar-bg: #E0E7FF;
+        --color-avatar-text: #4338CA;
 
         --color-input-bg: #F9FAFB;
         --color-border-input: #D1D5DB;
