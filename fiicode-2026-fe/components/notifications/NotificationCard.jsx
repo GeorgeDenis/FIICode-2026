@@ -27,6 +27,7 @@ const NotificationCard = ({ item, fetchNotifications }) => {
   };
 
   const getPathnameByType = (itemType) => {
+    console.log(item.type)
     switch (item.type) {
       case 'Comment':
         return `/pulse-comments/${item.entity_id}`;
@@ -36,6 +37,10 @@ const NotificationCard = ({ item, fetchNotifications }) => {
         return `/pulse-comments/${item.entity_id}`;
       case 'Document':
         return `/documents/documents-dashboard`;
+      case 'Safety-Alert' || 'Trusted-Contact-Request':
+        return '/(dashboard)/safety';
+      case 'Trusted-Contact-Request':
+        return '/(dashboard)/safety';
       default:
         return '/';
     }

@@ -78,3 +78,11 @@ export const getCheckInsForCrisis = async (crisisId) => {
   const response = await api.get(`/crisis/checkin/${crisisId}`);
   return response.data;
 };
+
+export const getCrisisAISummary = async (zoneId, force = false) => {
+  const response = await api.get(`/crisis/${zoneId}/summary`, {
+    params: { force },
+    timeout: 45000,
+  });
+  return response.data;
+};

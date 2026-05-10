@@ -33,6 +33,8 @@ class CrisisZoneResponseSchema(BaseModel):
     status: CrisisStatus
     activated_by: Optional[UUID] = None
     crisis_label: Optional[str] = None
+    ai_summary: Optional[str] = None
+    ai_summary_updated_at: Optional[datetime.datetime] = None
     created_at: datetime.datetime
     resolved_at: Optional[datetime.datetime] = None
 

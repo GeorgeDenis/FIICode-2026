@@ -1,17 +1,65 @@
-import React, { useState } from 'react';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCrisis } from '../../hooks/useCrisis';
 import { useLocation } from '../../hooks/useLocation';
 import SafetyCheckIn from './SafetyCheckIn';
 import ReportIncidentModal from './ReportIncidentModal';
+import { getCrisisAISummary } from '../../services/crisisService';
 
 const CrisisHomeScreen = () => {
   const router = useRouter();
   const { activeCrisis } = useCrisis();
   const { location } = useLocation();
   const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [aiSummary, setAiSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryUpdatedAt, setSummaryUpdatedAt] = useState(null);
+
+  const crisisId = activeCrisis?.id;
+
+  const handleRefresh = async () => {
+    if (!crisisId || summaryLoading) return;
+    setSummaryLoading(true);
+    try {
+      const data = await getCrisisAISummary(crisisId, true); // force bypass cache
+      setAiSummary(data.summary);
+      setSummaryUpdatedAt(new Date(data.updated_at));
+    } catch (e) {
+      console.log('AI summary fetch failed', e);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  // Auto-fetch only when the crisis ID changes — NOT when summaryLoading changes
+  useEffect(() => {
+    if (!crisisId) return;
+    let cancelled = false;
+
+    const doFetch = async () => {
+      setSummaryLoading(true);
+      try {
+        const data = await getCrisisAISummary(crisisId);
+        if (!cancelled) {
+          setAiSummary(data.summary);
+          setSummaryUpdatedAt(new Date(data.updated_at));
+        }
+      } catch (e) {
+        if (!cancelled) console.log('AI summary auto-fetch failed', e);
+      } finally {
+        if (!cancelled) setSummaryLoading(false);
+      }
+    };
+
+    doFetch();
+    const interval = setInterval(doFetch, 3 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [crisisId]); // ← ONLY the ID, nothing that changes on every render
 
   const typeName = activeCrisis?.incident_type?.name || 'Emergency';
   const label = activeCrisis?.crisis_label || typeName;
@@ -50,6 +98,42 @@ const CrisisHomeScreen = () => {
             </View>
           )}
         </View>
+      </View>
+
+      <View className="mx-4 mt-4 rounded-2xl bg-[#0D1117] border border-indigo-900 p-4">
+        <View className="flex-row items-center justify-between mb-3">
+          <View className="flex-row items-center gap-2">
+            <View className="bg-indigo-700 rounded-full p-1.5">
+              <Ionicons name="sparkles" size={14} color="#FFF" />
+            </View>
+            <Text className="text-indigo-300 font-bold text-sm tracking-widest">AI SITUATION REPORT</Text>
+          </View>
+          <Pressable
+            onPress={handleRefresh}
+            disabled={summaryLoading}
+            className="flex-row items-center gap-1 active:opacity-50">
+            {summaryLoading
+              ? <ActivityIndicator size="small" color="#818CF8" />
+              : <Ionicons name="refresh" size={16} color="#818CF8" />}
+          </Pressable>
+        </View>
+
+        {summaryLoading && !aiSummary ? (
+          <View className="items-center py-4">
+            <ActivityIndicator color="#818CF8" />
+            <Text className="text-indigo-400 text-xs mt-2">Analysing {activeCrisis?.report_count || 0} reports…</Text>
+          </View>
+        ) : aiSummary ? (
+          <Text className="text-gray-300 text-sm leading-5">{aiSummary}</Text>
+        ) : (
+          <Text className="text-gray-500 text-sm italic">No reports yet. Summary will appear once incidents are filed.</Text>
+        )}
+
+        {summaryUpdatedAt && (
+          <Text className="text-gray-600 text-xs mt-3">
+            Updated {summaryUpdatedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
+        )}
       </View>
 
       <SafetyCheckIn />

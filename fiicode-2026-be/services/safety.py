@@ -38,7 +38,7 @@ class SafetyService:
         notif = NotificationCreateSchema(
             recipient_id=contact_user.id,
             actor_id=user_id,
-            type="TRUSTED_CONTACT_REQUEST",
+            type="Trusted-Contact-Request",
             content="Someone wants to add you as a trusted contact.",
             entity_id=new_contact.id
         )
@@ -115,7 +115,7 @@ class SafetyService:
                         notif = NotificationCreateSchema(
                             recipient_id=recipient_id,
                             actor_id=timer.user_id,
-                            type="SAFETY_ALERT",
+                            type="Safety-Alert",
                             content=f"URGENT: Safety timer expired! {map_link}",
                             entity_id=timer.id
                         )

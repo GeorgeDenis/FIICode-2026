@@ -1,7 +1,7 @@
 import enum
 import uuid
 
-from sqlalchemy import Column, String, DateTime, Float, Enum, ForeignKey, func, Integer
+from sqlalchemy import Column, String, DateTime, Float, Enum, ForeignKey, func, Integer, Text
 from sqlalchemy.dialects.postgresql.base import UUID
 from sqlalchemy.orm import relationship
 
@@ -36,6 +36,8 @@ class CrisisZone(Base):
 
     activated_by = Column(UUID, ForeignKey("users.id"), nullable=True)
     crisis_label = Column(String, nullable=True)
+    ai_summary = Column(Text, nullable=True)
+    ai_summary_updated_at = Column(DateTime(timezone=True), nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     resolved_at = Column(DateTime(timezone=True), nullable=True)

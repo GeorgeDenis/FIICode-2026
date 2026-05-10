@@ -11,10 +11,12 @@ from schemas.crisis import (
     SafetyCheckInCreateSchema, SafetyCheckInResponseSchema, SafetyCheckInUpdateSchema,
 )
 from services.crisis import CrisisService
+from services.ai_summary import AISummaryService
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
 crisis_service = CrisisService()
+ai_summary_service = AISummaryService()
 
 crisis_router = APIRouter(prefix="/api/v1/crisis", tags=["crisis"])
 
@@ -100,3 +102,8 @@ def get_my_checkin(
 def get_checkins_for_crisis(crisis_id: str, db: db_dependency,
                             user_data=Depends(get_current_user)):
     return crisis_service.get_checkins_for_crisis(crisis_id, db)
+
+
+@crisis_router.get("/{zone_id}/summary")
+def get_crisis_ai_summary(zone_id: str, db: db_dependency, user_data=Depends(get_current_user)):
+    return ai_summary_service.get_or_generate_summary(zone_id, db)
